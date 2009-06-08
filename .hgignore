@@ -21,3 +21,4 @@ downloads/*
 bin/*
 develop-eggs/*.egg-link
 src/authority/_models/*
+src/example/example.db
