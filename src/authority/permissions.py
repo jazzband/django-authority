@@ -50,7 +50,9 @@ class PermissionMetaclass(type):
                 perm = '%s.%s_%s' % (obj._meta.app_label, # polls.add_poll
                                      check_name.lower(),
                                      obj._meta.object_name.lower())
-                perms = self.has_perm(perm)
+                perms = None
+                if self.user:
+                    perms = self.user.has_perm(perm)
                 if obj is not None and not isinstance(obj, ModelBase):
                     # only check the authority if not model instance
                     return (perms or
