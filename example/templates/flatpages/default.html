@@ -1,0 +1,10 @@
+{% load permissions_tags %}
+{{ flatpage.content }}
+
+{% permission_form flatpage "add_flatpage" %}
+
+{% get_permissions_for flatpage %}
+
+{% for perm in permissions %}
+    <p>{{ perm.user }}: {{ perm }} {% permission_delete_link perm %}</p>
+{% endfor %}
