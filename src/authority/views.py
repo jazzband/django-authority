@@ -51,7 +51,7 @@ def add_permission(request, app_label, module_name, pk, extra_context={},
 def delete_permission(request, permission_pk):
     permission = get_object_or_404(Permission, pk=permission_pk)
     if request.user.has_perm('delete_foreign_permissions') \
-       or request.user == g.creator:
+       or request.user == permission.creator:
         permission.delete()
         request.user.message_set.create(
             message=ugettext('You removed the permission.'))
