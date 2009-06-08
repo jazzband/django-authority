@@ -1,0 +1,22 @@
+syntax: glob
+*.pyc
+*.pyo
+*~
+*.swp
+*.orig
+*.kpf
+*.egg-info
+.project
+.pydevproject
+.DS_Store
+MANIFEST
+dist
+build
+dev.db
+local_settings.py
+parts/*
+eggs/*
+downloads/*
+.installed.cfg
+bin/*
+develop-eggs/*.egg-link
