@@ -20,3 +20,4 @@ downloads/*
 .installed.cfg
 bin/*
 develop-eggs/*.egg-link
+src/authority/_models/*
