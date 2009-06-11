@@ -1,2 +1,2 @@
 include LICENSE
-recursive-include authority/templates/authority *
+recursive-include src/authority/templates/authority *
