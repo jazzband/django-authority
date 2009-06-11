@@ -40,8 +40,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
+
+INTERNAL_IPS = ('127.0.0.1',)
+
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.auth',
@@ -64,6 +68,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'authority',
     'example.exampleapp',
+    'debug_toolbar',
+    'django_extensions',
 )
 
 TEMPLATE_LOADERS = (
