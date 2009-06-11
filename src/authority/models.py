@@ -5,38 +5,6 @@ from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 from authority.managers import PermissionManager
 
-class AlreadyHasPermission(Exception):
-    """Defining exception for an already existing permission"""
-
-    def __init__(self, user_or_group, name, obj=None):
-        self.user_or_group = user_or_group
-        self.perm_name = name
-        self.obj = obj
-
-    def __str__(self):
-        if self.obj:
-            return "%s has already permission:\"%s\" on %s" % (self.user_or_group,
-                                                               self.perm_name,
-                                                               self.obj)
-        return "%s has already permission:\"%s\"" % (self.user_or_group,
-                                                     self.perm_name)
-
-class DoesNotHavePermission(Exception):
-    """Defining exception for an already existing permission"""
-
-    def __init__(self, user_or_group, name, obj=None):
-        self.user_or_group = user_or_group
-        self.perm_name = name
-        self.obj = obj
-
-    def __str__(self):
-        if self.obj:
-            return "%s has not permission:\"%s\" on %s" % (self.user_or_group,
-                                                           self.perm_name,
-                                                           self.obj)
-        return "%s has not permission:\"%s\" " % (self.user_or_group,
-                                                  self.perm_name)
-
 class Permission(models.Model):
     """
     A granular permission model, per-object permission in other words.
@@ -64,6 +32,3 @@ class Permission(models.Model):
             ('change_foreign_permissions', 'Can change foreign permissions'),
             ('delete_foreign_permissions', 'Can delete foreign permissions'),
         )
-
-from authority import autodiscover
-autodiscover()
