@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
+from authority.managers import PermissionManager
 
 class AlreadyHasPermission(Exception):
     """Defining exception for an already existing permission"""
@@ -36,14 +37,6 @@ class DoesNotHavePermission(Exception):
         return "%s has not permission:\"%s\" " % (self.user_or_group,
                                                   self.perm_name)
 
-class PermissionManager(models.Manager):
-
-    def permissions_for_object(self, obj):
-        object_type = ContentType.objects.get_for_model(obj)
-        return self.filter(content_type__pk=object_type.id,
-                           object_id=obj.id)
-
-
 class Permission(models.Model):
     """
     A granular permission model, per-object permission in other words.
@@ -62,7 +55,7 @@ class Permission(models.Model):
     objects = PermissionManager()
 
     def __unicode__(self):
-        return "%s.%s" % (self.content_type.app_label, self.codename)
+        return self.codename
 
     class Meta:
         verbose_name = _('permission')

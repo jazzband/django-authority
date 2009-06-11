@@ -11,16 +11,15 @@ from authority.models import Permission
 from authority.forms import UserPermissionForm
 
 def add_url_for_obj(obj):
-    return reverse('authority-add-permission',
-                    kwargs={'app_label': obj._meta.app_label,
-                            'module_name': obj._meta.module_name,
-                            'pk': obj.pk})
+    return reverse('authority-add-permission', kwargs={
+            'app_label': obj._meta.app_label,
+            'module_name': obj._meta.module_name,
+            'pk': obj.pk})
 
 @require_POST
 @login_required
 def add_permission(request, app_label, module_name, pk, extra_context={},
                    template_name='authority/permission_form.html'):
-
     next = request.POST.get('next', '/')
     codename = request.POST.get('codename', None)
     if codename is None:

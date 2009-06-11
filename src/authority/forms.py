@@ -5,9 +5,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 
 from authority.models import Permission
-from authority.permissions import BasePermission
+from authority import permissions
 
 class BasePermissionForm(ModelForm):
+    codename = forms.CharField(label=_('Permission'))
 
     class Meta:
         model = Permission
@@ -15,6 +16,11 @@ class BasePermissionForm(ModelForm):
     def __init__(self, perm=None, obj=None, *args, **kwargs):
         self.perm = perm
         self.obj = obj
+        if obj and perm:
+            self.base_fields['codename'].widget = forms.HiddenInput()
+        elif obj and not perm:
+            perm_choices = permissions.registry.get_choices_for(self.obj)
+            self.base_fields['codename'].widget = forms.Select(choices=perm_choices)
         super(BasePermissionForm, self).__init__(*args, **kwargs)
 
     def save(self, request, commit=True, *args, **kwargs):
@@ -25,7 +31,6 @@ class BasePermissionForm(ModelForm):
         return super(BasePermissionForm, self).save(commit)
 
 class UserPermissionForm(BasePermissionForm):
-    codename = forms.CharField(widget=forms.HiddenInput())
     user = forms.CharField(label=_('User'))
 
     class Meta(BasePermissionForm.Meta):
@@ -38,57 +43,35 @@ class UserPermissionForm(BasePermissionForm):
         except User.DoesNotExist:
             raise forms.ValidationError(
                 _("A user with that username does not exist."))
-        check = BasePermission(user)
+        check = permissions.BasePermission(user=user)
         if check.has_perm(self.perm, self.obj):
             raise forms.ValidationError(
-                _("This user already has permission '%(perm)s' on %(obj)s") % {
+                _("This user already has the permission '%(perm)s' for %(object_name)s '%(obj)s'") % {
                     'perm': self.perm,
-                    'obj': self.obj
+                    'object_name': self.obj._meta.object_name.lower(),
+                    'obj': self.obj,
                 })
         return user
 
 class GroupPermissionForm(BasePermissionForm):
-    name = forms.CharField(label=_('Group'))
+    group = forms.CharField(label=_('Group'))
 
     class Meta(BasePermissionForm.Meta):
         fields = ('group',)
 
     def clean_group(self):
-        name = self.cleaned_data["name"]
+        groupname = self.cleaned_data["group"]
         try:
-            group = Group.objects.get(name__iexact=name)
+            group = Group.objects.get(name__iexact=groupname)
         except Group.DoesNotExist:
             raise forms.ValidationError(
                 _("A group with that name does not exist."))
-        self.instance.group = group
-        return name
-
-    def save(self, request, commit=True):
-        group=self.cleaned_data.get("group", None)
-        check = BasePermission(group=group)
+        check = permissions.BasePermission(group=group)
         if check.has_perm(self.perm, self.obj):
             raise forms.ValidationError(
-                _("This group already has permission '%(perm)s' on %(obj)s") % {
+                _("This group already has the permission '%(perm)s' for %(object_name)s '%(obj)s'") % {
                     'perm': self.perm,
+                    'object_name': self.obj._meta.object_name.lower(),
                     'obj': self.obj,
                 })
-        self.instance.group = group
-        return super(GroupPermissionForm, self).save(request, self.obj, commit)
-
-    # def del_row_perm(self, instance, perm, check_groups=False,
-    #                  fail_silently=False):
-    #     """
-    #     Remove granular permission perm from user on an object instance
-    #     """
-    #     if not self.has_row_perm(instance, perm, not check_groups):
-    #         if not fail_silently:
-    #             raise DoesNotHavePermission(self, perm, instance)
-    #         else:
-    #             return
-    #     content_type = ContentType.objects.get_for_model(instance)
-    #     objects = Permission.objects.filter(user=self,
-    #                                         content_type__pk=content_type.id,
-    #                                         object_id=instance.id, name=perm)
-    #     objects.delete()
-    # 
-    # 
+        return group
