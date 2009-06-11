@@ -1,11 +1,57 @@
-{% load permissions_tags %}
-<h1>{{ flatpage.title }}</h1>
-<p>{{ flatpage.content }}</p>
+{% load permissions %}<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>{{ flatpage.title }}</title>
+</head>
+<body>
+<h1>Title: {{ flatpage.title }}</h1>
+<p>Content: {{ flatpage.content }}</p>
 
+<h2>Examples</h2>
+<ol>
+<li>The permissions granted for this flatpage:
+
+  {% get_permissions flatpage for request.user %}
+  <ul><h4>get_permissions flatpage for request.user</h4>
+  {% for perm in permissions %}
+      <li>{{ perm.user }}: {{ perm }} {% permission_delete_link perm %}</li>
+  {% endfor %}
+  </ul>
+
+  {% get_permissions flatpage for request.user as "request_user_permissions" %}
+  <ul><h4>get_permissions flatpage for request.user as "request_user_permissions"</h4>
+  {% for perm in request_user_permissions %}
+      <li>{{ perm.user }}: {{ perm }} {% permission_delete_link perm %}</li>
+  {% endfor %}
+  </ul>
+
+  {% get_permissions flatpage as "all_permissions" %}
+  <ul><h4>get_permissions flatpage as "all_permissions"</h4>
+  {% for perm in all_permissions %}
+      <li>{{ perm.user }}: {{ perm }} {% permission_delete_link perm %}</li>
+  {% endfor %}
+  </ul>
+
+</li>
+
+<li>Permission form for adding a specific permission "add_flatpage"
 {% permission_form flatpage "add_flatpage" %}
+</li>
 
-{% get_permissions_for flatpage %}
+<li>Permission form with a list of options queried from the authority
+{% permission_form flatpage %}
 
-{% for perm in permissions %}
-    <p>{{ perm.user }}: {{ perm }} {% permission_delete_link perm %}</p>
-{% endfor %}
+<h2>Can I change this flatpage?</h2>
+<p>Test for the default permission "can_change" of the custom permission set "flatpage_permission":</p> 
+<blockquote>
+{% ifhasperm "flatpage_permission.can_change" request.user %}
+Yes, you are allowed.
+{% else %}
+Nope, sorry.
+{% endifhasperm %}
+</blockquote>
+</li>
+</ol>
+
+</body>
