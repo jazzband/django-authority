@@ -1,5 +1,4 @@
 from inspect import getmembers, ismethod
-from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
 from django.db.models.base import ModelBase

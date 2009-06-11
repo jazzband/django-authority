@@ -1,6 +1,5 @@
 from django import template
 from django.db.models import get_app
-from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.template import Library, Node, Variable
