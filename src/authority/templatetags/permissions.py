@@ -1,13 +1,11 @@
 from django import template
-from django.db.models import get_app
-from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.template import Library, Node, Variable
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User, AnonymousUser
 
 from authority import permissions
-from authority.views import add_url_for_obj
 from authority.models import Permission
+from authority.views import add_url_for_obj
 from authority.forms import UserPermissionForm
 
 register = template.Library()
@@ -131,9 +129,8 @@ def permission_form(context, obj, perm=None):
             }
     return {'form': None}
 
-class PermissionForObjectNode(Node):
+class PermissionForObjectNode(template.Node):
     def __init__(self, obj, user, var_name):
-        print obj, user, var_name
         self.obj = obj
         self.user = user
         self.var_name = var_name
@@ -145,7 +142,7 @@ class PermissionForObjectNode(Node):
         if var[0] in ('"', "'") and var[-1] == var[0]:
             return var[1:-1]
         else:
-            return Variable(var).resolve(context)
+            return template.Variable(var).resolve(context)
 
     def render(self, context):
         obj = self.resolve(self.obj, context)

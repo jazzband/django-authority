@@ -1,7 +1,4 @@
-from inspect import isfunction, getmembers
-from django.utils.importlib import import_module
-from django.core.exceptions import ImproperlyConfigured
-
+import sys
 LOADING = False
 
 def autodiscover():
@@ -18,14 +15,15 @@ def autodiscover():
     from django.conf import settings
 
     for app in settings.INSTALLED_APPS:
-        print "checking %s" % app
         try:
-            app_path = import_module(app).__path__
+            __import__(app)
+            app_path = sys.modules[app].__path__
         except AttributeError:
             continue
         try:
             imp.find_module('permissions', app_path)
         except ImportError:
             continue
-        import_module("%s.permissions" % app)
+        __import__("%s.permissions" % app)
+        app_path = sys.modules["%s.permissions" % app]
     LOADING = False

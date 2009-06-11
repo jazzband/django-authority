@@ -2,8 +2,10 @@
 from django.conf.urls.defaults import patterns, include, handler500
 from django.conf import settings
 from django.contrib import admin
+import authority
 
 admin.autodiscover()
+authority.autodiscover()
 
 handler500 # Pyflakes
 
