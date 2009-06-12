@@ -8,11 +8,11 @@ class PermissionInline(generic.GenericTabularInline):
     #exclude = ('creator',)
 
 class PermissionAdmin(ModelAdmin):
-    model = Permission
     list_display = ('codename', 'content_type', 'user', 'group')
     list_filter = ('codename', 'content_type')
     search_fields = ['object_id', 'content_type', 'user', 'group']
     raw_id_fields = ['user', 'group']
+
     fieldsets = (
         (None, {
             'fields': ('codename', ('content_type', 'object_id'))
