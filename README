@@ -1,0 +1,29 @@
+================
+django-authority
+================
+
+This is a Django app for per-object-permissions that includes a bunch of
+helpers to create custom permission checks.
+
+To get the example project running do:
+
+- Bootstrap the buildout by running::
+
+    python bootstrap.py
+
+- Get the required packages by running::
+
+    bin/buildout
+
+- Sync the database::
+
+    bin/django syncdb
+
+- Run the development server and visit the admin at http://127.0.0.1:8000/admin/::
+
+    bin/django runserver
+
+Now create a flatage and open it to see some of the templatetags in action.
+Full docs coming soon.
+
+Please use http://bitbucket.org/jezdez/django-authority/issues/ for issues and bug reports.
