@@ -1,5 +1,5 @@
 
-from django.conf.urls.defaults import patterns, include, handler500
+from django.conf.urls.defaults import patterns, include, handler500, url
 from django.conf import settings
 from django.contrib import admin
 import authority
@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^perms/', include('authority.urls')),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    url(r'^(?P<url>[\/0-9A-Za-z]+)$', 'example.exampleapp.views.top_secret'),
 )
 
 if settings.DEBUG:

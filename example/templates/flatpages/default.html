@@ -41,16 +41,27 @@
 
 <li>Permission form with a list of options queried from the authority
 {% permission_form flatpage %}
+</li>
 
-<h2>Can I change this flatpage?</h2>
-<p>Test for the default permission "can_change" of the custom permission set "flatpage_permission":</p> 
-<blockquote>
-{% ifhasperm "flatpage_permission.can_change" request.user %}
-Yes, you are allowed.
-{% else %}
-Nope, sorry.
-{% endifhasperm %}
-</blockquote>
+<li><h2>Detailed tests</h2>
+  <h3>Can I change this flatpage?</h3>
+  <p>"can_change" of the custom permission set "flatpage_permission":</p> 
+  <blockquote>
+  {% ifhasperm "flatpage_permission.can_change" request.user %}
+  Yes, you are allowed.
+  {% else %}
+  Nope, sorry.
+  {% endifhasperm %}
+  </blockquote>
+  <h3>Can I access top secret flat pages?</h3>
+  <p>"top_secret" of the custom permission set "flatpage_permission":</p> 
+  <blockquote>
+  {% ifhasperm "flatpage_permission.top_secret" request.user flatpage %}
+  Yes, you are of course allowed to view flatpage '{{ flatpage }}', aren't you?
+  {% else %}
+  Nope, sorry. Wait, how can you read this then?
+  {% endifhasperm %}
+  </blockquote>
 </li>
 </ol>
 
