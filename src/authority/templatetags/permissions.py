@@ -18,7 +18,7 @@ class ComparisonNode(template.Node):
         self.user = user
         self.objs = objs
         # poll_permission.can_change
-        self.perm_label, self.check_name = permission.strip('"').split('.')
+        self.perm = permission.strip('"')
         self.nodelist_true, self.nodelist_false = nodelist_true, nodelist_false
 
     def render(self, context):
@@ -32,18 +32,11 @@ class ComparisonNode(template.Node):
                             template.Variable(obj).resolve(context))
             else:
                 objs = None
-            # get permission set first
-            perm_cls = permissions.registry.get_permission_by_label(self.perm_label)
-            if perm_cls is not None:
-                # create a permission instance
-                perm_instance = perm_cls(user)
-                # and try to find the correct check method
-                check = getattr(perm_instance, self.check_name, None)
-                if check is not None:
-                    # check
-                    if check(*objs):
-                        # profit
-                        return self.nodelist_true.render(context)
+            check = permissions.registry.get_check(user, self.perm)
+            if check is not None:
+                if check(*objs):
+                    # return True if check was successful
+                    return self.nodelist_true.render(context)
         # If the app couldn't be found
         except (ImproperlyConfigured, ImportError):
             return ''
@@ -74,8 +67,8 @@ def do_if_has_perm(parser, token):
     """
     bits = token.contents.split()
     if 5 < len(bits) < 3:
-        raise template.TemplateSyntaxError("'%s' tag takes three,\
-                                            four or five arguments" % bits[0])
+        raise template.TemplateSyntaxError("'%s' tag takes three, "
+                                            "four or five arguments" % bits[0])
     end_tag = 'endifhasperm'
     nodelist_true = parser.parse(('else', end_tag))
     token = parser.next_token()
