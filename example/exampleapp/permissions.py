@@ -22,6 +22,13 @@ class FlatPagePermission(permissions.BasePermission):
                 print "yay, you can review this flatpage!"
             return flatpage(request, url)
 
+    Or the same view using the decorator permission_required:
+
+        @permission_required('flatpage_permission.review_flatpage', ('flatpages.flatpage', 'url__contains'))
+        def review_flatpage(request, url):
+            print "yay, you can review this flatpage!"
+            return flatpage(request, url)
+
     Or you can use this permission in your templates like this:
 
         {% ifhasperm "flatpage_permission.review_flatpage" request.user flatpage %}
@@ -38,4 +45,4 @@ class FlatPagePermission(permissions.BasePermission):
         if flatpage and flatpage.registration_required:
             return self.browse_flatpage(obj=flatpage)
         return False
-    #top_secret.verbose_name=_('Is allowed to see top secret flatpages')
+    top_secret.verbose_name=_('Is allowed to see top secret flatpages')
