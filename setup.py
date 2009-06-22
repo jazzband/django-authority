@@ -25,4 +25,7 @@ setup(
         ]
     },
     zip_safe=False,
+    install_requires=(
+        'decorator>=3.0.1'
+    ),
 )
