@@ -173,5 +173,5 @@ class BasePermission(object):
             perms = self.user.has_perm(perm)
         if obj is not None and not isinstance(obj, ModelBase):
             # only check the authority if not model instance
-            return self.has_perm(perm, obj)
+            return perms or self.has_perm(perm, obj)
         return perms
