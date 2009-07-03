@@ -23,7 +23,7 @@ class PermissionManager(models.Manager):
             Q(user=user) | Q(group__in=user.groups.all()))
 
     def user_permissions(self, user, perm, obj, check_groups=True):
-        return self.for_user(user, obj, check_groups).all().filter(codename=perm)
+        return self.for_user(user, obj, check_groups).filter(codename=perm)
 
     def group_permissions(self, group, perm, obj):
         """
