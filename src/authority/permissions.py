@@ -36,7 +36,10 @@ class PermissionRegistry(dict):
 
     def get_choices_for(self, obj, default=BLANK_CHOICE_DASH):
         choices = [] + default
-        for perm in self.get_permissions_by_model(obj.__class__):
+        model_cls = obj
+        if not isinstance(obj, ModelBase):
+            model_cls = obj.__class__
+        for perm in self.get_permissions_by_model(model_cls):
             for name, check in getmembers(perm, ismethod):
                 if name in perm.checks:
                     signature = '%s.%s' % (perm.label, name)

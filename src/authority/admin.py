@@ -1,13 +1,23 @@
-from django.contrib.admin import site, ModelAdmin
+from django import forms
+from django.contrib import admin
 from django.contrib.contenttypes import generic
+
 from authority.models import Permission
+from authority import permissions
 
 class PermissionInline(generic.GenericTabularInline):
     model = Permission
     extra = 1
-    #exclude = ('creator',)
+    raw_id_fields = ('user', 'group', 'creator')
 
-class PermissionAdmin(ModelAdmin):
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'codename':
+            perm_choices = permissions.registry.get_choices_for(self.parent_model)
+            kwargs['widget'] = forms.Select(choices=perm_choices)
+            return db_field.formfield(**kwargs)
+        return super(PermissionInline, self).formfield_for_dbfield(db_field,**kwargs)
+
+class PermissionAdmin(admin.ModelAdmin):
     list_display = ('codename', 'content_type', 'user', 'group')
     list_filter = ('codename', 'content_type')
     search_fields = ['object_id', 'content_type', 'user', 'group']
@@ -29,4 +39,4 @@ class PermissionAdmin(ModelAdmin):
             return super(PermissionAdmin, self).queryset(request)
         return super(PermissionAdmin, self).queryset(request).filter(creator=user)
 
-site.register(Permission, PermissionAdmin)
+admin.site.register(Permission, PermissionAdmin)

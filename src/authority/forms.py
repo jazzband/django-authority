@@ -1,5 +1,4 @@
 from django import forms
-from django.forms.models import ModelForm
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
@@ -7,7 +6,7 @@ from django.contrib.auth.models import User, Group
 from authority.models import Permission
 from authority import permissions
 
-class BasePermissionForm(ModelForm):
+class BasePermissionForm(forms.ModelForm):
     codename = forms.CharField(label=_('Permission'))
 
     class Meta:
