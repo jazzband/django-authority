@@ -43,7 +43,7 @@ class PermissionRegistry(dict):
             for name, check in getmembers(perm, ismethod):
                 if name in perm.checks:
                     signature = '%s.%s' % (perm.label, name)
-                    label = getattr(check, 'verbose_name', signature)
+                    label = getattr(check, 'short_description', signature)
                     choices.append((signature, label))
         return choices
 
@@ -82,7 +82,7 @@ class PermissionMetaclass(type):
             if check_func is not None:
                 func = new_class.create_check(check_name, check_func)
                 func.__name__ = check_name
-                func.verbose_name = getattr(check_func, 'verbose_name',
+                func.short_description = getattr(check_func, 'short_description',
                     _("%(object_name)s permission '%(check)s'") % {
                         'object_name': new_class.model._meta.object_name,
                         'check': check_name.lower()})
@@ -93,7 +93,7 @@ class PermissionMetaclass(type):
             func = new_class.create_check(check_name, generic=True)
             object_name = new_class.model._meta.object_name
             func_name = "%s_%s" % (check_name.lower(), object_name.lower())
-            func.verbose_name = _("Can %(check)s this %(object_name)s") % {
+            func.short_description = _("Can %(check)s this %(object_name)s") % {
                 'object_name': new_class.model._meta.object_name.lower(),
                 'check': check_name.lower()}
             func.check_name = check_name

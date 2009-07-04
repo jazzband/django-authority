@@ -45,4 +45,4 @@ class FlatPagePermission(permissions.BasePermission):
         if flatpage and flatpage.registration_required:
             return self.browse_flatpage(obj=flatpage)
         return False
-    top_secret.verbose_name=_('Is allowed to see top secret flatpages')
+    top_secret.short_description=_('Is allowed to see top secret flatpages')
