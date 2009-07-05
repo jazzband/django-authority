@@ -24,8 +24,10 @@ def permission_required(perm, *args, **kwargs):
     def _permission_required(view_func, request, *args, **kwargs):
         objs = []
         if request.user.is_authenticated():
-            for i, arguments in enumerate(model_lookups):
-                model, lookup = arguments
+            for model_lookup, query in zip(model_lookups, args):
+                if query is None:
+                    continue
+                model, lookup = model_lookup
                 if isinstance(model, basestring):
                     model_class = get_model(*model.split("."))
                 else:
@@ -37,7 +39,7 @@ def permission_required(perm, *args, **kwargs):
                         not issubclass(model_class, Model):
                     raise ValueError(
                         'The argument %s needs to be a model.' % model)
-                objs.append(get_object_or_404(model_class, **{lookup: args[i]}))
+                objs.append(get_object_or_404(model_class, **{lookup: query}))
             check = permissions.registry.get_check(request.user, perm)
             if check is not None:
                 if check(*objs):
