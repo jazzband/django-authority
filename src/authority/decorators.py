@@ -20,7 +20,6 @@ def permission_required(perm, lookup_params=None, login_url=None,
     """
     if lookup_params is None:
         lookup_params = {}
-    print lookup_params
     if login_url is None:
         login_url = settings.LOGIN_URL
     def decorate(view_func):
