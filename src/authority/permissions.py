@@ -29,6 +29,8 @@ class PermissionRegistry(dict):
     def get_check(self, user, label):
         perm_label, check_name = label.split('.')
         perm_cls = self.get_permission_by_label(perm_label)
+        if perm_cls is None:
+            return None
         perm_instance = perm_cls(user)
         return getattr(perm_instance, check_name, None)
 
@@ -80,7 +82,8 @@ class PermissionMetaclass(type):
         registry[new_class] = new_class.label
         if new_class.checks is None:
             new_class.checks = []
-        new_class.checks = list(new_class.checks)
+        # force check names to be lower case
+        new_class.checks = [check.lower() for check in new_class.checks]
         generic_checks = ['add', 'browse', 'change', 'delete']
         for check_name in new_class.checks:
             check_func = getattr(new_class, check_name, None)
@@ -90,17 +93,17 @@ class PermissionMetaclass(type):
                 func.short_description = getattr(check_func, 'short_description',
                     _("%(object_name)s permission '%(check)s'") % {
                         'object_name': new_class.model._meta.object_name,
-                        'check': check_name.lower()})
+                        'check': check_name})
                 setattr(new_class, check_name, func)
             else:
                 generic_checks.append(check_name)
         for check_name in generic_checks:
             func = new_class.create_check(check_name, generic=True)
             object_name = new_class.model._meta.object_name
-            func_name = "%s_%s" % (check_name.lower(), object_name.lower())
+            func_name = "%s_%s" % (check_name, object_name.lower())
             func.short_description = _("Can %(check)s this %(object_name)s") % {
                 'object_name': new_class.model._meta.object_name.lower(),
-                'check': check_name.lower()}
+                'check': check_name}
             func.check_name = check_name
             if func_name not in new_class.checks:
                 new_class.checks.append(func_name)
@@ -108,10 +111,10 @@ class PermissionMetaclass(type):
         return new_class
 
     def _create_check(cls, check_name, check_func=None, generic=False):
-        def check(self, obj=None, *args, **kwargs):
-            granted = self.can(check_name.lower(), obj, generic=generic)
+        def check(self, *args, **kwargs):
+            granted = self.can(check_name, generic, *args, **kwargs)
             if check_func and not granted:
-                return check_func(self, obj, *args, **kwargs)
+                return check_func(self, *args, **kwargs)
             return granted
         return check
     create_check = classmethod(_create_check)
@@ -122,7 +125,7 @@ class BasePermission(object):
 
     check = MyPermission(request.user)
     if check.can("change", obj):
-        
+
     """
     __metaclass__ = PermissionMetaclass
 
@@ -143,7 +146,7 @@ class BasePermission(object):
                 return False
             # check if a Permission object exists for the given params
             return Permission.objects.user_permissions(self.user, perm, obj,
-                check_groups).filter(object_id=obj.id).count()
+                check_groups).filter(object_id=obj.id)
         return False
 
     def has_group_perms(self, perm, obj):
@@ -152,8 +155,7 @@ class BasePermission(object):
         """
         if self.group:
             perms = Permission.objects.group_permissions(self.group, perm, obj)
-            if perms.filter(object_id=obj.id):
-                return True
+            return perms.filter(object_id=obj.id)
         return False
 
     def has_perm(self, perm, obj, check_groups=True):
@@ -167,17 +169,21 @@ class BasePermission(object):
             return self.has_group_perms(perm, obj)
         return False
 
-    def can(self, check, obj=None, generic=False):
-        if obj is None:
-            obj = self.model
-        # first check Django's permission system
-        perm = '%s.%s' % (self.label, check.lower())
-        if generic:
-            perm = '%s_%s' % (perm, obj._meta.object_name.lower())
-        perms = None
-        if self.user:
-            perms = self.user.has_perm(perm)
-        if obj is not None and not isinstance(obj, ModelBase):
-            # only check the authority if not model instance
-            return perms or self.has_perm(perm, obj)
+    def can(self, check, generic=False, *args, **kwargs):
+        if not args:
+            args = [self.model]
+        perms = False
+        for obj in args:
+            # first check Django's permission system
+            if self.user:
+                perm = '%s.%s' % (obj._meta.app_label, check.lower())
+                if generic:
+                    perm = '%s_%s' % (perm, obj._meta.object_name.lower())
+                perms = perms or self.user.has_perm(perm)
+            perm = '%s.%s' % (self.label, check.lower())
+            if generic:
+                perm = '%s_%s' % (perm, obj._meta.object_name.lower())
+            if not isinstance(obj, ModelBase) and isinstance(obj, self.model):
+                # only check the authority if obj is not a model class
+                perms = perms or self.has_perm(perm, obj)
         return perms

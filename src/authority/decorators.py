@@ -44,9 +44,8 @@ def permission_required(perm, lookup_params=None, login_url=None,
                             'The argument %s needs to be a model.' % model)
                     objs.append(get_object_or_404(model_class, **{lookup: value}))
                 check = permissions.registry.get_check(request.user, perm)
-                if check is not None:
-                    if check(*objs):
-                        return view_func(request, *args, **kwargs)
+                if (check and check(*objs)) or request.user.has_perm(perm):
+                    return view_func(request, *args, **kwargs)
             if redirect_to_login:
                 path = urlquote(request.get_full_path())
                 tup = login_url, redirect_field_name, path
