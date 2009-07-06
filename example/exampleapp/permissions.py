@@ -13,7 +13,7 @@ class FlatPagePermission(permissions.BasePermission):
         a) 'review_flatpage', which is similar to the default checks
         b) 'top_secret', which is represented by the top_secret method
 
-    You can use those checks in your views directly like:
+    You can use those checks in your views directly like::
 
         def review_flatpage(request, url):
             flatpage = get_object_or_404(url__contains=url)
@@ -22,20 +22,22 @@ class FlatPagePermission(permissions.BasePermission):
                 print "yay, you can review this flatpage!"
             return flatpage(request, url)
 
-    Or the same view using the decorator permission_required:
+    Or the same view using the decorator permission_required::
 
-        @permission_required('flatpage_permission.review_flatpage', ('flatpages.flatpage', 'url__contains'))
+        @permission_required('flatpage_permission.review_flatpage',
+            ('flatpages.flatpage', 'url__contains', 'url'))
         def review_flatpage(request, url):
             print "yay, you can review this flatpage!"
             return flatpage(request, url)
 
-    Or you can use this permission in your templates like this:
+    Or you can use this permission in your templates like this::
 
         {% ifhasperm "flatpage_permission.review_flatpage" request.user flatpage %}
             Yes, you are allowed to review flatpage '{{ flatpage }}', aren't you?
         {% else %}
             Nope, sorry. You aren't allowed to review this flatpage.
         {% endifhasperm %}
+
     """
     model = FlatPage
     label = 'flatpage_permission'
