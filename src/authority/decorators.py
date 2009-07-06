@@ -12,24 +12,26 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from authority import permissions
 from authority.views import permission_denied
 
-def permission_required(perm, *args, **kwargs):
+def permission_required(perm, lookup_params=None, login_url=None,
+        redirect_field_name=REDIRECT_FIELD_NAME, redirect_to_login=True):
     """
     Decorator for views that checks whether a user has a particular permission
     enabled, redirecting to the log-in page if necessary.
     """
-    login_url = kwargs.pop('login_url', settings.LOGIN_URL)
-    redirect_field_name = kwargs.pop('redirect_field_name', REDIRECT_FIELD_NAME)
-    redirect_to_login = kwargs.pop('redirect_to_login', True)
-    model_lookups = args
+    if lookup_params is None:
+        lookup_params = {}
+    print lookup_params
+    if login_url is None:
+        login_url = settings.LOGIN_URL
     def decorate(view_func):
         def decorated(request, *args, **kwargs):
             objs = []
             if request.user.is_authenticated():
-                values = list(args) + kwargs.values()
-                for model_lookup, query in zip(model_lookups, values):
-                    if query is None:
+                for name, value in kwargs.items():
+                    lookup_param = lookup_params.get(name, None)
+                    if None in (value, lookup_param):
                         continue
-                    model, lookup = model_lookup
+                    model, lookup = lookup_param
                     if isinstance(model, basestring):
                         model_class = get_model(*model.split("."))
                     else:
@@ -41,7 +43,7 @@ def permission_required(perm, *args, **kwargs):
                             not issubclass(model_class, Model):
                         raise ValueError(
                             'The argument %s needs to be a model.' % model)
-                    objs.append(get_object_or_404(model_class, **{lookup: query}))
+                    objs.append(get_object_or_404(model_class, **{lookup: value}))
                 check = permissions.registry.get_check(request.user, perm)
                 if check is not None:
                     if check(*objs):
