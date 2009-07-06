@@ -109,8 +109,6 @@ class PermissionMetaclass(type):
 
     def _create_check(cls, check_name, check_func=None, generic=False):
         def check(self, obj=None, *args, **kwargs):
-            if obj is None:
-                return False
             granted = self.can(check_name.lower(), obj, generic=generic)
             if check_func and not granted:
                 return check_func(self, obj, *args, **kwargs)
