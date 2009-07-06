@@ -19,6 +19,7 @@ class PermissionRegistry(dict):
     """
     A dictionary that contains permission instances and their labels.
     """
+    _choices = {}
     def get_permission_by_label(self, label):
         for perm_cls, perm_label in self.items():
             if perm_label == label:
@@ -35,16 +36,20 @@ class PermissionRegistry(dict):
         return [perm for perm in self if perm.model == model]
 
     def get_choices_for(self, obj, default=BLANK_CHOICE_DASH):
-        choices = [] + default
         model_cls = obj
         if not isinstance(obj, ModelBase):
             model_cls = obj.__class__
-        for perm in self.get_permissions_by_model(model_cls):
-            for name, check in getmembers(perm, ismethod):
-                if name in perm.checks:
-                    signature = '%s.%s' % (perm.label, name)
-                    label = getattr(check, 'short_description', signature)
-                    choices.append((signature, label))
+        if model_cls in self._choices:
+            choices = self._choices[model_cls]
+        else:
+            choices = [] + default
+            for perm in self.get_permissions_by_model(model_cls):
+                for name, check in getmembers(perm, ismethod):
+                    if name in perm.checks:
+                        signature = '%s.%s' % (perm.label, name)
+                        label = getattr(check, 'short_description', signature)
+                        choices.append((signature, label))
+            self._choices[model_cls] = choices
         return choices
 
 registry = PermissionRegistry()
