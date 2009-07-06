@@ -122,10 +122,6 @@ class PermissionMetaclass(type):
 class BasePermission(object):
     """
     Base Permission class to be used to define app permissions.
-
-    check = MyPermission(request.user)
-    if check.can("change", obj):
-
     """
     __metaclass__ = PermissionMetaclass
 
