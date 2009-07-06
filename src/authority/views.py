@@ -68,7 +68,7 @@ def permission_denied(request, template_name=None, extra_context={}):
             The path of the requested URL (e.g., '/app/pages/bad_page/')
     """
     if template_name is None:
-       template_name = ('authority/403.html', '403.html')
+       template_name = ('403.html', 'authority/403.html')
     context = {
         'request_path': request.path,
     }
