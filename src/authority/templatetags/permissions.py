@@ -10,29 +10,48 @@ from authority.forms import UserPermissionForm
 
 register = template.Library()
 
-class ComparisonNode(template.Node):
+def next_bit_for(bits, key, if_none=None):
+    try:
+        return bits[bits.index(key)+1]
+    except ValueError:
+        return if_none
+
+class ResolverNode(template.Node):
+    """
+    A small wrapper that adds a convenient resolve method.
+    """
+    def resolve(self, var, context):
+        """Resolves a variable out of context if it's not in quotes"""
+        if var is None:
+            return var
+        if var[0] in ('"', "'") and var[-1] == var[0]:
+            return var[1:-1]
+        else:
+            return template.Variable(var).resolve(context)
+
+class ComparisonNode(ResolverNode):
     """
     Implements a node to provide an "if user/group has permission on object"
     """
-    def __init__(self, user, permission, nodelist_true, nodelist_false, *objs):
+    def __init__(self, user, perm, nodelist_true, nodelist_false, *objs):
         self.user = user
         self.objs = objs
-        # poll_permission.can_change
-        self.perm = permission.strip('"')
-        self.nodelist_true, self.nodelist_false = nodelist_true, nodelist_false
+        self.perm = perm
+        self.nodelist_true = nodelist_true
+        self.nodelist_false = nodelist_false
 
     def render(self, context):
         try:
-            user = template.Variable(self.user).resolve(context)
+            user = self.resolve(self.user, context)
+            perm = self.resolve(self.perm, context)
             if self.objs:
                 objs = []
                 for obj in self.objs:
                     if obj is not None:
-                        objs.append(
-                            template.Variable(obj).resolve(context))
+                        objs.append(self.resolve(obj, context))
             else:
                 objs = None
-            check = permissions.registry.get_check(user, self.perm)
+            check = permissions.registry.get_check(user, perm)
             if check is not None:
                 if check(*objs):
                     # return True if check was successful
@@ -53,17 +72,20 @@ def do_if_has_perm(parser, token):
     """
     This function provides funcitonality for the 'ifhasperm' template tag
 
-    {% ifhasperm [permission_label].[check_name] [user] [*objs] %}
-        lalala
-    {% else %}
-        meh
-    {% endifhasperm %}
+    Syntax::
 
-    {% if hasperm poll_permission.can_change request.user %}
-        lalala
-    {% else %}
-        meh
-    {% endifhasperm %}
+        {% ifhasperm [permission_label].[check_name] [user] [*objs] %}
+            lalala
+        {% else %}
+            meh
+        {% endifhasperm %}
+
+        {% if hasperm "poll_permission.can_change" request.user %}
+            lalala
+        {% else %}
+            meh
+        {% endifhasperm %}
+
     """
     bits = token.contents.split()
     if 5 < len(bits) < 3:
@@ -107,10 +129,14 @@ def permission_delete_link(context, perm):
 @register.inclusion_tag('authority/permission_form.html', takes_context=True)
 def permission_form(context, obj, perm=None):
     """
-    Renders an "add permissions" form
+    Renders an "add permissions" form for the given object. If no object
+    is given it will render a select box to choose from.
 
-    {% permission_form [obj] add_lesson %}
-    {% permission_form lesson add_lesson %}
+    Syntax::
+
+        {% permission_form [obj] [permission_label].[check_name] %}
+        {% permission_form lesson "lesson_permission.add_lesson" %}
+
     """
     user = context['request'].user
     if user.is_authenticated():
@@ -122,20 +148,12 @@ def permission_form(context, obj, perm=None):
             }
     return {'form': None}
 
-class PermissionForObjectNode(template.Node):
-    def __init__(self, obj, user, var_name):
+class PermissionsForObjectNode(ResolverNode):
+    def __init__(self, obj, user, var_name, perm=None, objs=None):
         self.obj = obj
         self.user = user
+        self.perm = perm
         self.var_name = var_name
-
-    def resolve(self, var, context):
-        """Resolves a variable out of context if it's not in quotes"""
-        if var is None:
-            return var
-        if var[0] in ('"', "'") and var[-1] == var[0]:
-            return var[1:-1]
-        else:
-            return template.Variable(var).resolve(context)
 
     def render(self, context):
         obj = self.resolve(self.obj, context)
@@ -152,6 +170,9 @@ class PermissionForObjectNode(template.Node):
 @register.tag
 def get_permissions(parser, token):
     """
+    Retrieves all permissions associated with the given obj and user
+    and assigns the result to a context variable.
+    
     Syntax::
 
         {% get_permissions obj %}
@@ -163,16 +184,59 @@ def get_permissions(parser, token):
         {% get_permissions obj for request.user as "my_permissions" %}
 
     """
-    def next_bit_for(bits, key, if_none=None):
-        try:
-            return bits[bits.index(key)+1]
-        except ValueError:
-            return if_none
-
     bits = token.contents.split()
     kwargs = {
         'obj': next_bit_for(bits, 'get_permissions'),
         'user': next_bit_for(bits, 'for'),
         'var_name': next_bit_for(bits, 'as', '"permissions"'),
+    }
+    return PermissionsForObjectNode(**kwargs)
+
+class PermissionForObjectNode(ResolverNode):
+    def __init__(self, perm, user, objs, var_name):
+        self.perm = perm
+        self.user = user
+        self.objs = objs
+        self.var_name = var_name
+
+    def render(self, context):
+        objs = [self.resolve(obj, context) for obj in self.objs.split(',')]
+        var_name = self.resolve(self.var_name, context)
+        perm = self.resolve(self.perm, context)
+        user = self.resolve(self.user, context)
+        granted = False
+        if not isinstance(user, AnonymousUser):
+            check = permissions.registry.get_check(user, perm)
+            if check is not None:
+                granted = check(*objs)
+        context[var_name] = granted
+        return ''
+
+@register.tag
+def get_permission(parser, token):
+    """
+    Performs a permission check with the given signature, user and objects
+    and assigns the result to a context variable.
+
+    Syntax::
+
+        {% get_permission [permission_label].[check_name] for [user] and [objs] as [varname] %}
+
+        {% get_permission "poll_permission.can_change" for request.user and poll as "is_allowed" %}
+        {% get_permission "poll_permission.can_change" for request.user and poll,second_poll as "is_allowed" %}
+        
+        {% if is_allowed %}
+            I've got ze power to change ze pollllllzzz. Muahahaa.
+        {% else %}
+            Meh. No power for meeeee.
+        {% endif %}
+
+    """
+    bits = token.contents.split()
+    kwargs = {
+        'perm': next_bit_for(bits, 'get_permission'),
+        'user': next_bit_for(bits, 'for'),
+        'objs': next_bit_for(bits, 'and'),
+        'var_name': next_bit_for(bits, 'as', '"permission"'),
     }
     return PermissionForObjectNode(**kwargs)

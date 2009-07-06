@@ -44,23 +44,36 @@
 </li>
 
 <li><h2>Detailed tests</h2>
+
   <h3>Can I change this flatpage?</h3>
-  <p>"can_change" of the custom permission set "flatpage_permission":</p> 
+  <p>ifhasperm "flatpage_permission.change_flatpage" request.user:</p> 
   <blockquote>
-  {% ifhasperm "flatpage_permission.can_change" request.user %}
-  Yes, you are allowed.
+  {% ifhasperm "flatpage_permission.change_flatpage" request.user %}
+      Yes, you are allowed.
   {% else %}
-  Nope, sorry.
+      Nope, sorry.
   {% endifhasperm %}
   </blockquote>
-  <h3>Can I access top secret flat pages?</h3>
-  <p>"top_secret" of the custom permission set "flatpage_permission":</p> 
+
+  <h3>Can I access this top secret flat page?</h3>
+  <p>ifhasperm "flatpage_permission.top_secret" request.user flatpage:</p> 
   <blockquote>
   {% ifhasperm "flatpage_permission.top_secret" request.user flatpage %}
-  Yes, you are of course allowed to view flatpage '{{ flatpage }}', aren't you?
+      Yes, you are of course allowed to view flatpage '{{ flatpage }}', aren't you?
   {% else %}
-  Nope, sorry. Wait, how can you read this then?
+      Nope, sorry. Wait, how can you read this then?
   {% endifhasperm %}
+  </blockquote>
+
+  <h3>Again, can I really access this top secret flat page?</h3>
+  <p>get_permission "flatpage_permission.top_secret" for request.user and flatpage as "secret_agent":</p> 
+  {% get_permission "flatpage_permission.top_secret" for request.user and flatpage as "secret_agent" %}
+  <blockquote>
+      {% if secret_agent %}
+        Yes {{ request.user }}, you are a secret agent
+      {% else %}
+        Nope, only a programmer, sorry
+      {% endif %}
   </blockquote>
 </li>
 </ol>
