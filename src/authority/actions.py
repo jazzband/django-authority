@@ -11,11 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import all_valid
 
 try:
-    set
-except NameError:
-    from sets import Set as set     # Python 2.3 fallback
-
-try:
     from django.contrib.admin import actions
 except ImportError:
     actions = False
