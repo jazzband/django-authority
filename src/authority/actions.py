@@ -1,6 +1,6 @@
 from django import forms, template
 from django.core.exceptions import PermissionDenied
-from django.contrib.admin import helpers, site, ACTION_CHECKBOX_NAME
+from django.contrib.admin import helpers, site
 from django.shortcuts import render_to_response
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
@@ -36,7 +36,7 @@ class ActionErrorList(forms.util.ErrorList):
 def edit_permissions(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     app_label = opts.app_label
-    selected = request.POST.getlist(ACTION_CHECKBOX_NAME)
+    selected = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
     inline = ActionPermissionInline(queryset.model, modeladmin.admin_site)
     formsets = []
     for obj in queryset:
