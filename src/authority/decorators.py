@@ -1,12 +1,10 @@
 import inspect
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseForbidden, HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
 from django.utils.functional import wraps
 from django.db.models import Model, get_model
 from django.shortcuts import get_object_or_404
 from django.conf import settings
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from authority import permissions

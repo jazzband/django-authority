@@ -1,8 +1,6 @@
 from inspect import getmembers, ismethod
-from django.db.models import Q
 from django.db.models.base import ModelBase
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _

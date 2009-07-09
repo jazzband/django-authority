@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.db.models.loading import get_model
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext
 from django.template.context import RequestContext
 from django.template import loader
 from django.contrib.auth.decorators import login_required
@@ -68,7 +68,7 @@ def permission_denied(request, template_name=None, extra_context={}):
             The path of the requested URL (e.g., '/app/pages/bad_page/')
     """
     if template_name is None:
-       template_name = ('403.html', 'authority/403.html')
+        template_name = ('403.html', 'authority/403.html')
     context = {
         'request_path': request.path,
     }
