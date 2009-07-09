@@ -28,3 +28,10 @@ Full docs coming soon.
 
 Please use http://bitbucket.org/jezdez/django-authority/issues/ for issues and bug reports.
 
+Documentation
+=============
+
+The documenation is currently in development. You can create a nice looking
+html version using the setup.py::
+
+    python setup.py build_sphinx
