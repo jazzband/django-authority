@@ -1,9 +1,10 @@
 from django.contrib.flatpages.models import FlatPage
 from django.utils.translation import ugettext_lazy as _
 
-from authority import permissions
+import authority
+from authority.permissions import BasePermission
 
-class FlatPagePermission(permissions.BasePermission):
+class FlatPagePermission(BasePermission):
     """
     This class contains a bunch of checks:
     
@@ -48,4 +49,4 @@ class FlatPagePermission(permissions.BasePermission):
         return False
     top_secret.short_description=_('Is allowed to see top secret flatpages')
 
-permissions.register(FlatPage, FlatPagePermission)
+authority.register(FlatPage, FlatPagePermission)
