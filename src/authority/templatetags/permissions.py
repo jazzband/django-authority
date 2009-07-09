@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User, AnonymousUser
 
-from authority import permissions
+from authority import permissions, get_check
 from authority.models import Permission
 from authority.views import add_url_for_obj
 from authority.forms import UserPermissionForm
@@ -51,7 +51,7 @@ class ComparisonNode(ResolverNode):
                         objs.append(self.resolve(obj, context))
             else:
                 objs = None
-            check = permissions.registry.get_check(user, perm)
+            check = get_check(user, perm)
             if check is not None:
                 if check(*objs):
                     # return True if check was successful
@@ -206,7 +206,7 @@ class PermissionForObjectNode(ResolverNode):
         user = self.resolve(self.user, context)
         granted = False
         if not isinstance(user, AnonymousUser):
-            check = permissions.registry.get_check(user, perm)
+            check = get_check(user, perm)
             if check is not None:
                 granted = check(*objs)
         context[var_name] = granted

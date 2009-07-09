@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from authority import permissions
+from authority import permissions, get_check
 from authority.views import permission_denied
 
 def permission_required(perm, *model_lookups, **kwargs):
@@ -42,7 +42,7 @@ def permission_required(perm, *model_lookups, **kwargs):
                         raise ValueError(
                             'The argument %s needs to be a model.' % model)
                     objs.append(get_object_or_404(model_class, **{lookup: value}))
-                check = permissions.registry.get_check(request.user, perm)
+                check = get_check(request.user, perm)
                 granted = False
                 if check is not None:
                     granted = check(*objs)

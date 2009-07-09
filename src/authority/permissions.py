@@ -1,60 +1,10 @@
 from inspect import getmembers, ismethod
 from django.db.models import Q
 from django.db.models.base import ModelBase
-from django.db.models.fields import BLANK_CHOICE_DASH
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from authority.models import Permission
-
-class AlreadyRegistered(Exception):
-    pass
-
-class NotRegistered(Exception):
-    pass
-
-class PermissionRegistry(dict):
-    """
-    A dictionary that contains permission instances and their labels.
-    """
-    _choices = {}
-    def get_permission_by_label(self, label):
-        for perm_cls, perm_label in self.items():
-            if perm_label == label:
-                return perm_cls
-        return None
-
-    def get_check(self, user, label):
-        perm_label, check_name = label.split('.')
-        perm_cls = self.get_permission_by_label(perm_label)
-        if perm_cls is None:
-            return None
-        perm_instance = perm_cls(user)
-        return getattr(perm_instance, check_name, None)
-
-    def get_permissions_by_model(self, model):
-        return [perm for perm in self if perm.model == model]
-
-    def get_choices_for(self, obj, default=BLANK_CHOICE_DASH):
-        model_cls = obj
-        if not isinstance(obj, ModelBase):
-            model_cls = obj.__class__
-        if model_cls in self._choices:
-            choices = self._choices[model_cls]
-        else:
-            choices = [] + default
-            for perm in self.get_permissions_by_model(model_cls):
-                for name, check in getmembers(perm, ismethod):
-                    if name in perm.checks:
-                        signature = '%s.%s' % (perm.label, name)
-                        label = getattr(check, 'short_description', signature)
-                        choices.append((signature, label))
-            self._choices[model_cls] = choices
-        return choices
-
-registry = PermissionRegistry()
 
 class PermissionMetaclass(type):
     """
@@ -64,60 +14,14 @@ class PermissionMetaclass(type):
     def __new__(cls, name, bases, attrs):
         new_class = super(
             PermissionMetaclass, cls).__new__(cls, name, bases, attrs)
-        if new_class.__name__ == "BasePermission":
-            return new_class
-        if not new_class.model:
-            raise ImproperlyConfigured(
-                "Permission %s requires a model attribute." % new_class)
         if not new_class.label:
             new_class.label = "%s_permission" % new_class.__name__.lower()
         new_class.label = slugify(new_class.label)
-        if new_class in registry:
-            raise AlreadyRegistered(
-                "The permission %s is already registered" % new_class)
-        if new_class.label in registry.values():
-            raise ImproperlyConfigured(
-                "The name of %s conflicts with %s" % \
-                    (new_class, registry[new_class.label]))
-        registry[new_class] = new_class.label
         if new_class.checks is None:
             new_class.checks = []
         # force check names to be lower case
         new_class.checks = [check.lower() for check in new_class.checks]
-        generic_checks = ['add', 'browse', 'change', 'delete']
-        for check_name in new_class.checks:
-            check_func = getattr(new_class, check_name, None)
-            if check_func is not None:
-                func = new_class.create_check(check_name, check_func)
-                func.__name__ = check_name
-                func.short_description = getattr(check_func, 'short_description',
-                    _("%(object_name)s permission '%(check)s'") % {
-                        'object_name': new_class.model._meta.object_name,
-                        'check': check_name})
-                setattr(new_class, check_name, func)
-            else:
-                generic_checks.append(check_name)
-        for check_name in generic_checks:
-            func = new_class.create_check(check_name, generic=True)
-            object_name = new_class.model._meta.object_name
-            func_name = "%s_%s" % (check_name, object_name.lower())
-            func.short_description = _("Can %(check)s this %(object_name)s") % {
-                'object_name': new_class.model._meta.object_name.lower(),
-                'check': check_name}
-            func.check_name = check_name
-            if func_name not in new_class.checks:
-                new_class.checks.append(func_name)
-            setattr(new_class, func_name, func)
         return new_class
-
-    def _create_check(cls, check_name, check_func=None, generic=False):
-        def check(self, *args, **kwargs):
-            granted = self.can(check_name, generic, *args, **kwargs)
-            if check_func and not granted:
-                return check_func(self, *args, **kwargs)
-            return granted
-        return check
-    create_check = classmethod(_create_check)
 
 class BasePermission(object):
     """
@@ -127,7 +31,7 @@ class BasePermission(object):
 
     checks = ()
     label = None
-    model = None
+    generic_checks = ['add', 'browse', 'change', 'delete']
 
     def __init__(self, user=None, group=None, *args, **kwargs):
         self.user = user
