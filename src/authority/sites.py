@@ -124,3 +124,5 @@ class PermissionSite(object):
 site = PermissionSite()
 get_check = site.get_check
 get_choices_for = site.get_choices_for
+register = site.register
+unregister = site.unregister
