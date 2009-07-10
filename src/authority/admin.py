@@ -6,7 +6,7 @@ from django.utils.text import capfirst, truncate_words
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
-from autority import get_choices_for
+from authority import get_choices_for
 
 class PermissionInline(generic.GenericTabularInline):
     model = Permission
