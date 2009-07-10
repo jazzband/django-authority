@@ -6,6 +6,7 @@ from django.utils.text import capfirst, truncate_words
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
+from autority import get_choices_for
 
 class PermissionInline(generic.GenericTabularInline):
     model = Permission
@@ -14,7 +15,7 @@ class PermissionInline(generic.GenericTabularInline):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'codename':
-            perm_choices = permissions.get_choices_for(self.parent_model)
+            perm_choices = get_choices_for(self.parent_model)
             kwargs['label'] = _('permission')
             kwargs['widget'] = forms.Select(choices=perm_choices)
             return db_field.formfield(**kwargs)
