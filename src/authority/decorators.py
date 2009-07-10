@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from authority import permissions, get_check
+from authority import get_check
 from authority.views import permission_denied
 
 def permission_required(perm, *lookup_variables, **kwargs):

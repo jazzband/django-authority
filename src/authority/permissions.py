@@ -1,8 +1,5 @@
-from inspect import getmembers, ismethod
-from django.db.models import Q
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
-from django.utils.translation import ugettext_lazy as _
 
 from authority.models import Permission
 
