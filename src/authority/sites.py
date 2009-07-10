@@ -36,7 +36,7 @@ class PermissionSite(object):
         return getattr(perm_instance, check_name, None)
 
     def get_labels(self):
-        return [perm.label for perm in self._registry]
+        return [perm.label for perm in self._registry.values()]
 
     def get_choices_for(self, obj, default=BLANK_CHOICE_DASH):
         model_cls = obj
@@ -75,7 +75,6 @@ class PermissionSite(object):
                 permission_class = type("%sPermission" % model.__name__,
                     (permission_class,), options)
 
-            # Instantiate the admin class to save in the registry
             permission_class.model = model
             self.setup(model, permission_class)
             self._registry[model] = permission_class
