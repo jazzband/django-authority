@@ -1,19 +1,27 @@
 .. django-authority documentation master file, created by
 
+============================================
 Welcome to django-authority's documentation!
 ============================================
 
-Please fill me.
+A Django app for per-object-permissions, loosely based on
+`django-granular-permissions`_.
+
+.. _django-granular-permissions: http://code.google.com/p/django-granular-permissions/
 
 .. toctree::
-   :maxdepth: 2
+   :numbered:
+   :glob:
 
+   installation
+   configuration
+   *
+    
 
-..
-    Indices and tables
-    ==================
+Indices and tables
+==================
 
-    * :ref:`genindex`
-    * :ref:`modindex`
-    * :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+* :ref:`search`
 

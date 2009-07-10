@@ -1,0 +1,45 @@
+.. _installation:
+
+============
+Installation
+============
+
+The installation of django-authority is easy. Whether you want to use the
+latest stable or development version, you have different options.
+
+The latest stable version
+=========================
+
+The latest, stable version is always available via the `python package index_`
+(pypi). You can download the latest version on `the site`_ but most users
+would prefer either ``pip`` or ``easy_install``::
+
+    pip install django-authority
+    
+    # .. or with easy_install:
+    
+    easy_install django-authority
+
+.. _the site: http://pypi.python.org/pypi/django-authority/
+.. _python package index: http://pypi.python.org/pypi
+
+Development version
+===================
+
+The latest development version is located on it's `bitbucket account`_. You
+can checkout the package using the mercurial_ cvs::
+
+    hg clone https://barttc@bitbucket.org/jezdez/django-authority/
+
+Then install it manually::
+
+    cd django-authority
+    python setup.py install
+
+.. warning:: The development version is not fully tested and may contain
+    bugs, so we prefer to use the latest package from pypi.
+
+.. _bitbucket account: http://bitbucket.org/jezdez/django-authority/
+.. _mercurial: http://www.selenic.com/mercurial/
+
+See :configuration: for the next step.

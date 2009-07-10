@@ -1,0 +1,16 @@
+.. _configuration:
+
+=============
+Configuration
+=============
+
+To install django-authority just add the package to your ``INSTALLED_APPS``
+setting within your ``settings.py``::
+
+    # settings.py
+    INSTALLED_APPS = (
+        ...
+        'authority',
+    )
+
+Thats all. 
