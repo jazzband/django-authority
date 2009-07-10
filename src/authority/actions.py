@@ -9,6 +9,7 @@ from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy, ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import all_valid
+from django.http import HttpResponseRedirect
 
 try:
     from django.contrib.admin import actions
@@ -61,7 +62,8 @@ def edit_permissions(modeladmin, request, queryset):
         if all_valid(formsets):
             for formset in formsets:
                 formset.save()
-        return None
+        # redirect to full request path to make sure we keep filter
+        return HttpResponseRedirect(request.get_full_path())
 
     context = {
         'errors': ActionErrorList(formsets),
