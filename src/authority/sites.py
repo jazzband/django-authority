@@ -2,6 +2,7 @@ from inspect import getmembers, ismethod
 from django.db.models.base import ModelBase
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ImproperlyConfigured
 
 from authority.permissions import BasePermission
 
