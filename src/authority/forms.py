@@ -44,11 +44,15 @@ class UserPermissionForm(BasePermissionForm):
                 _("A user with that username does not exist."))
         check = permissions.BasePermission(user=user)
         if check.has_perm(self.perm, self.obj):
-            raise forms.ValidationError(
-                _("This user already has the permission '%(perm)s' for %(object_name)s '%(obj)s'") % {
-                    'perm': self.perm,
+            if user.is_superuser:
+                error_msg = _("The super user %(user)s already has the permission '%(perm)s' for %(object_name)s '%(obj)s'")
+            else:
+                error_msg = _("The user %(user)s already has the permission '%(perm)s' for %(object_name)s '%(obj)s'")
+            raise forms.ValidationError(error_msg % {
                     'object_name': self.obj._meta.object_name.lower(),
+                    'perm': self.perm,
                     'obj': self.obj,
+                    'user': user,
                 })
         return user
 
