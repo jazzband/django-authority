@@ -1,6 +1,6 @@
 from inspect import getmembers, ismethod
 from django.db.models import Q
-from django.db.models.base import ModelBase
+from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
@@ -74,6 +74,9 @@ class BasePermission(object):
             args = [self.model]
         perms = False
         for obj in args:
+            # skip this obj if it's not a model class or instance
+            if not isinstance(obj, (ModelBase, Model)):
+                continue
             # first check Django's permission system
             if self.user:
                 perm = '%s.%s' % (obj._meta.app_label, check.lower())
@@ -83,6 +86,7 @@ class BasePermission(object):
             perm = '%s.%s' % (self.label, check.lower())
             if generic:
                 perm = '%s_%s' % (perm, obj._meta.object_name.lower())
+            # then check authority's per object permissions
             if not isinstance(obj, ModelBase) and isinstance(obj, self.model):
                 # only check the authority if obj is not a model class
                 perms = perms or self.has_perm(perm, obj)

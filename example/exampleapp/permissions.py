@@ -43,7 +43,7 @@ class FlatPagePermission(BasePermission):
     label = 'flatpage_permission'
     checks = ('review', 'top_secret')
 
-    def top_secret(self, flatpage=None):
+    def top_secret(self, flatpage=None, lala=None):
         if flatpage and flatpage.registration_required:
             return self.browse_flatpage(obj=flatpage)
         return False
