@@ -80,7 +80,7 @@ def do_if_has_perm(parser, token):
             meh
         {% endifhasperm %}
 
-        {% if hasperm "poll_permission.can_change" request.user %}
+        {% if hasperm "poll_permission.change_poll" request.user %}
             lalala
         {% else %}
             meh
@@ -222,8 +222,8 @@ def get_permission(parser, token):
 
         {% get_permission [permission_label].[check_name] for [user] and [objs] as [varname] %}
 
-        {% get_permission "poll_permission.can_change" for request.user and poll as "is_allowed" %}
-        {% get_permission "poll_permission.can_change" for request.user and poll,second_poll as "is_allowed" %}
+        {% get_permission "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
+        {% get_permission "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
         
         {% if is_allowed %}
             I've got ze power to change ze pollllllzzz. Muahahaa.
