@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group
 
+from authority import permissions, get_choices_for
 from authority.models import Permission
-from authority import permissions
 
 class BasePermissionForm(forms.ModelForm):
     codename = forms.CharField(label=_('Permission'))
@@ -18,7 +18,7 @@ class BasePermissionForm(forms.ModelForm):
         if obj and perm:
             self.base_fields['codename'].widget = forms.HiddenInput()
         elif obj and not perm:
-            perm_choices = permissions.registry.get_choices_for(self.obj)
+            perm_choices = get_choices_for(self.obj)
             self.base_fields['codename'].widget = forms.Select(choices=perm_choices)
         super(BasePermissionForm, self).__init__(*args, **kwargs)
 

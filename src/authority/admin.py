@@ -4,8 +4,8 @@ from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
 
 from authority.models import Permission
-from authority import permissions
 from authority.widgets import GenericForeignKeyRawIdWidget
+from authority import get_choices_for
 
 class PermissionInline(generic.GenericTabularInline):
     model = Permission
@@ -14,7 +14,7 @@ class PermissionInline(generic.GenericTabularInline):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'codename':
-            perm_choices = permissions.registry.get_choices_for(self.parent_model)
+            perm_choices = get_choices_for(self.parent_model)
             kwargs['label'] = _('permission')
             kwargs['widget'] = forms.Select(choices=perm_choices)
             return db_field.formfield(**kwargs)

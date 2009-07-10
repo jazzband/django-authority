@@ -1,2 +1,3 @@
 include LICENSE
 recursive-include src/authority/templates/authority *
+recursive-include src/authority/templates/admin *
