@@ -2,7 +2,6 @@ from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext_lazy as _
-from django.utils.text import capfirst, truncate_words
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
@@ -37,10 +36,10 @@ class PermissionAdmin(admin.ModelAdmin):
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
-        # For generic foreign keys marked as generic_fields we use a special widget 
-        if db_field.name in [f.fk_field for f in self.model._meta.virtual_fields if f.name in self.generic_fields]: 
-            for gfk in self.model._meta.virtual_fields: 
-                if gfk.fk_field == db_field.name: 
+        # For generic foreign keys marked as generic_fields we use a special widget
+        if db_field.name in [f.fk_field for f in self.model._meta.virtual_fields if f.name in self.generic_fields]:
+            for gfk in self.model._meta.virtual_fields:
+                if gfk.fk_field == db_field.name:
                     return db_field.formfield(
                         widget=GenericForeignKeyRawIdWidget(
                             gfk.ct_field, self.admin_site._registry.keys()))

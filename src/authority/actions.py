@@ -1,12 +1,9 @@
 from django import forms, template
-from django.core.exceptions import PermissionDenied
 from django.contrib.admin import helpers, site
 from django.shortcuts import render_to_response
 from django.utils.encoding import force_unicode
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import all_valid
 from django.http import HttpResponseRedirect
@@ -32,7 +29,6 @@ class ActionErrorList(forms.util.ErrorList):
 def edit_permissions(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     app_label = opts.app_label
-    selected = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
     inline = ActionPermissionInline(queryset.model, modeladmin.admin_site)
     formsets = []
     for obj in queryset:
@@ -67,7 +63,7 @@ def edit_permissions(modeladmin, request, queryset):
 
     context = {
         'errors': ActionErrorList(formsets),
-        'title': _('Permissions for %s') % force_unicode(opts.verbose_name_plural),
+        'title': ugettext('Permissions for %s') % force_unicode(opts.verbose_name_plural),
         'inline_admin_formsets': inline_admin_formsets,
         'root_path': modeladmin.admin_site.root_path,
         'app_label': app_label,
@@ -93,7 +89,7 @@ def edit_permissions(modeladmin, request, queryset):
     ])
     return render_to_response(template_name, context,
                               context_instance=template.RequestContext(request))
-edit_permissions.short_description = _("Permissions for selected %(verbose_name_plural)s")
+edit_permissions.short_description = ugettext("Permissions for selected %(verbose_name_plural)s")
 
 if actions:
     site.add_action(edit_permissions)
