@@ -8,7 +8,7 @@ helpers to create custom permission checks.
 The main website for django-authority is `packages.python.org/django-authority
 <http://packages.python.org/django-authority/>`_. You can also install
 the `in-development version <http://bitbucket.org/jezdez/django-authority/get/tip.gz#egg=django-authority-dev>`_ 
-of pip with ``easy_install django-authority==dev``.
+of django-authority with ``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
 
 Example
 =======
