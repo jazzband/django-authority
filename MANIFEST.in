@@ -1,3 +1,6 @@
+include AUTHORS
 include LICENSE
+include buildout.cfg
+include buildout.py
 recursive-include src/authority/templates/authority *
 recursive-include src/authority/templates/admin *
