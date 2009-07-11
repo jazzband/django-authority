@@ -4,8 +4,8 @@
 Configuration
 =============
 
-To install django-authority just add the package to your ``INSTALLED_APPS``
-setting within your ``settings.py``::
+To enable django-authority just need to add the package to your
+``INSTALLED_APPS`` setting within your ``settings.py``::
 
     # settings.py
     INSTALLED_APPS = (
@@ -13,4 +13,27 @@ setting within your ``settings.py``::
         'authority',
     )
 
-Thats all. 
+You also have to modify your root URLConf (e.g. ``urls.py``) to include the
+app's URL configuration and automatically discover all the permission
+classes you defined::
+
+    import authority
+    
+    authority.autodiscover()
+    
+    urlpatterns += patterns('',
+        (r'^authority/', include('authority.urls')),
+    )
+
+Make sure your ``settings.py`` contains the following settings to enable the
+context processors::
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        'django.core.context_processors.auth',
+        'django.core.context_processors.debug',
+        'django.core.context_processors.i18n',
+        'django.core.context_processors.media',
+        'django.core.context_processors.request',
+    )
+
+That's all (for now).

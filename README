@@ -5,6 +5,14 @@ django-authority
 This is a Django app for per-object-permissions that includes a bunch of
 helpers to create custom permission checks.
 
+The main website for django-authority is `packages.python.org/django-authority
+<http://packages.python.org/django-authority/>`_. You can also install
+the `in-development version <http://bitbucket.org/jezdez/django-authority/get/tip.gz#egg=django-authority-dev>`_ 
+of pip with ``easy_install django-authority==dev``.
+
+Example
+=======
+
 To get the example project running do:
 
 - Bootstrap the buildout by running::
@@ -17,13 +25,15 @@ To get the example project running do:
 
 - Sync the database::
 
-    bin/django syncdb
+    bin/django-trunk syncdb
 
 - Run the development server and visit the admin at http://127.0.0.1:8000/admin/::
 
-    bin/django runserver
+    bin/django-trunk runserver
 
 Now create a flatage and open it to see some of the templatetags in action.
+Don't hesitate to use the admin to edit the permission objects.
+
 Full docs coming soon.
 
 Please use http://bitbucket.org/jezdez/django-authority/issues/ for issues and bug reports.
