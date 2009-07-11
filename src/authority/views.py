@@ -27,7 +27,7 @@ def add_permission(request, app_label, module_name, pk, extra_context={},
         return HttpResponseForbidden(next)
     model = get_model(app_label, module_name)
     if model is None:
-        return HttpResponseRedirect(next)
+        return permission_denied(request)
     obj = get_object_or_404(model, pk=pk)
     form = UserPermissionForm(data=request.POST, obj=obj,
                               perm=codename, initial={'codename': codename})
