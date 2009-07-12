@@ -70,7 +70,7 @@ class ComparisonNode(ResolverNode):
 @register.tag('ifhasperm')
 def do_if_has_perm(parser, token):
     """
-    This function provides funcitonality for the 'ifhasperm' template tag
+    This function provides functionality for the 'ifhasperm' template tag
 
     Syntax::
 

@@ -1,0 +1,7 @@
+.. _check-python:
+
+================================
+Check permissions in python code
+================================
+
+*to be written*

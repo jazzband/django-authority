@@ -1,0 +1,7 @@
+.. _handling-template:
+
+====================================
+Handling permissions using templates
+====================================
+
+*to be written*

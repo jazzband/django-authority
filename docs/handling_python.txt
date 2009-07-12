@@ -1,0 +1,7 @@
+.. _handling-python:
+
+===================================
+Handling permissions in python code
+===================================
+
+*to be written*

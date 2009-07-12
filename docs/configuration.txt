@@ -1,5 +1,10 @@
 .. _configuration:
 
+.. index::
+    single: urls.py
+    single: settings.py
+    single: autodiscover
+    
 =============
 Configuration
 =============

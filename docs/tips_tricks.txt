@@ -1,0 +1,21 @@
+.. _tips-tricks:
+
+======================
+Hints, tips and tricks
+======================
+
+Within a permission class, you can refer to the user and group using self::
+
+    class CampaignPermission(permissions.BasePermission):
+        label = 'campaign_permission'
+        checks = ('do_foo',)
+
+        def do_foo(self, campaign=None):
+            print self.user
+            print self.group
+            # ...
+
+You can unregister permission classes and re-register them::
+
+    authority.unregister(Campaign)
+    authority.register(Campaign, CampaignPermission)

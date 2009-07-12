@@ -1,0 +1,40 @@
+.. _documentation-guidelines:
+
+.. warning:: This document is for internal use only.
+
+========================
+Documentation Guildlines
+========================
+
+Headline scheme
+===============
+::
+
+    ===================================
+    First level (equals top and bottom)
+    ===================================
+    
+    Second Level (equals bottom)
+    ============================
+    
+    Third level (dashes botton)
+    ---------------------------
+    
+    Fourth level (drunken dashes bottom)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Please try to use not more than 4 levels of headlines.
+
+Overall salutation guidelines
+=============================
+
+Use the *We* and *you*::
+
+    We think that you should send us a bottle of your local beer.
+    
+Some thoughts
+=============
+
+* Many internal links are good
+* Text should not be wider than 80 characters
+* Two pages are better than one ultra-long page

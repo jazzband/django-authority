@@ -41,5 +41,3 @@ Then install it manually::
 
 .. _Bitbucket account: http://bitbucket.org/jezdez/django-authority/
 .. _Mercurial: http://www.selenic.com/mercurial/
-
-See :configuration: for the next step.

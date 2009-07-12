@@ -1,4 +1,4 @@
-.. django-authority documentation master file, created by
+.. _index:
 
 ============================================
 Welcome to django-authority's documentation!
@@ -23,8 +23,8 @@ Summarized this application provides three abilities:
    system keeps intact!
 
 .. warning:: We have just started with the documentation and it's far from
-   being perfect. If you found glitches, errors or just have feedback, please
-   contact the team: :ref:`team_and_support`.
+   being perfect. If you find glitches, errors or just have feedback, please
+   contact the team: :ref:`support`.
    
 Documentation
 =============
@@ -45,33 +45,38 @@ Documentation
 .. toctree::
    :maxdepth: 1
    
-   permission_create_basic
-   permission_create_per_object
-   permission_create_custom
+   create_basic_permission
+   create_per_object_permission
+   create_custom_permission
 
 **Permission checks in detail**
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    
-   permission_check_python
-   permission_check_decorator
-   permission_check_in_templates
+   check_python
+   check_decorator
+   check_templates
 
 **Permission assigning and handling**
 
 .. toctree::
    :maxdepth: 1
-  
- 
-   permission_python_handling
-   permission_admin_handling
-   permission_template_handling
+   
+   handling_python
+   handling_admin
+   handling_template
 
 Other pages
 ===========
-
+ 
 * :ref:`search`
+* :ref:`genindex`
 
-.. * :ref:`genindex`
-.. * :ref:`modindex`
+.. toctree::
+   :maxdepth: 1
+   :glob:
+   
+   tips_tricks
+   support
+   documentation_guidelines

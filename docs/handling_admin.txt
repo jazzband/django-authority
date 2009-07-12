@@ -1,0 +1,7 @@
+.. _handling-admin:
+
+===================================================
+Handling permissions using Django's admin interface
+===================================================
+
+*to be written*

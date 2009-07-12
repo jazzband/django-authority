@@ -1,0 +1,104 @@
+.. _check-decorator:
+
+=====================================
+Check permissions using the decorator
+=====================================
+
+.. note:: A decorator is not the ultimate painkiller, if you need to deal with
+    complex permission handling, take a look at :ref:`check-python`.
+
+The decorator syntax
+====================
+
+Lets start with an example permission::
+
+    class FlatpagePermission(permissions.BasePermission):
+        label = 'flatpage_permission'
+        checks = ('can_do_foo',)
+        
+        def can_do_foo(self):
+            # ...
+            
+    authority.register(Campaign, FlatpagePermission)
+
+A decorator for such a simple view would look like::
+
+    @permission_required('flatpage_permission.can_do_foo')
+    def my_view(request):
+        # ...
+
+The decorator automatically takes the user object from the view's request and
+calls ``can_do_foo``. If this function returns ``True``, the view gets passed
+otherwise the user will be redirected to the login page.
+
+Passing arguments to the permission
+-----------------------------------
+
+You can pass any arguments to the permission function. Assumed our permission
+function looks like this::
+
+    def can_do_foo(self, view_arg1, view_arg2=None):
+        # ...
+
+Our decorator can *grab* the arguments from the view and passes it to the
+permission function. Just take the arguments from the view and place them as
+a string on the decorator::
+
+    @permission_required('flatpage_permission.can_do_foo', 'arg1', 'arg2')
+    def my_view(required, arg1, arg2):
+        # ...
+        
+What happens under the hood?::
+
+    # Assumed the view gets called like this
+    my_view(request, 'bla', 'blubb')
+    
+    # At the end, the decorator would been called like this
+    can_do_foo('bla', 'blubb')
+
+Passing queryset lookups to the permission
+------------------------------------------
+
+You can pass queryset lookups instead of an argument. This might look a bit
+strange first, but it can save you a ton of code. Instead of passing a simple
+string to the permission function, declare a tuple of the syntax::
+
+    (<model>, '<field_lookup>', 'view_arg')
+    # .. or ..
+    ('<appname>.<modelname>', '<field_lookup>', 'view_arg')
+
+Here is an example::
+
+    # permission.py
+    def can_do_foo(self, flatpage_instance=None):
+        # ...
+    
+    # views.py    
+    from django.contrib.flatpages.models import Flatpage     
+    @permission_required('flatpage_permission.can_do_foo', (Flatpage, 'url__iexact', 'url))
+    def flatpage(required, url):
+        # ...
+
+What happens under the hood? It's nearly the same as the *simple* decorator
+would do, except that the argument is fetched with a ``get_object_or_404``
+statement. So this is the same::
+
+    (Flatpage, 'url__iexact', 'url')
+    get_object_or_404(Flatpage, 'url__iexact'='/about/')
+
+.. note:: For all available field lookups, please refer to the Django documentation:
+    `Field lookups`_
+
+.. _Field lookups: http://docs.djangoproject.com/en/dev/ref/models/querysets/#id7
+
+Contributed decorators
+======================
+
+django-authority contributes two decorators, the syntax of both is the same as
+described upper:
+
+* permission_required
+* permission_required_or_403
+
+In a nutshell, ``permission_required_or_403`` does the same as ``permission_required``
+except it returns a Http403 Response instead of redirecting to the login page.
