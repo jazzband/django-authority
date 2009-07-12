@@ -4,6 +4,10 @@
 Check permissions using the decorator
 =====================================
 
+.. index::
+    single: permission_required
+    single: permission_required_or_403
+
 .. note:: A decorator is not the ultimate painkiller, if you need to deal with
     complex permission handling, take a look at :ref:`check-python`.
 
