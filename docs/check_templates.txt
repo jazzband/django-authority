@@ -1,10 +1,5 @@
 .. _check-templates:
 
-.. index::
-    single: ifhasperm
-    single: get_permissions
-    single: get_permission
-
 ==============================
 Check permissions in templates
 ==============================
@@ -72,3 +67,8 @@ Example::
     {% else %}
         Meh. No power for meeeee.
     {% endif %}
+
+.. index::
+    single: ifhasperm
+    single: get_permissions
+    single: get_permission

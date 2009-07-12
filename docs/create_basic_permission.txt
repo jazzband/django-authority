@@ -1,10 +1,5 @@
 .. _create-basic-permission:
 
-.. index::
-    single: autodiscover
-    single: permissions.py
-    single: BasePermission
-
 =========================
 Create a basic permission
 =========================
@@ -117,3 +112,8 @@ loaded at runtime.
 
 If you really want, you can place these permission-classes in other files
 that are loaded at runtime. ``__init__.py`` or ``models.py`` are such files.
+
+.. index::
+    single: autodiscover
+    single: permissions.py
+    single: BasePermission

@@ -102,3 +102,7 @@ described upper:
 
 In a nutshell, ``permission_required_or_403`` does the same as ``permission_required``
 except it returns a Http403 Response instead of redirecting to the login page.
+
+.. index::
+    single: permission_required
+    single: permission_required_or_403
