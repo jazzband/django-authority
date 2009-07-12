@@ -13,13 +13,13 @@ Where to store permissions?
 ===========================
 
 First of all: All following permission classes should be placed in a file
-called ``permissions.py`` in your application or project-directory. For the 
-*why* please have a look on `How permissions are discovered`_.
+called ``permissions.py`` in your application. For the  *why* please have a
+look on `How permissions are discovered`_.
 
-A basic permission
-==================
+Basic permissions
+=================
 
-Let's start with a example::
+Let's start with an example::
 
     import authority
     from authority import permissions
@@ -30,26 +30,26 @@ Let's start with a example::
 
     authority.register(Flatpage, FlatpagePermission)
 
-Let's make the code clear. First of, if you want to create a new permission
-you have to subclass it from the BasePermission class::
+Let's have a look at the code above. First of, if you want to create a new
+permission you have to subclass it from the BasePermission class::
 
     from authority import permissions
     class FlatpagePermission(permissions.BasePermission):
         # ...
 
-Next you need to name this permission using the ``label`` attribute::
+Next, you need to name this permission using the ``label`` attribute::
 
     class FlatpagePermission(permissions.BasePermission):
         label = 'flatpage_permission'
 
-And finally you need to register the permission to the pool of all other
+And finally you need to register the permission with the pool of all other
 permissions::
 
     authority.register(Flatpage, FlatpagePermission)
 
 The syntax of this is simple::
 
-    authority.register(<model>, <permissionclass>)
+    authority.register(<model>, <permission_class>)
 
 While this is not much code, you already wrapped Django's basic permissions
 (add_flatpage, change_flatpage, delete_flatpage) for the model ``Flatpage``
@@ -64,7 +64,7 @@ Example permission checks
 =========================
 
 This section shows you how to check for Django's basic permissions with
-django-authorit
+django-authority.
 
 In your python code
 -------------------
@@ -102,18 +102,17 @@ See :ref:`check-templates` how the templatetag works in detail.
 How permissions are discovered
 ==============================
 
-On first runtime of your project ``authority.autodiscover()`` will load all
-``permission.py`` files that are in your ``settings.INSTALLED_APPS``
+On first runtime of your Django project ``authority.autodiscover()`` will
+load all ``permissions.py`` files that are in your ``settings.INSTALLED_APPS``
 applications. See :ref:`configuration` how to set up ``autodiscover``.
 
 .. image:: .static/authority-permission-py.png
    :align: left
    
-We encourage you to place your permission-classes in a file called
-``permission.py`` inside your project or application directory. Not only that
-this behaviour will keep your application structure clean, if you use
-``authority.autodiscover()`` it's guaranteed that every permission-class is
-loaded at runtime.
+We encourage you to place your permission classes in a file called
+``permissions.py`` inside your application directories. This will not only
+keep your application files clean, but it will also load  every permission
+class at runtime when used with ``authority.autodiscover()``.
 
 If you really want, you can place these permission-classes in other files
 that are loaded at runtime. ``__init__.py`` or ``models.py`` are such files.

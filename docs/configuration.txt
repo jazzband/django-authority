@@ -12,7 +12,7 @@ Configuration
 settings.py
 ===========
 
-To enable django-authority just need to add the package to your
+To enable django-authority you just need to add the package to your
 ``INSTALLED_APPS`` setting within your ``settings.py``::
 
     # settings.py

@@ -13,26 +13,26 @@ permission*. A description would be::
     If the user has <codename> and the object has <codename> then do-something,
     otherwise do-something-else.
 
-This might sound strange but let's have a deeper look on this. In terms of
-users and flatpages a visual example would be:
+This might sound strange but let's have a closer look on this pattern.
+In terms of users and flatpages a visual example would be:
 
 .. image:: .static/authority-object-1to1.png
 
-*The user is allowed to review the flatpage Events.*
+*The user is allowed to review the flatpage "Events".*
 
 You are not limited to a 1:1 relation, you can add this ``codename`` to
 multiple objects:
 
 .. image:: .static/authority-object-1toN.png
 
-*The user is allowed to review the flatpages Events and Contact.*
+*The user is allowed to review the flatpages "Events" and "Contact".*
 
 And you can do this with any objects in any direction:
 
 .. image:: .static/authority-object-NtoN.png
 
-*The user is allowed to review the flatpages Events and Contact. Another user
-is allowed to publish the flatpage Events.*
+*The user is allowed to review the flatpages "Events" and "Contact". Another
+user is allowed to publish the flatpage "Events".*
 
 Create per-object permissions
 =============================
@@ -55,8 +55,8 @@ This tells the permission class that it has a permission check (or ``codename``)
 ``review``. Under the hood this check gets translated to ``review_flatpage``
 (``review_<modelname>``).
 
-.. important:: Be sure that you have understand that we have not written any line
-   of code yet. We just added the ``codename`` to the checks attribute.
+.. important:: Be sure that you have understand that we have not written any
+   line of code yet. We just added the ``codename`` to the checks attribute.
 
 Attach per-object permissions to objects
 ========================================
@@ -66,7 +66,7 @@ Please see :ref:`handling-admin` for this.
 Check per-object permissions
 ============================
 
-As we noted above, we have not written any permission-comparing code yet. This
+As we noted above, we have not written any permission comparing code yet. This
 is your work. In theory the permission lookup for per-object permissions is::
 
     if <theuser> has <codename> and <object> has <codename>:
@@ -76,10 +76,9 @@ is your work. In theory the permission lookup for per-object permissions is::
 
 .. important::
 
-    The syntax is similiar to the permission-checks we have already
-    seen in :ref:`create-basic-permission` for the basic permissions but now we
-    have to give each function an ``obj`` argument containing the model-instance
-    we want to check!
+    The syntax is similiar to the permission checks we've already
+    seen in :ref:`create-basic-permission` for the basic permissions but now
+    we have to pass each function a model instance we want to check!
 
 In your python code
 -------------------
@@ -89,7 +88,7 @@ In your python code
     def my_view(request):    
         check = FlatPagePermission(request.user)
         flatpage_object = Flatpage.objects.get(url='/homepage/')
-        if check.review_flatpage(obj=flatpage_object):
+        if check.review_flatpage(flatpage_object):
             print "Yay, you can change *this* flatpage!"
 
 Using the view decorator

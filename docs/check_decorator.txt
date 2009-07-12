@@ -23,13 +23,15 @@ Lets start with an example permission::
 
 A decorator for such a simple view would look like::
 
+    from authority.decorators import permission_required
+
     @permission_required('flatpage_permission.can_do_foo')
     def my_view(request):
         # ...
 
-The decorator automatically takes the user object from the view's request and
-calls ``can_do_foo``. If this function returns ``True``, the view gets passed
-otherwise the user will be redirected to the login page.
+The decorator automatically takes the user object from the view's arguments
+and calls ``can_do_foo``. If this function returns ``True``, the view gets
+called, otherwise the user will be redirected to the login page.
 
 Passing arguments to the permission
 -----------------------------------
@@ -95,10 +97,15 @@ Contributed decorators
 ======================
 
 django-authority contributes two decorators, the syntax of both is the same as
-described upper:
+described above:
 
 * permission_required
 * permission_required_or_403
 
 In a nutshell, ``permission_required_or_403`` does the same as ``permission_required``
 except it returns a Http403 Response instead of redirecting to the login page.
+
+Just like Django's ``500.html`` and ``404.html`` you are able to override the
+template used in the permission denied page. Simply create a ``403.html``
+template in your template directory. It will get the path of the denied page
+passed as the context variable ``request_path``.

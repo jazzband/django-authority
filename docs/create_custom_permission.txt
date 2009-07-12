@@ -4,7 +4,7 @@
 Create a custom permission
 ==========================
 
-django-authority allows you to define powerful custom permission. Lets start
+django-authority allows you to define powerful custom permission. Let's start
 again with an example code::
 
     import authority
@@ -16,7 +16,7 @@ again with an example code::
 
     authority.register(Flatpage, FlatpagePermission)
 
-A custom permission is a simple functions within the class::
+A custom permission is a simple method of the permission class::
 
     import authority
     from authority import permissions
@@ -39,7 +39,7 @@ attribute, like in :ref:`create-per-object-permission`::
     checks = (my_custom_check',)
 
 The permission itself is a simple function that accepts an arbitrary number of
-arguments. A permission class should always return a boolean wether the
+arguments. A permission class should always return a boolean whether the
 permission is True or False::
 
     def my_custom_check(self, flatpage):
@@ -47,9 +47,9 @@ permission is True or False::
             return True
         return False
 
-.. warning:: Unless it's possible to return other values than ``True``, for 
-   example an object which is also True in a boolean way, we highly advise
-   to return only booleans.
+.. warning:: Although it's possible to return other values than ``True``, for 
+   example an object which also evluates to True, we highly advise to only
+   return booleans.
 
 Custom permissions are not necessary related to a model, you can define more
 simpler permissions too. For example, return True if it's between 10 and 12
@@ -61,13 +61,13 @@ o'clock::
             return True
         return False
 
-But mostly you want to combine such permissions checks. The next example would
-allow an user to have permission to edit a flatpage only between 10 and 12
-o'clock::
+But most often you want to combine such permissions checks. The next example
+would allow an user to have permission to edit a flatpage only between
+8 and 12 o'clock in the morning::
 
-    def datetime_flatpage_check(self, flatpage):
+    def morning_flatpage_check(self, flatpage):
         hour = int(datetime.datetime.now().strftime("%H"))
-        if hour >= 10 and hour <= 12 and flatpage.url == '/about/':
+        if hour >= 8 and hour <= 12 and flatpage.url == '/about/':
             return True
         return False
 
@@ -77,10 +77,9 @@ Check custom permissions
 The permission check is similiar to :ref:`create-basic-permisson` and 
 :ref:`create-per-object-permission`.
 
-.. warning:: Until *per-object* permissions gets under the hood translated to 
-   ``<permname>_<modelname>`` this is not the case in custom permissions! A
-   permission ``my_custom_check`` remains ``my_custom_check``.
-
+.. warning:: Although *per-object* permissions are translated to
+   ``<permname>_<modelname>`` this is not the case for custom permissions!
+   A custom permission ``my_custom_check`` remains ``my_custom_check``.
 
 In your python code
 -------------------
