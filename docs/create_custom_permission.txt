@@ -74,7 +74,7 @@ o'clock::
 Check custom permissions
 ========================
 
-The permission check is similiar to :ref:`create-basic-permisson` and 
+The permission check is similar to :ref:`create-basic-permission` and 
 :ref:`create-per-object-permission`.
 
 .. warning:: Until *per-object* permissions gets under the hood translated to 

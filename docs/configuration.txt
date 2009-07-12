@@ -1,9 +1,4 @@
 .. _configuration:
-
-.. index::
-    single: urls.py
-    single: settings.py
-    single: autodiscover
     
 =============
 Configuration
@@ -49,3 +44,8 @@ classes you defined::
 
 
 That's all (for now).
+
+.. index::
+    single: urls.py
+    single: settings.py
+    single: autodiscover
