@@ -1,0 +1,7 @@
+.. _permission_create_custom:
+
+==========================
+Create a custom permission
+==========================
+
+django-authority allows you to define 

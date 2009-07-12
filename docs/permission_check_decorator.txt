@@ -1,0 +1,5 @@
+.. _permission_check_decorator::
+
+=====================================
+Check permissions using the decorator
+=====================================

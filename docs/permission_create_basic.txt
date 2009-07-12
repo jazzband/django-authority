@@ -4,11 +4,111 @@
 Create a basic permission
 =========================
 
+Where to store permissions?
+===========================
+
+First of all: All following permission classes should be placed in a file
+called ``permissions.py`` in your application or project-directory. For the 
+*why* please have a look on `How permissions are discovered`_.
+
+A basic permission
+==================
+
+Let's start with a example::
+
+    import authority
+    from authority import permissions
+    from django.contrib.flatpages.models import Flatpage
+
+    class FlatpagePermission(permissions.BasePermission):
+        label = 'flatpage_permission'
+
+    authority.register(Flatpage, FlatpagePermission)
+
+Let's make the code clear. First of, if you want to create a new permission
+you have to subclass it from the BasePermission class::
+
+    from authority import permissions
+    class FlatpagePermission(permissions.BasePermission):
+        # ...
+
+Next you need to name this permission using the ``label`` attribute::
+
+    class FlatpagePermission(permissions.BasePermission):
+        label = 'flatpage_permission'
+
+And finally you need to register the permission to the pool of all other
+permissions::
+
+    authority.register(Flatpage, FlatpagePermission)
+
+The syntax of this is simple::
+
+    authority.register(<model>, <permissionclass>)
+
+While this is not much code, you already wrapped Django's basic permissions
+(add_flatpage, change_flatpage, delete_flatpage) for the model ``Flatpage``
+and you are ready to use it within your templates or code:
+
+.. note:: See `Django's basic permissions`_ how Django creates this permissions for you.
+
+.. _Django's basic permissions: http://docs.djangoproject.com/en/dev/topics/auth/#permissions
+
+
+Example permission checks
+=========================
+
+This section shows you how to check for Django's basic permissions with
+django-authorit
+
+In your python code
+-------------------
+::
+
+    def my_view(request):    
+        check = FlatPagePermission(request.user)
+        if check.change_flatpage():
+            print "Yay, you can change a flatpage!"
+
+Using the view decorator
+------------------------
+::
+
+    from authority.decorators import permission_required_or_403
+
+    @permission_required_or_403('flatpage_permission.change_flatpage')
+    def my_view(request):
+        # ...
+        
+See :ref:`permission_check_decorator` how the decorator works in detail.
+        
+In your templates
+-----------------
+::
+
+    {% ifhasperm "flatpage_permission.change_flatpage" request.user %}
+        Yay, you can change a flatpage!
+    {% else %}
+        Nope, sorry. You aren't allowed to change a flatpage.
+    {% endifhasperm %}
+
+See :ref:`permission_check_in_templates` how the templatetag works in detail.
 
 How permissions are discovered
 ==============================
 
+On first runtime of your project ``authority.autodiscover()`` will load all
+``permission.py`` files that are in your ``settings.INSTALLED_APPS``
+applications. See :ref:`configuration` how to set up ``autodiscover``.
+
 .. image:: .static/authority-permission-py.png
    :align: left
+   
+We encourage you to place your permission-classes in a file called
+``permission.py`` inside your project or application directory. Not only that
+this behaviour will keep your application structure clean, if you use
+``authority.autodiscover()`` it's guaranteed that every permission-class is
+loaded at runtime.
 
-lala
+If you really want, you can place these permission-classes in other files
+that are loaded at runtime. ``__init__.py`` or ``models.py`` are such files.
