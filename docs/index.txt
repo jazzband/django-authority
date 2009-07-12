@@ -4,19 +4,33 @@
 Welcome to django-authority's documentation!
 ============================================
 
-A Django app for per-object-permissions, loosely based on
-`django-granular-permissions`_.
+django-authority is a layer between Django's basic permission system (provided
+through ``django.contrib.auth`` and your application:
 
-.. _django-granular-permissions: http://code.google.com/p/django-granular-permissions/
+.. image:: .static/authority-scheme-layer.png
+
+.. note:: django-authority does not add any voodoo-schmoodoo to Django's
+   contrib.auth system so your existing permission system keeps intact!
+
+Summarized this application provides three abilities:
+
+1. It gives you the ability to add permissions like Django's generic permissions
+   to any kind of model without storing them in the model's META attribute.
+
+2. It provides a very simple way to create per-object-permissions. (Also known
+   as row level permissions)
+
+3. It wraps Django's generic permissions so you can use the same syntax as
+   for the above ones.
+   
+Before staring please have a look on the topics:
 
 .. toctree::
-   :numbered:
-   :glob:
 
    installation
    configuration
-   *
-    
+
+
 
 Indices and tables
 ==================
