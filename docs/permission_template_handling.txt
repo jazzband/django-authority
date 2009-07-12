@@ -1,0 +1,5 @@
+.. _permission_template_handling:
+
+====================================
+Handling permissions using templates
+====================================

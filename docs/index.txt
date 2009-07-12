@@ -29,6 +29,9 @@ Summarized this application provides three abilities:
 Documentation
 =============
 
+.. note:: The create-permission topics are based on each other. If you are new
+   to django-authority we encourage to read from top to bottom.
+
 **Installation topics:**
 
 .. toctree::
@@ -38,18 +41,33 @@ Documentation
    configuration
 
 **Create and check permissions:**
-
+   
 .. toctree::
    :maxdepth: 1
    
    permission_create_basic
    permission_create_per_object
    permission_create_custom
-   permission_admin_handling
 
-.. note:: The create-permission topics are based on each other. If you are new
-   to django-authority we encourage to read from top to bottom.
+**Permission checks in detail**
+
+.. toctree::
+   :maxdepth: 1
    
+   permission_check_python
+   permission_check_decorator
+   permission_check_in_templates
+
+**Permission assigning and handling**
+
+.. toctree::
+   :maxdepth: 1
+  
+ 
+   permission_python_handling
+   permission_admin_handling
+   permission_template_handling
+
 Other pages
 ===========
 
