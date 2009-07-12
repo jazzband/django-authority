@@ -9,23 +9,24 @@ django-authority is a powerful layer between Django's basic permission system
 
 .. image:: .static/authority-scheme-layer.png
 
-Summarized this application provides three abilities:
+This application provides three abilities:
 
-1. It gives you the ability to add permissions like Django's generic permissions
-   to any kind of model without storing them in the model's META attribute.
+1. It gives you the ability to add permissions like Django's generic
+   permissions to any kind of model without having to add them to the model's
+   Meta class.
 
 2. It provides a very simple way to create per-object-permissions. You might
    be more familiar with the term *row level permissions*.
-   
+
 3. It wraps Django's generic permissions so you can use the same syntax as
-   for the above ones. But note that django-authority does not add any
-   voodoo-code to Django's ``contrib.auth`` system so your existing permission
-   system keeps intact!
+   for the options above. But note that django-authority does not add any
+   voodoo-code to Django's ``contrib.auth`` system, it keeps your existing
+   permission system intact!
 
 .. warning:: We have just started with the documentation and it's far from
    being perfect. If you find glitches, errors or just have feedback, please
    contact the team: :ref:`support`.
-   
+
 Documentation
 =============
 

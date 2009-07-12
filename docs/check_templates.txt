@@ -4,6 +4,11 @@
 Check permissions in templates
 ==============================
 
+.. index::
+    single: ifhasperm
+    single: get_permissions
+    single: get_permission
+
 django-authority provides a couple of template tags which allows you to get
 permissions for a user (and a related object).
 
@@ -67,8 +72,3 @@ Example::
     {% else %}
         Meh. No power for meeeee.
     {% endif %}
-
-.. index::
-    single: ifhasperm
-    single: get_permissions
-    single: get_permission

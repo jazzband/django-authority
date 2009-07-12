@@ -4,10 +4,14 @@
 Support
 =======
 
+.. index::
+    single: Support
+
 We've created a `google group`_ for django-authority. If you have questions or
 suggestions, please drop us a note.
 
-.. _google group: http://groups.google.com/group/django-authority
+For more specific issues and bug reports please use the `issue tracker`_ on
+django-authority's Bitbucket page.
 
-.. index::
-    single: Support
+.. _google group: http://groups.google.com/group/django-authority
+.. _issue tracker: http://bitbucket.org/jezdez/django-authority/issues/

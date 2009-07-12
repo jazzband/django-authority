@@ -4,10 +4,15 @@
 Configuration
 =============
 
+.. index::
+    single: urls.py
+    single: settings.py
+    single: autodiscover
+
 settings.py
 ===========
 
-To enable django-authority just need to add the package to your
+To enable django-authority you just need to add the package to your
 ``INSTALLED_APPS`` setting within your ``settings.py``::
 
     # settings.py
@@ -44,8 +49,3 @@ classes you defined::
 
 
 That's all (for now).
-
-.. index::
-    single: urls.py
-    single: settings.py
-    single: autodiscover
