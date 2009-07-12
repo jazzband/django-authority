@@ -4,6 +4,9 @@
 Configuration
 =============
 
+settings.py
+===========
+
 To enable django-authority just need to add the package to your
 ``INSTALLED_APPS`` setting within your ``settings.py``::
 
@@ -12,6 +15,20 @@ To enable django-authority just need to add the package to your
         ...
         'authority',
     )
+
+Make sure your ``settings.py`` contains the following settings to enable the
+context processors::
+
+    TEMPLATE_CONTEXT_PROCESSORS = (
+        'django.core.context_processors.auth',
+        'django.core.context_processors.debug',
+        'django.core.context_processors.i18n',
+        'django.core.context_processors.media',
+        'django.core.context_processors.request',
+    )
+    
+urls.py
+=======
 
 You also have to modify your root URLConf (e.g. ``urls.py``) to include the
 app's URL configuration and automatically discover all the permission
@@ -25,15 +42,5 @@ classes you defined::
         (r'^authority/', include('authority.urls')),
     )
 
-Make sure your ``settings.py`` contains the following settings to enable the
-context processors::
-
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.core.context_processors.auth',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.request',
-    )
 
 That's all (for now).

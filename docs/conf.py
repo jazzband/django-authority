@@ -46,6 +46,7 @@ copyright = u'2009, Jannis Leidel'
 #
 # The short X.Y version.
 version = '0.1'
+
 # The full version, including alpha/beta/rc tags.
 release = '0.1'
 
@@ -147,7 +148,7 @@ html_static_path = ['.static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the

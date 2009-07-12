@@ -1,0 +1,5 @@
+.. _permission_check_in_templates:
+
+==================================
+Check for permissions in templates
+==================================

@@ -1,0 +1,9 @@
+.. _permission_create_key_lock:
+
+==============================
+Create a *key-lock* permission
+==============================
+
+
+Using the admin
+===============

@@ -9,9 +9,6 @@ through ``django.contrib.auth`` and your application:
 
 .. image:: .static/authority-scheme-layer.png
 
-.. note:: django-authority does not add any voodoo-schmoodoo to Django's
-   contrib.auth system so your existing permission system keeps intact!
-
 Summarized this application provides three abilities:
 
 1. It gives you the ability to add permissions like Django's generic permissions
@@ -21,21 +18,44 @@ Summarized this application provides three abilities:
    as row level permissions)
 
 3. It wraps Django's generic permissions so you can use the same syntax as
-   for the above ones.
+   for the above ones. But note that django-authority does not add any
+   voodoo-code to Django's ``contrib.auth`` system so your existing permission
+   system keeps intact!
    
-Before staring please have a look on the topics:
+Documentation
+=============
+
+**Installation topics:**
 
 .. toctree::
-
+   :maxdepth: 1
+   
    installation
    configuration
 
+**Creating permissions:**
 
+.. toctree::
+   :maxdepth: 1
+   
+   permission_create_basic
+   permission_create_your_own
+   permission_create_key_lock
+   permission_admin_handling
+   
+**Checking permissions:**
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 1
+   
+   permission_check_in_views
+   permission_check_using_the_decorator
+   permission_check_in_templates
+
+Other pages
+===========
+
+* :ref:`search`
 
 .. * :ref:`genindex`
 .. * :ref:`modindex`
-* :ref:`search`
-

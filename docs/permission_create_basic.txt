@@ -1,0 +1,14 @@
+.. _permission_create_basic:
+
+=========================
+Create a basic permission
+=========================
+
+
+How permissions are discovered
+==============================
+
+.. image:: .static/authority-permission-py.png
+   :align: left
+
+lala
