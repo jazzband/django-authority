@@ -1,5 +1,0 @@
-.. _permission_create_your_own:
-
-==========================
-Create your own permission
-==========================

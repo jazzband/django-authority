@@ -1,5 +1,0 @@
-.. _permission_check_in_views:
-
-===================================
-Check for permissions in your views
-===================================
