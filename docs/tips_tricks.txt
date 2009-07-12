@@ -19,3 +19,15 @@ You can unregister permission classes and re-register them::
 
     authority.unregister(Campaign)
     authority.register(Campaign, CampaignPermission)
+
+Within a permission class, you can refer to Django's basic permissions::
+
+    class FlagpagePermisson(permissions.BasePermission):
+        label = 'flatpage_permission'
+        checks = ('do_foo',)
+
+        def do_foo(self, campaign=None):
+            if foo and self.change_flatpage():
+                # ...
+
+    authority.register(Flatpage, FlagpagePermisson)
