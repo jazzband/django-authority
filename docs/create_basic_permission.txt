@@ -1,13 +1,13 @@
 .. _create-basic-permission:
 
+=========================
+Create a basic permission
+=========================
+
 .. index::
     single: autodiscover
     single: permissions.py
     single: BasePermission
-
-=========================
-Create a basic permission
-=========================
 
 Where to store permissions?
 ===========================

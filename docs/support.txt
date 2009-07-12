@@ -1,11 +1,11 @@
 .. _support:
 
-.. index::
-    single: Support
-    
 =======
 Support
 =======
+
+.. index::
+    single: Support
 
 We've created a `google group`_ for django-authority. If you have questions or
 suggestions, please drop us a note.

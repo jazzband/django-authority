@@ -1,13 +1,13 @@
 .. _configuration:
 
+=============
+Configuration
+=============
+
 .. index::
     single: urls.py
     single: settings.py
     single: autodiscover
-    
-=============
-Configuration
-=============
 
 settings.py
 ===========
