@@ -2,10 +2,10 @@ from django import template
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User, AnonymousUser
+from django.core.urlresolvers import reverse
 
 from authority import permissions, get_check
 from authority.models import Permission
-from authority.views import add_url_for_obj
 from authority.forms import UserPermissionForm
 
 register = template.Library()
@@ -28,6 +28,13 @@ class ResolverNode(template.Node):
             return var[1:-1]
         else:
             return template.Variable(var).resolve(context)
+
+@register.simple_tag
+def add_url_for_obj(obj):
+    return reverse('authority-add-permission', kwargs={
+            'app_label': obj._meta.app_label,
+            'module_name': obj._meta.module_name,
+            'pk': obj.pk})
 
 class ComparisonNode(ResolverNode):
     """
