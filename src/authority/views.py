@@ -2,7 +2,6 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.db.models.loading import get_model
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext
 from django.template.context import RequestContext
 from django.template import loader
@@ -10,12 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from authority.models import Permission
 from authority.forms import UserPermissionForm
-
-def add_url_for_obj(obj):
-    return reverse('authority-add-permission', kwargs={
-            'app_label': obj._meta.app_label,
-            'module_name': obj._meta.module_name,
-            'pk': obj.pk})
+from authority.templatetags.permissions import add_url_for_obj
 
 @require_POST
 @login_required
