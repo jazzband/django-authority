@@ -1,6 +1,6 @@
 from inspect import getmembers, ismethod
+from django.db import models
 from django.db.models.base import ModelBase
-from django.db.models.fields import BLANK_CHOICE_DASH
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
@@ -39,7 +39,7 @@ class PermissionSite(object):
     def get_labels(self):
         return [perm.label for perm in self._registry.values()]
 
-    def get_choices_for(self, obj, default=BLANK_CHOICE_DASH):
+    def get_choices_for(self, obj, default=models.BLANK_CHOICE_DASH):
         model_cls = obj
         if not isinstance(obj, ModelBase):
             model_cls = obj.__class__
@@ -112,6 +112,7 @@ class PermissionSite(object):
             if func_name not in permission.checks:
                 permission.checks.append(func_name)
             setattr(permission, func_name, func)
+        setattr(model, "permissions", PermissionDescriptor())
 
     def create_check(self, check_name, check_func=None, generic=False):
         def check(self, *args, **kwargs):
@@ -120,6 +121,20 @@ class PermissionSite(object):
                 return check_func(self, *args, **kwargs)
             return granted
         return check
+
+class PermissionDescriptor(object):
+    def get_content_type(self, obj=None):
+        ContentType = models.get_model("contenttypes", "contenttype")
+        if obj:
+            return ContentType.objects.get_for_model(obj)
+        else:
+            raise Exception("Dude, impossible arguments to PermissionDescriptor.get_content_type!")
+
+    def __get__(self, instance):
+        if instance is None:
+            return self
+        ct = self.get_content_type(instance)
+        return ct.row_permissions.all()
 
 site = PermissionSite()
 get_check = site.get_check
