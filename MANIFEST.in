@@ -4,3 +4,6 @@ include buildout.cfg
 include buildout.py
 recursive-include src/authority/templates/authority *
 recursive-include src/authority/templates/admin *
+recursive-include docs *.txt *.html
+recursive-exclude docs/build *.txt
+prune docs/build/html/_sources
