@@ -6,12 +6,17 @@ Handling permissions using Django's admin interface
 
 *to be written*
 
+.. note:: Django admin actions are available in Django 1.1 or later.
+
 Apply permissions using Django's admin actions
 ==============================================
 
-.. note:: Django admin actions are available in Django 1.1 or later.
+This feature is limited to superusers and users with either the
+"Can change permission" (``change_permission``) or the
+"Can change foreign permission" (``change_foreign_permission``) `permission`_.
 
 .. image:: .static/admin-action-permission.png
+.. _permission: http://docs.djangoproject.com/en/dev/topics/auth/#permissions
 
 Disable the admin action site-wide
 ----------------------------------
@@ -22,13 +27,7 @@ One of your app ``admin.py`` files might be a good place::
     admin.site.disable_action('edit_permissions')
 
 Further informations are available in Django's documentation:
-`Disabling a site-wide action`_. If you encounter an error like::
-
-    Exception Type: KeyError at /admin/weblog/entry/
-    Exception Value: 'edit_permissions'
-
-Make sure you placed ``authority.autodiscover()`` before ``admin.autodiscover()``.
-See :ref:`configuration` for details.
+`Disabling a site-wide action`_.
 
 .. _Disabling a site-wide action: http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/#disabling-a-site-wide-action
 

@@ -9,6 +9,7 @@ from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 
 try:
     from django.contrib.admin import actions
@@ -46,6 +47,13 @@ class ActionErrorList(forms.util.ErrorList):
 def edit_permissions(modeladmin, request, queryset):
     opts = modeladmin.model._meta
     app_label = opts.app_label
+
+    # Check that the user has the permission to edit permissions
+    if not (request.user.is_superuser or
+            request.user.has_perm('authority.change_permission') or
+            request.user.has_perm('authority.change_foreign_permissions')):
+        raise PermissionDenied
+
     inline = ActionPermissionInline(queryset.model, modeladmin.admin_site)
     formsets = []
     for obj in queryset:
