@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name='django-authority',
-    version='0.2',
+    version='0.3',
     description="A Django app that provides generic per-object-permissions for Django's auth app.",
     long_description=read('README'),
     author='Jannis Leidel',
