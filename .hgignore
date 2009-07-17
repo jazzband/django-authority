@@ -20,7 +20,5 @@ downloads/*
 .installed.cfg
 bin/*
 develop-eggs/*.egg-link
-src/authority/_models/*
 src/example/example.db
 docs/build
-upload_docs.sh
