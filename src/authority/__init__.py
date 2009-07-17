@@ -29,6 +29,3 @@ def autodiscover():
         __import__("%s.permissions" % app)
         app_path = sys.modules["%s.permissions" % app]
     LOADING = False
-
-    # Register the "edit_permission" action with the default admin site
-    from authority import actions

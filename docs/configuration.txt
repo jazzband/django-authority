@@ -39,23 +39,20 @@ You also have to modify your root URLConf (e.g. ``urls.py``) to include the
 app's URL configuration and automatically discover all the permission
 classes you defined::
 
+    from django.contrib import admin
     import authority
-    
+
+    admin.autodiscover()
     authority.autodiscover()
-    
+
+    # ...
+
     urlpatterns += patterns('',
         (r'^authority/', include('authority.urls')),
     )
-    
-If you're using Django 1.1 and Django's admin interface, make sure you place
-``authority.autodiscover()`` **before** ``admin.autodiscover()``::
 
-    authority.autodiscover()
-    admin.autodiscover()
-
-This is because django-authority automatically adds a `site-wide action`_ to the
-admin-site and it prevents errors if you later decide to remove this action.
-See :ref:`handling-admin` how to remove the admin action.
+If you're using Django 1.1 this will automatically add a `site-wide action`_
+to the admin site which can be removed as shown here: :ref:`handling-admin`.
 
 That's all (for now).
 
