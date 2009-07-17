@@ -92,4 +92,4 @@ def edit_permissions(modeladmin, request, queryset):
 edit_permissions.short_description = ugettext("Permissions for selected %(verbose_name_plural)s")
 
 if actions:
-    site.add_action(edit_permissions)
+    site.add_action(edit_permissions, name='edit_permissions')

@@ -46,6 +46,17 @@ classes you defined::
     urlpatterns += patterns('',
         (r'^authority/', include('authority.urls')),
     )
+    
+If you're using Django 1.1 and Django's admin interface, make sure you place
+``authority.autodiscover()`` **before** ``admin.autodiscover()``::
 
+    authority.autodiscover()
+    admin.autodiscover()
+
+This is because django-authority automatically adds a `site-wide action`_ to the
+admin-site and it prevents errors if you later decide to remove this action.
+See :ref:`handling-admin` how to remove the admin action.
 
 That's all (for now).
+
+.. _site-wide action: http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/
