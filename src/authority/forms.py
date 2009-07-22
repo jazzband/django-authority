@@ -30,8 +30,6 @@ class BasePermissionForm(forms.ModelForm):
         super(BasePermissionForm, self).__init__(*args, **kwargs)
 
     def save(self, request, commit=True, *args, **kwargs):
-        if not self.approved:
-            self.instance.user = request.user
         self.instance.creator = request.user
         self.instance.content_type = ContentType.objects.get_for_model(self.obj)
         self.instance.object_id = self.obj.id
