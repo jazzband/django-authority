@@ -24,15 +24,17 @@ def add_permission(request, app_label, module_name, pk, approved=False,
     if approved:
         template_name = 'authority/permission_form.html'
         view_name = 'authority-add-permission'
+        user = None
     else:
         template_name = 'authority/permission_request_form.html'
         view_name = 'authority-add-request'
+        user = request.user
 
     if request.method == 'POST':
         if codename is None:
             return HttpResponseForbidden(next)
         form = UserPermissionForm(data=request.POST, obj=obj, approved=approved,
-            perm=codename, initial=dict(codename=codename))
+            perm=codename, initial=dict(codename=codename, user=user))
         if form.is_valid():
             form.save(request)
             request.user.message_set.create(
@@ -40,7 +42,7 @@ def add_permission(request, app_label, module_name, pk, approved=False,
             return HttpResponseRedirect(next)
     else:
         form = UserPermissionForm(obj=obj, perm=codename, approved=approved, 
-            initial=dict(codename=codename))
+            initial=dict(codename=codename, user=user))
 
     context = {
         'form': form,
