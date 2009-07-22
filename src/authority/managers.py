@@ -10,10 +10,10 @@ class PermissionManager(models.Manager):
     def get_for_model(self, obj):
         return self.filter(content_type=self.get_content_type(obj))
 
-    def for_object(self, obj):
+    def for_object(self, obj, approved=True):
         return self.get_for_model(obj).select_related(
             'user', 'creator', 'group', 'content_type'
-        ).filter(object_id=obj.id)
+        ).filter(object_id=obj.id,approved=approved)
 
     def for_user(self, user, obj, check_groups=True):
         perms = self.get_for_model(obj)
@@ -22,15 +22,17 @@ class PermissionManager(models.Manager):
         return perms.select_related('user', 'user__groups', 'creator').filter(
             Q(user=user) | Q(group__in=user.groups.all()))
 
-    def user_permissions(self, user, perm, obj, check_groups=True):
-        return self.for_user(user, obj, check_groups).filter(codename=perm)
+    def user_permissions(self, user, perm, obj, approved=True, check_groups=True):
+        return self.for_user(user, obj, check_groups).filter(codename=perm, 
+                                                             approved=approved)
 
-    def group_permissions(self, group, perm, obj):
+    def group_permissions(self, group, perm, obj, approved=True):
         """
         Get objects that have Group perm permission on
         """
         return self.get_for_model(obj).select_related(
-            'user', 'group', 'creator').filter(group=group, codename=perm)
+            'user', 'group', 'creator').filter(group=group, codename=perm, 
+                                               approved=approved)
 
     def delete_objects_permissions(self, obj):
         """
@@ -48,3 +50,5 @@ class PermissionManager(models.Manager):
             return
         perms = self.user_permissions(user, perm, obj).filter(object_id=obj.id)
         perms.delete()
+
+                              

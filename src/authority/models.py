@@ -21,15 +21,29 @@ class Permission(models.Model):
     group = models.ForeignKey(Group, null=True, blank=True)
     creator = models.ForeignKey(User, null=True, blank=True, related_name='created_permissions')
 
+    approved = models.BooleanField(default=False)
+
     objects = PermissionManager()
 
     def __unicode__(self):
         return self.codename
 
     class Meta:
+        unique_together = ("codename", "object_id", "content_type", "user", "group")
         verbose_name = _('permission')
         verbose_name_plural = _('permissions')
         permissions = (
             ('change_foreign_permissions', 'Can change foreign permissions'),
             ('delete_foreign_permissions', 'Can delete foreign permissions'),
+            ('approve_permission_request', 'Can approve permission requests'),
         )
+
+
+    def approve_perm_request(self, creator):
+        """
+        Approve granular permission request setting a Permission entry as
+        approved=True for a specific action from an user on an object instance.
+        """
+        self.approved=True
+        self.creator=creator
+        self.save()

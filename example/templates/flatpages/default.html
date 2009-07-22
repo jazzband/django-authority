@@ -35,6 +35,17 @@
 
 </li>
 
+<li>The permissions requested for this flatpage:
+    
+  {% get_permission_requests flatpage as "all_perm_requests" %}
+  <ul><h4>get_permission_requests flatpage as "all_perm_requests"</h4>
+  {% for perm_request in all_perm_requests %}
+      <li>{{ perm_request.user }}: {{ perm_request }} {% permission_request_approve_link perm_request %}{% permission_request_delete_link perm_request %}</li>
+  {% endfor %}
+  </ul>
+
+</li>
+
 <li>Permission form for adding a specific permission "add_flatpage"
 {% permission_form flatpage "flatpage_permission.add_flatpage" %}
 </li>
@@ -47,6 +58,13 @@
 {% add_url_for_obj flatpage %}
 </li>
 
+<li>Request a kind of access:
+{% permission_request_form flatpage %}
+</li>
+
+<li>Permission requuest form for adding a specific permission "add_flatpage"
+{% permission_request_form flatpage "flatpage_permission.add_flatpage" %}
+</li>
 
 <li><h2>Detailed tests</h2>
 

@@ -35,7 +35,7 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
-    def has_user_perms(self, perm, obj, check_groups=True):
+    def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
             if self.user.is_superuser:
                 return True
@@ -43,15 +43,16 @@ class BasePermission(object):
                 return False
             # check if a Permission object exists for the given params
             return Permission.objects.user_permissions(self.user, perm, obj,
-                check_groups).filter(object_id=obj.id)
+                approved, check_groups).filter(object_id=obj.id)
         return False
 
-    def has_group_perms(self, perm, obj):
+    def has_group_perms(self, perm, obj, approved):
         """
         Check if group has the permission for the given object
         """
         if self.group:
-            perms = Permission.objects.group_permissions(self.group, perm, obj)
+            perms = Permission.objects.group_permissions(self.group, perm, obj, 
+                                                         approved)
             return perms.filter(object_id=obj.id)
         return False
 
@@ -60,11 +61,23 @@ class BasePermission(object):
         Check if user has the permission for the given object
         """
         if self.user:
-            if self.has_user_perms(perm, obj, check_groups):
+            if self.has_user_perms(perm, obj, True, check_groups):
                 return True
         if self.group:
-            return self.has_group_perms(perm, obj)
+            return self.has_group_perms(perm, obj, True)
         return False
+
+    def has_request(self, perm, obj, check_groups=True):
+        """
+        Check if user has the permission request for the given object
+        """
+        if self.user:
+            if self.has_user_perms(perm, obj, False, check_groups):
+                return True
+        if self.group:
+            return self.has_group_perms(perm, obj, False)
+        return False
+
 
     def can(self, check, generic=False, *args, **kwargs):
         if not args:
