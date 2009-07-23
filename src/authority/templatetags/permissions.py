@@ -115,7 +115,7 @@ def ifhasperm(parser, token):
 
     Syntax::
 
-        {% ifhasperm [permission_label].[check_name] [user] [*objs] %}
+        {% ifhasperm PERMISSION_LABEL.CHECK_NAME USER *OBJS %}
             lalala
         {% else %}
             meh
@@ -336,7 +336,7 @@ def get_permission(parser, token):
 
     Syntax::
 
-        {% get_permission [permission_label].[check_name] for [user] and [objs] as [varname] %}
+        {% get_permission PERMISSION_LABEL.CHECK_NAME for USER and *OBJS [as VARNAME] %}
 
         {% get_permission "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
         {% get_permission "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
@@ -352,7 +352,6 @@ def get_permission(parser, token):
                                                 approved=True,
                                                 name='"permission"')
 
-
 @register.tag
 def get_permission_request(parser, token):
     """
@@ -361,24 +360,21 @@ def get_permission_request(parser, token):
 
     Syntax::
 
-        {% get_permission_request [permission_label].[check_name] for [user] and [objs] as [varname] %}
+        {% get_permission_request PERMISSION_LABEL.CHECK_NAME for USER and *OBJS [as VARNAME] %}
 
-        {% get_permission_request "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
-        {% get_permission_request "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
+        {% get_permission_request "poll_permission.change_poll" for request.user and poll as "asked_for_permissio" %}
+        {% get_permission_request "poll_permission.change_poll" for request.user and poll,second_poll as "asked_for_permissio" %}
         
-        {% if is_allowed %}
-            I've got ze power to change ze pollllllzzz. Muahahaa.
+        {% if asked_for_permissio %}
+            Dude, you already asked for permission!
         {% else %}
-            Meh. No power for meeeee.
+            Oh, please fill out this 20 page form and sign here.
         {% endif %}
 
     """
     return PermissionForObjectNode.handle_token(parser, token,
                                                  approved=False,
                                                  name='"permission_request"')
-
-
-
 
 def base_link(context, perm, view_name):
     return {
