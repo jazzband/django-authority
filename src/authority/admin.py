@@ -1,6 +1,6 @@
 from django import forms, template
 from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
 from django.shortcuts import render_to_response
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
@@ -114,21 +114,19 @@ def edit_permissions(modeladmin, request, queryset):
     ])
     return render_to_response(template_name, context,
                               context_instance=template.RequestContext(request))
-edit_permissions.short_description = _("Permissions for selected %(verbose_name_plural)s")
+edit_permissions.short_description = _("Edit permissions for selected %(verbose_name_plural)s")
 
 class PermissionAdmin(admin.ModelAdmin):
-    list_display = ('codename', 'content_type', 'user', 'group')
-    list_filter = ('content_type',)
+    list_display = ('codename', 'content_type', 'user', 'group', 'approved')
+    list_filter = ('approved', 'content_type')
     search_fields = ('user__username', 'group__name', 'codename')
     raw_id_fields = ('user', 'group', 'creator')
     generic_fields = ('content_object',)
+    actions = ['approve_permissions']
     fieldsets = (
-        (None, {
-            'fields': ('codename', ('content_type', 'object_id'))
-        }),
-        (_('granted'), {
-            'fields': ('creator', ('user', 'group'),)
-        }),
+        (None, {'fields': ('codename', ('content_type', 'object_id'))}),
+        (_('Permitted'), {'fields': ('approved', 'user', 'group')}),
+        (_('Creation'), {'fields': ('creator', 'date_requested', 'date_approved')}),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -143,10 +141,18 @@ class PermissionAdmin(admin.ModelAdmin):
 
     def queryset(self, request):
         user = request.user
-        if user.is_superuser or \
-                user.has_perm('permissions.change_foreign_permissions'):
+        if (user.is_superuser or
+                user.has_perm('permissions.change_foreign_permissions')):
             return super(PermissionAdmin, self).queryset(request)
         return super(PermissionAdmin, self).queryset(request).filter(creator=user)
+
+    def approve_permissions(self, request, queryset):
+        for permission in queryset:
+            permission.approve(request.user)
+        message = ungettext("%(count)d permission successfully approved.",
+            "%(count)d permissions successfully approved.", len(queryset))
+        self.message_user(request, message % {'count': len(queryset)})
+    approve_permissions.short_description = _("Approve selected permissions")
 
 admin.site.register(Permission, PermissionAdmin)
 

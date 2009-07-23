@@ -4,7 +4,11 @@
     <input type="hidden" name="next" value="{{ next }}"/>
     {{ form.as_p }}
     <p class="submit">
+    {% if approved %}
         <input type="submit" value="{% trans "Grant permission" %}"/>
+    {% else %}
+        <input type="submit" value="{% trans "Request permission" %}"/>
+    {% endif %}
     </p>
 </form>
 {% endif %}

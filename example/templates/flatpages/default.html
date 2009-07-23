@@ -46,24 +46,28 @@
 
 </li>
 
-<li>Permission form for adding a specific permission "add_flatpage"
-{% permission_form flatpage "flatpage_permission.add_flatpage" %}
+<li>Permission form for adding a specific permission "top_secret"
+{% permission_form for flatpage using "flatpage_permission.top_secret" %}
 </li>
 
 <li>Permission form with a list of options queried from the authority
-{% permission_form flatpage %}
+{% permission_form for flatpage %}
 </li>
 
-<li>Add form url for this flatpage:
-{% add_url_for_obj flatpage %}
+<li>Add permission for this flatpage here:
+<a href="{% add_url_for_obj flatpage %}">{% add_url_for_obj flatpage %}</a>
 </li>
 
 <li>Request a kind of access:
-{% permission_request_form flatpage %}
+{% permission_request_form for flatpage %}
 </li>
 
-<li>Permission requuest form for adding a specific permission "add_flatpage"
-{% permission_request_form flatpage "flatpage_permission.add_flatpage" %}
+<li>Permission request form for adding a specific permission "add_flatpage"
+{% permission_request_form for flatpage using "flatpage_permission.add_flatpage" %}
+</li>
+
+<li>Request permission for this flatpage here:
+<a href="{% request_url_for_obj flatpage %}">{% request_url_for_obj flatpage %}</a>
 </li>
 
 <li><h2>Detailed tests</h2>

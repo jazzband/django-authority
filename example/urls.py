@@ -12,7 +12,7 @@ handler500 # Pyflakes
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     #('^admin/', include(admin.site.urls)),
-    (r'^perms/', include('authority.urls')),
+    (r'^authority/', include('authority.urls')),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^(?P<url>[\/0-9A-Za-z]+)$', 'example.exampleapp.views.top_secret', {'lala': 'oh yeah!'}),
 )

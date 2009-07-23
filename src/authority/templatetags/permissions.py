@@ -4,31 +4,27 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import User, AnonymousUser
 from django.core.urlresolvers import reverse
 
-from authority import permissions, get_check
+from authority import get_check
 from authority.models import Permission
 from authority.forms import UserPermissionForm
 
 register = template.Library()
 
-def _base_link(context, perm, view_name):
-    return {
-        'next': context['request'].build_absolute_uri(),
-        'url': reverse(view_name, kwargs={'permission_pk': perm.pk,}),
-    }
+@register.simple_tag
+def url_for_obj(view_name, obj):
+    return reverse(view_name, kwargs={
+            'app_label': obj._meta.app_label,
+            'module_name': obj._meta.module_name,
+            'pk': obj.pk})
 
-def _base_permission_form(context, obj, perm, user, approved, view_name):
-    return {
-        'form': UserPermissionForm(perm, obj, approved, 
-                                   initial=dict(codename=perm, user=user)),
-        'form_url': url_for_obj(view_name, obj),
-        'next': context['request'].build_absolute_uri(),
-    }
+@register.simple_tag
+def add_url_for_obj(obj):
+    return url_for_obj('authority-add-permission', obj)
 
-def next_bit_for(bits, key, if_none=None):
-    try:
-        return bits[bits.index(key)+1]
-    except ValueError:
-        return if_none
+@register.simple_tag
+def request_url_for_obj(obj):
+    return url_for_obj('authority-add-permission-request', obj)
+
 
 class ResolverNode(template.Node):
     """
@@ -43,21 +39,40 @@ class ResolverNode(template.Node):
         else:
             return template.Variable(var).resolve(context)
 
-@register.simple_tag
-def url_for_obj(view_name, obj):
-    return reverse(view_name, kwargs={
-            'app_label': obj._meta.app_label,
-            'module_name': obj._meta.module_name,
-            'pk': obj.pk})
+    @classmethod
+    def next_bit_for(cls, bits, key, if_none=None):
+        try:
+            return bits[bits.index(key)+1]
+        except ValueError:
+            return if_none
 
-@register.simple_tag
-def add_url_for_obj(obj):
-    return url_for_obj('authority-add-permission', obj)
 
-class ComparisonNode(ResolverNode):
+class PermissionComparisonNode(ResolverNode):
     """
     Implements a node to provide an "if user/group has permission on object"
     """
+    @classmethod
+    def handle_token(cls, parser, token):
+        bits = token.contents.split()
+        if 5 < len(bits) < 3:
+            raise template.TemplateSyntaxError("'%s' tag takes three, "
+                                                "four or five arguments" % bits[0])
+        end_tag = 'endifhasperm'
+        nodelist_true = parser.parse(('else', end_tag))
+        token = parser.next_token()
+        if token.contents == 'else': # there is an 'else' clause in the tag
+            nodelist_false = parser.parse((end_tag,))
+            parser.delete_first_token()
+        else:
+            nodelist_false = template.NodeList()
+        if len(bits) == 3: # this tag requires at most 2 objects . None is given
+            objs = (None, None)
+        elif len(bits) == 4:# one is given
+            objs = (bits[3], None)
+        else: #two are given
+            objs = (bits[3], bits[4])
+        return cls(bits[2], bits[1], nodelist_true, nodelist_false, *objs)
+
     def __init__(self, user, perm, nodelist_true, nodelist_false, *objs):
         self.user = user
         self.objs = objs
@@ -92,8 +107,8 @@ class ComparisonNode(ResolverNode):
             return ''
         return self.nodelist_false.render(context)
 
-@register.tag('ifhasperm')
-def do_if_has_perm(parser, token):
+@register.tag
+def ifhasperm(parser, token):
     """
     This function provides functionality for the 'ifhasperm' template tag
 
@@ -112,83 +127,105 @@ def do_if_has_perm(parser, token):
         {% endifhasperm %}
 
     """
-    bits = token.contents.split()
-    if 5 < len(bits) < 3:
-        raise template.TemplateSyntaxError("'%s' tag takes three, "
-                                            "four or five arguments" % bits[0])
-    end_tag = 'endifhasperm'
-    nodelist_true = parser.parse(('else', end_tag))
-    token = parser.next_token()
-    if token.contents == 'else': # there is an 'else' clause in the tag
-        nodelist_false = parser.parse((end_tag,))
-        parser.delete_first_token()
-    else:
-        nodelist_false = template.NodeList()
-
-    if len(bits) == 3: # this tag requires at most 2 objects . None is given
-        objs = (None, None)
-    elif len(bits) == 4:# one is given
-        objs = (bits[3], None)
-    else: #two are given
-        objs = (bits[3], bits[4])
-    return ComparisonNode(bits[2], bits[1], nodelist_true, nodelist_false, *objs)
-
-@register.inclusion_tag('authority/permission_delete_link.html', takes_context=True)
-def permission_delete_link(context, perm):
-    """
-    Renders a html link to the delete view of the given permission. Returns
-    no content if the request-user has no permission to delete foreign
-    permissions.
-    """
-    user = context['request'].user
-    if user.is_authenticated():
-        if user.has_perm('authority.delete_foreign_permissions') \
-            or user.pk == perm.creator.pk:
-            return _base_link(context, perm, 'authority-delete-permission')
-    return {'url': None}
+    return PermissionComparisonNode.handle_token(parser, token)
 
 
-@register.inclusion_tag('authority/permission_form.html', takes_context=True)
-def permission_form(context, obj, perm=None):
+class PermissionFormNode(ResolverNode):
+
+    @classmethod
+    def handle_token(cls, parser, token, approved):
+        bits = token.contents.split()
+        tag_name = bits[0]
+        kwargs = {
+            'obj': cls.next_bit_for(bits, 'for'),
+            'perm': cls.next_bit_for(bits, 'using', None),
+            'template_name': cls.next_bit_for(bits, 'with', ''),
+            'approved': approved,
+        }
+        return cls(**kwargs)
+
+    def __init__(self, obj, perm=None, approved=False, template_name=None):
+        self.obj = obj
+        self.perm = perm
+        self.approved = approved
+        self.template_name = template_name
+
+    def render(self, context):
+        obj = self.resolve(self.obj, context)
+        perm = self.resolve(self.perm, context)
+        if self.template_name:
+            template_name = [self.resolve(obj, context) for obj in self.template_name.split(',')]
+        else:
+            template_name = 'authority/permission_form.html'
+        request = context['request']
+        extra_context = {}
+        if self.approved:
+            if (request.user.is_authenticated() and
+                    request.user.has_perm('authority.add_permission')):
+                extra_context = {
+                    'form_url': url_for_obj('authority-add-permission', obj),
+                    'next': request.build_absolute_uri(),
+                    'approved': self.approved,
+                    'form': UserPermissionForm(perm, obj, approved=self.approved,
+                                               initial=dict(codename=perm)),
+                }
+        else:
+            if request.user.is_authenticated() and not request.user.is_superuser:
+                extra_context = {
+                    'form_url': url_for_obj('authority-add-permission-request', obj),
+                    'next': request.build_absolute_uri(),
+                    'approved': self.approved,
+                    'form': UserPermissionForm(perm, obj,
+                        approved=self.approved, initial=dict(
+                        codename=perm, user=request.user.username)),
+                }
+        return template.loader.render_to_string(template_name, extra_context,
+                            context_instance=template.RequestContext(request))
+
+@register.tag
+def permission_form(parser, token):
     """
     Renders an "add permissions" form for the given object. If no object
     is given it will render a select box to choose from.
 
     Syntax::
 
-        {% permission_form [obj] [permission_label].[check_name] %}
-        {% permission_form lesson "lesson_permission.add_lesson" %}
+        {% permission_form for OBJ using PERMISSION_LABEL.CHECK_NAME [with TEMPLATE] %}
+        {% permission_form for lesson using "lesson_permission.add_lesson" %}
 
     """
-    user = context['request'].user
-    if user.is_authenticated():
-        if user.has_perm('authority.add_permission'):
-            return _base_permission_form(context, obj, perm, None, True, 
-                                         'authority-add-permission')
-    return {'form': None}
+    return PermissionFormNode.handle_token(parser, token, approved=True)
 
-
-@register.inclusion_tag('authority/permission_request_form.html', takes_context=True)
-def permission_request_form(context, obj, perm=None):
+@register.tag
+def permission_request_form(parser, token):
     """
-    Renders an "add permission requests" form for the given object. If no perm
+    Renders an "add permissions" form for the given object. If no object
     is given it will render a select box to choose from.
 
     Syntax::
 
-        {% permission_request_form [obj] [permission_label].[check_name] %}
-        {% permission_request_form lesson "lesson_permission.add_lesson" %}
+        {% permission_request_form for OBJ and PERMISSION_LABEL.CHECK_NAME [with TEMPLATE] %}
+        {% permission_request_form for lesson using "lesson_permission.add_lesson" with "authority/permission_request_form.html" %}
 
     """
-    user = context['request'].user
-    if user.is_authenticated() and not user.is_superuser:
-        return _base_permission_form(context, obj, perm, user, False, 
-                                     'authority-add-request')
-    return {'form': None}
+    return PermissionFormNode.handle_token(parser, token, approved=False)
 
 
 class PermissionsForObjectNode(ResolverNode):
-    def __init__(self, obj, user, var_name, approved, perm=None, objs=None):
+
+    @classmethod
+    def handle_token(cls, parser, token, approved, name):
+        bits = token.contents.split()
+        tag_name = bits[0]
+        kwargs = {
+            'obj': cls.next_bit_for(bits, tag_name),
+            'user': cls.next_bit_for(bits, 'for'),
+            'var_name': cls.next_bit_for(bits, 'as', name),
+            'approved': approved,
+        }
+        return cls(**kwargs)
+
+    def __init__(self, obj, user, var_name, approved, perm=None):
         self.obj = obj
         self.user = user
         self.perm = perm
@@ -224,15 +261,8 @@ def get_permissions(parser, token):
         {% get_permissions obj for request.user as "my_permissions" %}
 
     """
-    bits = token.contents.split()
-    kwargs = {
-        'obj': next_bit_for(bits, 'get_permissions'),
-        'user': next_bit_for(bits, 'for'),
-        'var_name': next_bit_for(bits, 'as', '"permissions"'),
-        'approved': True,
-    }
-    return PermissionsForObjectNode(**kwargs)
-
+    return PermissionsForObjectNode.handle_token(parser, token, approved=True,
+                                                 name='"permissions"')
 
 @register.tag
 def get_permission_requests(parser, token):
@@ -251,16 +281,24 @@ def get_permission_requests(parser, token):
         {% get_permission_requests obj for request.user as "my_permissions" %}
 
     """
-    bits = token.contents.split()
-    kwargs = {
-        'obj': next_bit_for(bits, 'get_permission_requests'),
-        'user': next_bit_for(bits, 'for'),
-        'var_name': next_bit_for(bits, 'as', '"permission_requests"'),
-        'approved': False,
-    }
-    return PermissionsForObjectNode(**kwargs)
+    return PermissionsForObjectNode.handle_token(parser, token,
+                                                 approved=False,
+                                                 name='"permission_requests"')
 
 class PermissionForObjectNode(ResolverNode):
+
+    @classmethod
+    def handle_token(cls, parser, token):
+        bits = token.contents.split()
+        tag_name = bits[0]
+        kwargs = {
+            'perm': cls.next_bit_for(bits, tag_name),
+            'user': cls.next_bit_for(bits, 'for'),
+            'objs': cls.next_bit_for(bits, 'and'),
+            'var_name': cls.next_bit_for(bits, 'as', '"permission"'),
+        }
+        return cls(**kwargs)
+
     def __init__(self, perm, user, objs, var_name):
         self.perm = perm
         self.user = user
@@ -300,15 +338,28 @@ def get_permission(parser, token):
         {% endif %}
 
     """
-    bits = token.contents.split()
-    kwargs = {
-        'perm': next_bit_for(bits, 'get_permission'),
-        'user': next_bit_for(bits, 'for'),
-        'objs': next_bit_for(bits, 'and'),
-        'var_name': next_bit_for(bits, 'as', '"permission"'),
-    }
-    return PermissionForObjectNode(**kwargs)
+    return PermissionForObjectNode.handle_token(parser, token)
 
+
+def base_link(context, perm, view_name):
+    return {
+        'next': context['request'].build_absolute_uri(),
+        'url': reverse(view_name, kwargs={'permission_pk': perm.pk,}),
+    }
+
+@register.inclusion_tag('authority/permission_delete_link.html', takes_context=True)
+def permission_delete_link(context, perm):
+    """
+    Renders a html link to the delete view of the given permission. Returns
+    no content if the request-user has no permission to delete foreign
+    permissions.
+    """
+    user = context['request'].user
+    if user.is_authenticated():
+        if user.has_perm('authority.delete_foreign_permissions') \
+            or user.pk == perm.creator.pk:
+            return base_link(context, perm, 'authority-delete-permission')
+    return {'url': None}
 
 @register.inclusion_tag('authority/permission_request_delete_link.html', takes_context=True)
 def permission_request_delete_link(context, perm):
@@ -319,10 +370,15 @@ def permission_request_delete_link(context, perm):
     """
     user = context['request'].user
     if user.is_authenticated():
+        link_kwargs = base_link(context, perm,
+                                'authority-delete-permission-request')
         if user.has_perm('authority.delete_permission'):
-            return _base_link(context, perm, 'authority-delete-request')
+            link_kwargs['is_requestor'] = False
+            return link_kwargs
+        if not perm.approved and perm.user == user:
+            link_kwargs['is_requestor'] = True
+            return link_kwargs
     return {'url': None}
-
 
 @register.inclusion_tag('authority/permission_request_approve_link.html', takes_context=True)
 def permission_request_approve_link(context, perm):
@@ -333,6 +389,7 @@ def permission_request_approve_link(context, perm):
     """
     user = context['request'].user
     if user.is_authenticated():
-        if user.has_perm('authority.approve_permission_request'):
-            return _base_link(context, perm, 'authority-approve-request')
+        if user.has_perm('authority.approve_permission_requests'):
+            return base_link(context, perm,
+                'authority-approve-permission-request')
     return {'url': None}

@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -21,7 +22,10 @@ class Permission(models.Model):
     group = models.ForeignKey(Group, null=True, blank=True)
     creator = models.ForeignKey(User, null=True, blank=True, related_name='created_permissions')
 
-    approved = models.BooleanField(default=False)
+    approved = models.BooleanField(_('approved'), default=False, help_text=_("Designates whether the permission has been approved and treated as active. Unselect this instead of deleting permissions."))
+
+    date_requested = models.DateTimeField(_('date requested'), default=datetime.now)
+    date_approved = models.DateTimeField(_('date approved'), blank=True, null=True)
 
     objects = PermissionManager()
 
@@ -35,15 +39,20 @@ class Permission(models.Model):
         permissions = (
             ('change_foreign_permissions', 'Can change foreign permissions'),
             ('delete_foreign_permissions', 'Can delete foreign permissions'),
-            ('approve_permission_request', 'Can approve permission requests'),
+            ('approve_permission_requests', 'Can approve permission requests'),
         )
 
+    def save(self, *args, **kwargs):
+        # Make sure the approval date is always set
+        if self.approved and not self.date_approved:
+            self.date_approved = datetime.now()
+        super(Permission, self).save(*args, **kwargs)
 
-    def approve_perm_request(self, creator):
+    def approve(self, creator):
         """
         Approve granular permission request setting a Permission entry as
         approved=True for a specific action from an user on an object instance.
         """
-        self.approved=True
-        self.creator=creator
+        self.approved = True
+        self.creator = creator
         self.save()
