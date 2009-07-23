@@ -24,7 +24,7 @@ A custom permission is a simple method of the permission class::
 
     class FlatpagePermission(permissions.BasePermission):
         label = 'flatpage_permission'
-        checks = (my_custom_check',)
+        checks = ('my_custom_check',)
         
         def my_custom_check(self, flatpage):
             if(flatpage.url == '/about/'):
