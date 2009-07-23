@@ -58,7 +58,7 @@ class UserPermissionForm(BasePermissionForm):
         elif check.has_perm(self.perm, self.obj):
             error_msg = _("The user %(user)s already has the permission "
                           "'%(perm)s' for %(object_name)s '%(obj)s'")
-        elif check.has_request(self.perm, self.obj):
+        elif check.requested_perm(self.perm, self.obj):
             error_msg = _("The user %(user)s already requested the permission"
                           " '%(perm)s' for %(object_name)s '%(obj)s'")
         if error_msg:

@@ -56,28 +56,22 @@ class BasePermission(object):
             return perms.filter(object_id=obj.id)
         return False
 
-    def has_perm(self, perm, obj, check_groups=True):
+    def has_perm(self, perm, obj, check_groups=True, approved=True):
         """
         Check if user has the permission for the given object
         """
         if self.user:
-            if self.has_user_perms(perm, obj, True, check_groups):
+            if self.has_user_perms(perm, obj, approved, check_groups):
                 return True
         if self.group:
-            return self.has_group_perms(perm, obj, True)
+            return self.has_group_perms(perm, obj, approved)
         return False
 
-    def has_request(self, perm, obj, check_groups=True):
+    def requested_perm(self, perm, obj, check_groups=True):
         """
-        Check if user has the permission request for the given object
+        Check if user requested a permission for the given object
         """
-        if self.user:
-            if self.has_user_perms(perm, obj, False, check_groups):
-                return True
-        if self.group:
-            return self.has_group_perms(perm, obj, False)
-        return False
-
+        return self.has_perm(perm, obj, check_groups, False)
 
     def can(self, check, generic=False, *args, **kwargs):
         if not args:
