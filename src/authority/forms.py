@@ -21,7 +21,7 @@ class BasePermissionForm(forms.ModelForm):
             self.base_fields['user'].widget = forms.HiddenInput()
         else:
             self.base_fields['user'].widget = forms.TextInput()
-        if obj and perm and approved:
+        if obj and perm:
             self.base_fields['codename'].widget = forms.HiddenInput()
         elif obj and (not perm or not approved):
             perm_choices = get_choices_for(self.obj)
