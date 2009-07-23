@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.core.urlresolvers import reverse
 
 from authority import get_check
+from authority import permissions
 from authority.models import Permission
 from authority.forms import UserPermissionForm
 
@@ -288,22 +289,24 @@ def get_permission_requests(parser, token):
 class PermissionForObjectNode(ResolverNode):
 
     @classmethod
-    def handle_token(cls, parser, token):
+    def handle_token(cls, parser, token, approved, name):
         bits = token.contents.split()
         tag_name = bits[0]
         kwargs = {
             'perm': cls.next_bit_for(bits, tag_name),
             'user': cls.next_bit_for(bits, 'for'),
             'objs': cls.next_bit_for(bits, 'and'),
-            'var_name': cls.next_bit_for(bits, 'as', '"permission"'),
+            'var_name': cls.next_bit_for(bits, 'as', name),
+            'approved': approved,
         }
         return cls(**kwargs)
 
-    def __init__(self, perm, user, objs, var_name):
+    def __init__(self, perm, user, objs, approved, var_name):
         self.perm = perm
         self.user = user
         self.objs = objs
         self.var_name = var_name
+        self.approved = approved
 
     def render(self, context):
         objs = [self.resolve(obj, context) for obj in self.objs.split(',')]
@@ -312,9 +315,16 @@ class PermissionForObjectNode(ResolverNode):
         user = self.resolve(self.user, context)
         granted = False
         if not isinstance(user, AnonymousUser):
-            check = get_check(user, perm)
-            if check is not None:
-                granted = check(*objs)
+            if self.approved:
+                check = get_check(user, perm)
+                if check is not None:
+                    granted = check(*objs)
+            else:
+                check = permissions.BasePermission(user=user)
+                for obj in objs:
+                    granted = check.requested_perm(perm, obj)
+                    if granted:
+                        break
         context[var_name] = granted
         return ''
 
@@ -338,7 +348,36 @@ def get_permission(parser, token):
         {% endif %}
 
     """
-    return PermissionForObjectNode.handle_token(parser, token)
+    return PermissionForObjectNode.handle_token(parser, token,
+                                                approved=True,
+                                                name='"permission"')
+
+
+@register.tag
+def get_permission_request(parser, token):
+    """
+    Performs a permission request check with the given signature, user and objects
+    and assigns the result to a context variable.
+
+    Syntax::
+
+        {% get_permission_request [permission_label].[check_name] for [user] and [objs] as [varname] %}
+
+        {% get_permission_request "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
+        {% get_permission_request "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
+        
+        {% if is_allowed %}
+            I've got ze power to change ze pollllllzzz. Muahahaa.
+        {% else %}
+            Meh. No power for meeeee.
+        {% endif %}
+
+    """
+    return PermissionForObjectNode.handle_token(parser, token,
+                                                 approved=False,
+                                                 name='"permission_request"')
+
+
 
 
 def base_link(context, perm, view_name):
