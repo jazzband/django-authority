@@ -5,10 +5,13 @@ django-authority
 This is a Django app for per-object-permissions that includes a bunch of
 helpers to create custom permission checks.
 
-The main website for django-authority is `packages.python.org/django-authority
-<http://packages.python.org/django-authority/>`_. You can also install
-the `in-development version <http://bitbucket.org/jezdez/django-authority/get/tip.gz#egg=django-authority-dev>`_ 
-of django-authority with ``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
+The main website for django-authority is
+`packages.python.org/django-authority`_. You can also install the
+`in-development version`_ of django-authority with
+``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
+
+.. _packages.python.org/django-authority: http://packages.python.org/django-authority/
+.. _in-development version: http://bitbucket.org/jezdez/django-authority/get/tip.gz#egg=django-authority-dev
 
 Example
 =======
@@ -45,3 +48,50 @@ The documenation is currently in development. You can create a nice looking
 html version using the setup.py::
 
     python setup.py build_sphinx
+
+Changelog:
+==========
+
+v0.3 (2009-07-28):
+
+    * This version adds multiple fields to the Permission model and is
+      therefore a **backwards incompatible** update.
+
+      This was required to add a feature that allows users to request,
+      withdraw, deny and approve permissions. Request and approval date
+      are now saved, as well as an ``approved`` property. An admin action has
+      been added for bulk approval.
+
+      To migrate your existing data you can use the SQL files included in
+      the source (`migrations/`_), currently available for MySQL, Postgres
+      and SQLite.
+
+    * The templatetags have also been refactored to be easier to customize
+      which required a change in the template tag signature:
+
+      Old::
+
+        {% permission_form flatpage %}
+        {% permission_form flatpage "flatpage_permission.top_secret" %}
+        {% permission_form OBJ PERMISSION_LABEL.CHECK_NAME %}
+
+      New::
+
+        {% permission_form for flatpage %}
+        {% permission_form for flatpage using "flatpage_permission.top_secret" %}
+        {% permission_form for OBJ using PERMISSION_LABEL.CHECK_NAME [with TEMPLATE] %}
+
+      New templatetags:
+
+      * ``permission_request_form``
+      * ``get_permission_request``
+      * ``get_permission_requests``
+      * ``permission_request_approve_link``
+      * ``permission_request_delete_link``
+      * ``request_url_for_obj``
+
+    * The ``add_permission`` view is now accessible with GET requests and
+      allows to request permissions, but also add them (only for users with
+      the 'authority.add_permission' Django permission).
+
+.. _`migrations/`: http://bitbucket.org/jezdez/django-authority/src/tip/migrations/
