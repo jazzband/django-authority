@@ -130,7 +130,7 @@ class PermissionDescriptor(object):
         else:
             raise Exception("Dude, impossible arguments to PermissionDescriptor.get_content_type!")
 
-    def __get__(self, instance):
+    def __get__(self, instance, owner):
         if instance is None:
             return self
         ct = self.get_content_type(instance)
