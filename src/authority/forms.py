@@ -17,16 +17,11 @@ class BasePermissionForm(forms.ModelForm):
         self.perm = perm
         self.obj = obj
         self.approved = approved
-        if not self.approved:
-            self.base_fields['user'].widget = forms.HiddenInput()
-        else:
-            self.base_fields['user'].widget = forms.TextInput()
         if obj and perm:
             self.base_fields['codename'].widget = forms.HiddenInput()
         elif obj and (not perm or not approved):
-            perm_choices = get_choices_for(self.obj)
-            self.base_fields['codename'].widget = forms.Select(
-                choices=perm_choices)
+            perms = get_choices_for(self.obj)
+            self.base_fields['codename'].widget = forms.Select(choices=perms)
         super(BasePermissionForm, self).__init__(*args, **kwargs)
 
     def save(self, request, commit=True, *args, **kwargs):
@@ -42,6 +37,11 @@ class UserPermissionForm(BasePermissionForm):
 
     class Meta(BasePermissionForm.Meta):
         fields = ('user',)
+
+    def __init__(self, *args, **kwargs):
+        if not kwargs.get('approved', False):
+            self.base_fields['user'].widget = forms.HiddenInput()
+        super(UserPermissionForm, self).__init__(*args, **kwargs)
 
     def clean_user(self):
         username = self.cleaned_data["user"]
