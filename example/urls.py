@@ -9,9 +9,16 @@ authority.autodiscover()
 
 handler500 # Pyflakes
 
+from exampleapp.forms import SpecialUserPermissionForm
+
 urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     #('^admin/', include(admin.site.urls)),
+    url(r'^authority/permission/add/(?P<app_label>[\w\-]+)/(?P<module_name>[\w\-]+)/(?P<pk>\d+)/$',
+        view='authority.views.add_permission',
+        name="authority-add-permission",
+        kwargs={'approved': True, 'form_class': SpecialUserPermissionForm}
+    ),
     (r'^authority/', include('authority.urls')),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^(?P<url>[\/0-9A-Za-z]+)$', 'example.exampleapp.views.top_secret', {'lala': 'oh yeah!'}),
