@@ -24,7 +24,7 @@ def get_next(request, obj=None):
 @login_required
 def add_permission(request, app_label, module_name, pk, approved=False,
                    template_name = 'authority/permission_form.html',
-                   extra_context={}):
+                   extra_context={}, form_class=UserPermissionForm):
     codename = request.POST.get('codename', None)
     model = get_model(app_label, module_name)
     if model is None:
@@ -41,9 +41,8 @@ def add_permission(request, app_label, module_name, pk, approved=False,
     if request.method == 'POST':
         if codename is None:
             return HttpResponseForbidden(next)
-        form = UserPermissionForm(data=request.POST, obj=obj,
-                                  approved=approved, perm=codename,
-                                  initial=dict(codename=codename))
+        form = form_class(data=request.POST, obj=obj, approved=approved,
+                          perm=codename, initial=dict(codename=codename))
         if not approved:
             # Limit permission request to current user
             form.data['user'] = request.user
@@ -53,8 +52,8 @@ def add_permission(request, app_label, module_name, pk, approved=False,
                 message=_('You added a permission request.'))
             return HttpResponseRedirect(next)
     else:
-        form = UserPermissionForm(obj=obj, approved=approved, perm=codename,
-                                  initial=dict(codename=codename))
+        form = form_class(obj=obj, approved=approved, perm=codename,
+                          initial=dict(codename=codename))
     context = {
         'form': form,
         'form_url': url_for_obj(view_name, obj),
