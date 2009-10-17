@@ -52,8 +52,19 @@ html version using the setup.py::
 Changelog:
 ==========
 
-v0.3 (2009-07-28):
+0.3.1 (2009-10-12):
+
 ------------------
+
+* Fixed an issue with the UserPermissionForm not being able to override the
+  widget of the user field.
+
+* Added ability to override form class in ``add_permission`` view.
+
+
+
+0.3 (2009-07-28):
+-----------------
 
 * This version adds multiple fields to the Permission model and is
   therefore a **backwards incompatible** update.
