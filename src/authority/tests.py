@@ -52,3 +52,65 @@ class BehaviourTest(TestCase):
         # test
         self.assertFalse(self.check.delete_user())
         self.assertTrue(self.check.delete_user(self.user))
+
+class AssignBehaviourTest(TestCase):
+    '''
+    self.user will be given:
+    - permission add_user (test_add),
+    - permission delete_user for him (test_delete),
+    - all existing codenames permissions: a/b/c/d (test_all),
+    '''
+
+    fixtures = ['tests.json',]
+    
+    def setUp(self):
+        self.user = User.objects.get(username='jezdez')
+        self.check = UserPermission(self.user)
+
+    def test_add(self):
+        result = self.check.assign(codename='add_user')
+        
+        self.assertTrue(isinstance(result, DjangoPermission))
+        self.assertTrue(self.check.add_user())
+
+    def test_delete(self):
+        result = self.check.assign(content_object=self.user, codename='delete_user')
+
+        self.assertTrue(isinstance(result, Permission))
+        self.assertFalse(self.check.delete_user())
+        self.assertTrue(self.check.delete_user(self.user))
+    
+    def test_all(self):
+        result = self.check.assign(content_object=self.user)
+
+        self.assertTrue(isinstance(result, list))
+        self.assertTrue(self.check.delete_user())
+        self.assertTrue(self.check.add_user())
+        self.assertTrue(self.check.change_user())
+        self.assertTrue(self.check.browse_user())
+
+class GenericAssignBehaviourTest(TestCase):
+    '''
+    self.user will be given:
+    - permission add (test_add),
+    - permission delete for him (test_delete),
+    '''
+
+    fixtures = ['tests.json',]
+    
+    def setUp(self):
+        self.user = User.objects.get(username='jezdez')
+        self.check = UserPermission(self.user)
+
+    def test_add(self):
+        result = self.check.assign(codename='add', generic=True)
+        
+        self.assertTrue(isinstance(result, DjangoPermission))
+        self.assertTrue(self.check.add_user())
+
+    def test_delete(self):
+        result = self.check.assign(content_object=self.user, codename='delete', generic=True)
+
+        self.assertTrue(isinstance(result, Permission))
+        self.assertFalse(self.check.delete_user())
+        self.assertTrue(self.check.delete_user(self.user))
