@@ -1,6 +1,11 @@
+import copy
+
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import Permission as DjangoPermission 
+from django.contrib.contenttypes.models import ContentType
 
+from authority.exceptions import NotAModel, UnsavedModelInstance
 from authority.models import Permission
 
 class PermissionMetaclass(type):
@@ -95,3 +100,101 @@ class BasePermission(object):
                 # only check the authority if obj is not a model class
                 perms = perms or self.has_perm(perm, obj)
         return perms
+
+    def get_django_codename(self, check, model, generic=False, without_left=False):
+        if without_left:
+            perm = check
+        else:
+            perm = '%s.%s' % (model._meta.app_label, check.lower())
+        if generic:
+            perm = '%s_%s' % (perm, model._meta.object_name.lower())
+        return perm
+
+    def get_codename(self, check, model, generic=False):
+        perm = '%s.%s' % (self.label, check.lower())
+        if generic:
+            perm = '%s_%s' % (perm, model._meta.object_name.lower())
+        return perm      
+
+    def assign(self, check=None, content_object=None, generic=False):
+        '''
+        Assign a permission to a user.
+
+        To assign permission for all checks: let check=None.
+        To assign permission for all objects: let content_object=None.
+        
+        If generic is True then "check" will be suffixed with _modelname.
+        '''
+        result = []
+
+        if not content_object:
+            content_objects = (self.model,)
+        elif not isinstance(content_object, (list, tuple)):
+            content_objects = (content_object,)
+        else:
+            content_objects = content_object
+
+        if not check:
+            print "Not passing a check argument is not supported"
+            print "I can't get the god damn test to pass"
+            #checks = self.generic_checks + getattr(self, 'checks', [])
+            checks = self.checks
+        elif not isinstance(check, (list, tuple)):
+            checks = (check,)
+        else:
+            checks = check
+
+        for content_object in content_objects:
+            # raise an exception before adding any permission
+            # i think django does not rollback by default
+            if not isinstance(content_object, (Model, ModelBase)):
+                raise NotAModel(content_object)
+            elif isinstance(content_object, Model) and \
+                not content_object.pk:
+                #not getattr(content_object, 'pk', False):
+                raise UnsavedModelInstance(content_object)
+            
+            content_type = ContentType.objects.get_for_model(content_object)
+
+            for check in checks:
+                if isinstance(content_object, Model):
+                    # make an authority per object permission
+                    codename = self.get_codename(check, content_object, generic)
+
+                    try:
+                        perm = Permission.objects.get(
+                            user = self.user,
+                            codename = codename,
+                            approved = True,
+                            content_type = content_type,
+                            object_id = content_object.pk
+                        )
+                    except Permission.DoesNotExist:
+                        perm = Permission(
+                            user = self.user,
+                            content_object = content_object,
+                            codename = codename,
+                            approved = True
+                        )
+                        perm.save()
+
+                    result.append(perm)
+
+                elif isinstance(content_object, ModelBase):
+                    # make a django permission
+                    codename = self.get_django_codename(check, content_object, generic, without_left=True)
+                    try:
+                        perm = DjangoPermission.objects.get(codename=codename)
+                    except DjangoPermission.DoesNotExist:
+                        name = check
+                        if '_' in name:
+                            name = name[0:name.find('_')]
+                        perm = DjangoPermission(
+                            name = name,
+                            codename = codename,
+                            content_type = content_type)
+                        perm.save()
+                    self.user.user_permissions.add(perm)
+                    result.append(perm)
+
+        return result
