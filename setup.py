@@ -14,8 +14,7 @@ setup(
     license='BSD',
     url='http://bitbucket.org/jezdez/django-authority/',
     download_url='http://bitbucket.org/jezdez/django-authority/downloads/',
-    packages=find_packages('src'),
-    package_dir = {'': 'src'},
+    packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
