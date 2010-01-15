@@ -128,7 +128,7 @@ class PermissionDescriptor(object):
         if obj:
             return ContentType.objects.get_for_model(obj)
         else:
-            raise Exception("Dude, impossible arguments to PermissionDescriptor.get_content_type!")
+            raise Exception("Invalid arguments given to PermissionDescriptor.get_content_type")
 
     def __get__(self, instance, owner):
         if instance is None:
