@@ -83,12 +83,11 @@ class AssignBehaviourTest(TestCase):
    
    def test_all(self):
        result = self.check.assign(content_object=self.user)
-
        self.assertTrue(isinstance(result, list))
-       self.assertTrue(self.check.browse_user())
-       self.assertTrue(self.check.delete_user())
-       self.assertTrue(self.check.add_user())
-       self.assertTrue(self.check.change_user())
+       self.assertTrue(self.check.browse_user(self.user))
+       self.assertTrue(self.check.delete_user(self.user))
+       self.assertTrue(self.check.add_user(self.user))
+       self.assertTrue(self.check.change_user(self.user))
 
 class GenericAssignBehaviourTest(TestCase):
     '''
