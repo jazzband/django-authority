@@ -4,6 +4,7 @@ include buildout.cfg
 include bootstrap.py
 recursive-include authority/templates/authority *.html
 recursive-include authority/templates/admin *.html
+recursive-include authority/fixtures *.json
 recursive-include docs *.txt *.html
 recursive-exclude docs/build *.txt
 prune docs/build/html/_sources

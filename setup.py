@@ -26,6 +26,7 @@ setup(
     ],
     package_data = {
         'authority': [
+            'fixtures/test.json',
             'templates/authority/*.html',
             'templates/admin/edit_inline/action_tabular.html',
             'templates/admin/permission_change_form.html',
