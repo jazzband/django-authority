@@ -88,32 +88,28 @@ class BasePermission(object):
                 continue
             # first check Django's permission system
             if self.user:
-                perm = '%s.%s' % (obj._meta.app_label, check.lower())
-                if generic:
-                    perm = '%s_%s' % (perm, obj._meta.object_name.lower())
+                perm = self.get_django_codename(check, obj, generic)
                 perms = perms or self.user.has_perm(perm)
-            perm = '%s.%s' % (self.label, check.lower())
-            if generic:
-                perm = '%s_%s' % (perm, obj._meta.object_name.lower())
+            perm = self.get_codename(check, obj, generic)
             # then check authority's per object permissions
             if not isinstance(obj, ModelBase) and isinstance(obj, self.model):
                 # only check the authority if obj is not a model class
                 perms = perms or self.has_perm(perm, obj)
         return perms
 
-    def get_django_codename(self, check, model, generic=False, without_left=False):
+    def get_django_codename(self, check, model_or_instance, generic=False, without_left=False):
         if without_left:
             perm = check
         else:
-            perm = '%s.%s' % (model._meta.app_label, check.lower())
+            perm = '%s.%s' % (model_or_instance._meta.app_label, check.lower())
         if generic:
-            perm = '%s_%s' % (perm, model._meta.object_name.lower())
+            perm = '%s_%s' % (perm, model_or_instance._meta.object_name.lower())
         return perm
 
-    def get_codename(self, check, model, generic=False):
+    def get_codename(self, check, model_or_instance, generic=False):
         perm = '%s.%s' % (self.label, check.lower())
         if generic:
-            perm = '%s_%s' % (perm, model._meta.object_name.lower())
+            perm = '%s_%s' % (perm, model_or_instance._meta.object_name.lower())
         return perm
 
     def assign(self, check=None, content_object=None, generic=False):
@@ -135,10 +131,7 @@ class BasePermission(object):
             content_objects = content_object
 
         if not check:
-            print "Not passing a check argument is not supported"
-            print "I can't get the god damn test to pass"
-            #checks = self.generic_checks + getattr(self, 'checks', [])
-            checks = self.checks
+            checks = self.generic_checks + getattr(self, 'checks', [])
         elif not isinstance(check, (list, tuple)):
             checks = (check,)
         else:
