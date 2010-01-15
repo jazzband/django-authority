@@ -2,7 +2,7 @@ import copy
 
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
-from django.contrib.auth.models import Permission as DjangoPermission 
+from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.contenttypes.models import ContentType
 
 from authority.exceptions import NotAModel, UnsavedModelInstance
@@ -56,7 +56,7 @@ class BasePermission(object):
         Check if group has the permission for the given object
         """
         if self.group:
-            perms = Permission.objects.group_permissions(self.group, perm, obj, 
+            perms = Permission.objects.group_permissions(self.group, perm, obj,
                                                          approved)
             return perms.filter(object_id=obj.id)
         return False
@@ -114,17 +114,17 @@ class BasePermission(object):
         perm = '%s.%s' % (self.label, check.lower())
         if generic:
             perm = '%s_%s' % (perm, model._meta.object_name.lower())
-        return perm      
+        return perm
 
     def assign(self, check=None, content_object=None, generic=False):
-        '''
+        """
         Assign a permission to a user.
 
         To assign permission for all checks: let check=None.
         To assign permission for all objects: let content_object=None.
-        
+
         If generic is True then "check" will be suffixed with _modelname.
-        '''
+        """
         result = []
 
         if not content_object:
@@ -146,42 +146,36 @@ class BasePermission(object):
 
         for content_object in content_objects:
             # raise an exception before adding any permission
-            # i think django does not rollback by default
+            # i think Django does not rollback by default
             if not isinstance(content_object, (Model, ModelBase)):
                 raise NotAModel(content_object)
-            elif isinstance(content_object, Model) and \
-                not content_object.pk:
-                #not getattr(content_object, 'pk', False):
+            elif isinstance(content_object, Model) and not content_object.pk:
                 raise UnsavedModelInstance(content_object)
-            
+
             content_type = ContentType.objects.get_for_model(content_object)
 
             for check in checks:
                 if isinstance(content_object, Model):
                     # make an authority per object permission
                     codename = self.get_codename(check, content_object, generic)
-
                     try:
                         perm = Permission.objects.get(
                             user = self.user,
                             codename = codename,
                             approved = True,
                             content_type = content_type,
-                            object_id = content_object.pk
-                        )
+                            object_id = content_object.pk)
                     except Permission.DoesNotExist:
-                        perm = Permission(
+                        perm = Permission.objects.create(
                             user = self.user,
                             content_object = content_object,
                             codename = codename,
-                            approved = True
-                        )
-                        perm.save()
+                            approved = True)
 
                     result.append(perm)
 
                 elif isinstance(content_object, ModelBase):
-                    # make a django permission
+                    # make a Django permission
                     codename = self.get_django_codename(check, content_object, generic, without_left=True)
                     try:
                         perm = DjangoPermission.objects.get(codename=codename)
