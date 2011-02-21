@@ -51,9 +51,8 @@ permission is True or False::
    example an object which also evluates to True, we highly advise to only
    return booleans.
 
-Custom permissions are not necessary related to a model, you can define more
-simpler permissions too. For example, return True if it's between 10 and 12
-o'clock::
+Custom permissions are not necessary related to a model, you can define simpler
+permissions too. For example, return True if it's between 10 and 12 o'clock::
 
     def datetime_check(self):
         hour = int(datetime.datetime.now().strftime("%H"))
