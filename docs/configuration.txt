@@ -1,5 +1,5 @@
 .. _configuration:
-    
+
 =============
 Configuration
 =============
@@ -31,7 +31,7 @@ context processors::
         'django.core.context_processors.media',
         'django.core.context_processors.request',
     )
-    
+
 urls.py
 =======
 

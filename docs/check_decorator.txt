@@ -19,10 +19,10 @@ Lets start with an example permission::
     class FlatpagePermission(permissions.BasePermission):
         label = 'flatpage_permission'
         checks = ('can_do_foo',)
-        
+
         def can_do_foo(self):
             # ...
-            
+
     authority.register(Campaign, FlatpagePermission)
 
 A decorator for such a simple view would look like::
@@ -53,12 +53,12 @@ a string on the decorator::
     @permission_required('flatpage_permission.can_do_foo', 'arg1', 'arg2')
     def my_view(required, arg1, arg2):
         # ...
-        
+
 What happens under the hood?::
 
     # Assumed the view gets called like this
     my_view(request, 'bla', 'blubb')
-    
+
     # At the end, the decorator would been called like this
     can_do_foo('bla', 'blubb')
 
@@ -78,9 +78,9 @@ Here is an example::
     # permission.py
     def can_do_foo(self, flatpage_instance=None):
         # ...
-    
-    # views.py    
-    from django.contrib.flatpages.models import Flatpage     
+
+    # views.py
+    from django.contrib.flatpages.models import Flatpage
     @permission_required('flatpage_permission.can_do_foo', (Flatpage, 'url__iexact', 'url))
     def flatpage(required, url):
         # ...
