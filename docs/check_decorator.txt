@@ -81,7 +81,7 @@ Here is an example::
 
     # views.py
     from django.contrib.flatpages.models import Flatpage
-    @permission_required('flatpage_permission.can_do_foo', (Flatpage, 'url__iexact', 'url))
+    @permission_required('flatpage_permission.can_do_foo', (Flatpage, 'url__iexact', 'url'))
     def flatpage(required, url):
         # ...
 
