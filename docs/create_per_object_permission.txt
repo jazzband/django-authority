@@ -9,7 +9,7 @@ permission*. A description would be::
 
     Attach a <codename> to an object
     Attach a <codename> to an user
-    
+
     If the user has <codename> and the object has <codename> then do-something,
     otherwise do-something-else.
 
@@ -39,7 +39,7 @@ Create per-object permissions
 
 Creating per-object permissions is super simple. See this piece of permission
 class code::
-    
+
     class FlatPagePermission(BasePermission):
         label = 'flatpage_permission'
         checks = ('review',)
@@ -85,7 +85,7 @@ In your python code
 ::
 
     from myapp.permissions import FlatPagePermission
-    def my_view(request):    
+    def my_view(request):
         check = FlatPagePermission(request.user)
         flatpage_object = Flatpage.objects.get(url='/homepage/')
         if check.review_flatpage(flatpage_object):
@@ -102,9 +102,9 @@ Using the view decorator
                                 (Flatpage, 'url__iexact', 'url')) # The flatpage_object
     def my_view(request, url):
         # ...
-        
+
 See :ref:`check-decorator` how the decorator works in detail.
-        
+
 In your templates
 -----------------
 ::

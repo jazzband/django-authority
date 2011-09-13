@@ -25,12 +25,12 @@ A custom permission is a simple method of the permission class::
     class FlatpagePermission(permissions.BasePermission):
         label = 'flatpage_permission'
         checks = ('my_custom_check',)
-        
+
         def my_custom_check(self, flatpage):
             if(flatpage.url == '/about/'):
                 return True
             return False
-        
+
     authority.register(Flatpage, FlatpagePermission)
 
 Note that we first added the name of your custom permission to the ``checks``
@@ -47,13 +47,12 @@ permission is True or False::
             return True
         return False
 
-.. warning:: Although it's possible to return other values than ``True``, for 
+.. warning:: Although it's possible to return other values than ``True``, for
    example an object which also evluates to True, we highly advise to only
    return booleans.
 
-Custom permissions are not necessary related to a model, you can define more
-simpler permissions too. For example, return True if it's between 10 and 12
-o'clock::
+Custom permissions are not necessary related to a model, you can define simpler
+permissions too. For example, return True if it's between 10 and 12 o'clock::
 
     def datetime_check(self):
         hour = int(datetime.datetime.now().strftime("%H"))
@@ -86,7 +85,7 @@ In your python code
 ::
 
     from myapp.permissions import FlatPagePermission
-    def my_view(request):    
+    def my_view(request):
         check = FlatPagePermission(request.user)
         flatpage_object = Flatpage.objects.get(url='/homepage/')
         if check.my_custom_check(flatpage=flatpage_object):
@@ -103,9 +102,9 @@ Using the view decorator
                                 (Flatpage, 'url__iexact', 'url')) # The flatpage_object
     def my_view(request, url):
         # ...
-        
+
 See :ref:`check-decorator` how the decorator works in detail.
-        
+
 In your templates
 -----------------
 ::
