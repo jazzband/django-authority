@@ -15,9 +15,9 @@ The latest, stable version is always available via the `Python package index_`
 would prefer either ``pip`` or ``easy_install``::
 
     pip install django-authority
-    
+
     # .. or with easy_install:
-    
+
     easy_install django-authority
 
 .. _the site: http://pypi.python.org/pypi/django-authority/

@@ -13,13 +13,13 @@ Headline scheme
     ===================================
     First level (equals top and bottom)
     ===================================
-    
+
     Second Level (equals bottom)
     ============================
-    
+
     Third level (dashes botton)
     ---------------------------
-    
+
     Fourth level (drunken dashes bottom)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -31,7 +31,7 @@ Overall salutation guidelines
 Use the *We* and *you*::
 
     We think that you should send us a bottle of your local beer.
-    
+
 Some thoughts
 =============
 

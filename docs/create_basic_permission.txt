@@ -70,7 +70,7 @@ In your python code
 -------------------
 ::
 
-    def my_view(request):    
+    def my_view(request):
         check = FlatPagePermission(request.user)
         if check.change_flatpage():
             print "Yay, you can change a flatpage!"
@@ -84,9 +84,9 @@ Using the view decorator
     @permission_required_or_403('flatpage_permission.change_flatpage')
     def my_view(request):
         # ...
-        
+
 See :ref:`check-decorator` how the decorator works in detail.
-        
+
 In your templates
 -----------------
 ::
@@ -108,7 +108,7 @@ applications. See :ref:`configuration` how to set up ``autodiscover``.
 
 .. image:: .static/authority-permission-py.png
    :align: left
-   
+
 We encourage you to place your permission classes in a file called
 ``permissions.py`` inside your application directories. This will not only
 keep your application files clean, but it will also load  every permission

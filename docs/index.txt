@@ -37,15 +37,15 @@ Documentation
 
 .. toctree::
    :maxdepth: 1
-   
+
    installation
    configuration
 
 **Create and check permissions:**
-   
+
 .. toctree::
    :maxdepth: 1
-   
+
    create_basic_permission
    create_per_object_permission
    create_custom_permission
@@ -54,7 +54,7 @@ Documentation
 
 .. toctree::
    :maxdepth: 2
-   
+
    check_python
    check_decorator
    check_templates
@@ -63,21 +63,21 @@ Documentation
 
 .. toctree::
    :maxdepth: 1
-   
+
    handling_python
    handling_admin
    handling_template
 
 Other pages
 ===========
- 
+
 * :ref:`search`
 * :ref:`genindex`
 
 .. toctree::
    :maxdepth: 1
    :glob:
-   
+
    tips_tricks
    support
    documentation_guidelines
