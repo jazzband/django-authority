@@ -30,7 +30,6 @@ class PermissionInline(generic.GenericTabularInline):
             perm_choices = get_choices_for(self.parent_model)
             kwargs['label'] = _('permission')
             kwargs['widget'] = forms.Select(choices=perm_choices)
-            return db_field.formfield(**kwargs)
         return super(PermissionInline, self).formfield_for_dbfield(db_field, **kwargs)
 
 class ActionPermissionInline(PermissionInline):
