@@ -40,16 +40,44 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
+        self._permission_cache_filled = False
+        self._cached_permissions = {}
+
+    def _get_permissions(self):
+        perms = Permission.objects.filter(
+            user=self.user,
+        )
+        # Pre cache all the permission in a dictionary.
+        permissions = {}
+        for perm in perms:
+            # Not currently handling groups.
+            permissions[(perm.object_id, perm.codename, perm.approved)] = perm
+        return permissions
+
+    @property
+    def cached_permissions(self):
+        if self._permission_cache_filled:
+            return self._cached_permissions
+        self._cached_permissions = self._get_permissions()
+
+        self._permission_cache_filled = True
+        return self._cached_permissions
+
     def has_user_perms(self, perm, obj, approved, check_groups=True):
-        print 'in has_user_perms'
         if self.user:
             if self.user.is_superuser:
                 return True
             if not self.user.is_active:
                 return False
             # check if a Permission object exists for the given params
-            return Permission.objects.user_permissions(self.user, perm, obj,
-                approved, check_groups).filter(object_id=obj.pk)
+            perm = self.cached_permissions.get((
+                obj.pk,
+                perm,
+                approved,
+            ))
+            if perm:
+                return True
+            return False
         return False
 
     def has_group_perms(self, perm, obj, approved):
