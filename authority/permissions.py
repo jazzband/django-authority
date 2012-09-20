@@ -41,6 +41,7 @@ class BasePermission(object):
         super(BasePermission, self).__init__(*args, **kwargs)
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
+        print 'in has_user_perms'
         if self.user:
             if self.user.is_superuser:
                 return True
@@ -48,7 +49,7 @@ class BasePermission(object):
                 return False
             # check if a Permission object exists for the given params
             return Permission.objects.user_permissions(self.user, perm, obj,
-                approved, check_groups).filter(object_id=obj.id)
+                approved, check_groups).filter(object_id=obj.pk)
         return False
 
     def has_group_perms(self, perm, obj, approved):
@@ -58,7 +59,7 @@ class BasePermission(object):
         if self.group:
             perms = Permission.objects.group_permissions(self.group, perm, obj,
                                                          approved)
-            return perms.filter(object_id=obj.id)
+            return perms.filter(object_id=obj.pk)
         return False
 
     def has_perm(self, perm, obj, check_groups=True, approved=True):
