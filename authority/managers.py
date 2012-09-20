@@ -19,8 +19,11 @@ class PermissionManager(models.Manager):
         perms = self.get_for_model(obj)
         if not check_groups:
             return perms.select_related('user', 'creator').filter(user=user)
+
+        # Hacking user to user__pk to workaround deepcopy bug: http://bugs.python.org/issue2460
+        # Which is triggered by django's deepcopy which backports that fix in Django 1.2
         return perms.select_related('user', 'user__groups', 'creator').filter(
-            Q(user=user) | Q(group__in=user.groups.all()))
+            Q(user__pk=user.pk) | Q(group__in=user.groups.all()))
 
     def user_permissions(self, user, perm, obj, approved=True, check_groups=True):
         return self.for_user(user, obj, check_groups).filter(codename=perm, 
