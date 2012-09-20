@@ -148,3 +148,30 @@ class AssignExceptionsTest(TestCase):
         except NotAModel:
             return True
         self.fail()
+
+
+class PerformanceTest(TestCase):
+    """
+    Tests that permission are actually cached and that the number of queries
+    stays constant.
+    """
+    fixtures = ['tests.json']
+
+    def setUp(self):
+        self.user = User.objects.get(username='jezdez')
+        self.check = UserPermission(self.user)
+
+    def test_has_user_perms(self):
+        # Show that when calling has_user_perms multiple times no additional
+        # queries are done.
+
+        # Make sure the has_user_perms check does not get short-circuited.
+        assert not self.user.is_superuser
+        assert self.user.is_active
+
+        # Regardless of how many times has_user_perms is called, the number of
+        # queries is the same.
+        with self.assertNumQueries(1):
+            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, True)
