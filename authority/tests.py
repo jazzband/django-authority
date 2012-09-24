@@ -1,6 +1,7 @@
-from django.test import TestCase
-from django.contrib.auth.models import User, Group
+from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
+from django.contrib.auth.models import User, Group
+from django.test import TestCase
 
 import authority
 from authority import permissions
@@ -159,6 +160,8 @@ class SmartCacheingTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.get(username='jezdez')
         self.check = UserPermission(self.user)
+
+        settings.AUTHORITY_USE_SMART_CACHE = True
 
     def _old_permission_check(self):
         # This is what the old, pre-cache system would check to see if a user
