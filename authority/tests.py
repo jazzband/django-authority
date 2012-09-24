@@ -189,7 +189,7 @@ class PerformanceTest(TestCase):
             self.check.has_user_perms('foo', self.user, True, True)
 
 
-class ExpectedBehaviourTestCase(TestCase):
+class GroupPermissionCacheTestCase(TestCase):
     """
     Tests that peg expected behaviour
     """
