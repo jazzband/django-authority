@@ -150,16 +150,33 @@ class AssignExceptionsTest(TestCase):
         self.fail()
 
 
-class PerformanceTest(TestCase):
+class SmartCacheingTestCase(TestCase):
     """
-    Tests that permission are actually cached and that the number of queries
-    stays constant.
+    The base test case for all tests that have to do with smart caching.
     """
     fixtures = ['tests.json']
 
     def setUp(self):
         self.user = User.objects.get(username='jezdez')
         self.check = UserPermission(self.user)
+
+    def _old_permission_check(self):
+        # This is what the old, pre-cache system would check to see if a user
+        # had a given permission.
+        return Permission.objects.user_permissions(
+            self.user,
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+
+
+class PerformanceTest(SmartCacheingTestCase):
+    """
+    Tests that permission are actually cached and that the number of queries
+    stays constant.
+    """
 
     def test_has_user_perms(self):
         # Show that when calling has_user_perms multiple times no additional
@@ -189,26 +206,10 @@ class PerformanceTest(TestCase):
             self.check.has_user_perms('foo', self.user, True, True)
 
 
-class ExpectedBehaviourTestCase(TestCase):
+class ExpectedBehaviourTestCase(SmartCacheingTestCase):
     """
     Tests that peg expected behaviour
     """
-    fixtures = ['tests.json']
-
-    def setUp(self):
-        self.user = User.objects.get(username='jezdez')
-        self.check = UserPermission(self.user)
-
-    def _old_permission_check(self):
-        # This is what the old, pre-cache system would check to see if a user
-        # had a given permission.
-        return Permission.objects.user_permissions(
-            self.user,
-            'foo',
-            self.user,
-            approved=True,
-            check_groups=True,
-        )
 
     def test_has_user_perms_with_groups(self):
         perms = self._old_permission_check()
