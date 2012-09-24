@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import Permission as DjangoPermission
@@ -43,9 +44,23 @@ class BasePermission(object):
         self._permission_cache_filled_no_groups = False
         self._cached_permissions_no_groups = {}
 
+        self._permission_cache_filled_with_groups = False
+        self._cached_permissions_with_groups = {}
+
     def _get_permissions_no_groups(self):
         perms = Permission.objects.filter(
             user=self.user,
+        )
+        # Pre cache all the permission in a dictionary.
+        permissions = {}
+        for perm in perms:
+            # Not currently handling groups.
+            permissions[(perm.object_id, perm.codename, perm.approved)] = perm
+        return permissions
+
+    def _get_permissions_with_groups(self):
+        perms = Permission.objects.filter(
+            Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
         )
         # Pre cache all the permission in a dictionary.
         permissions = {}
@@ -63,8 +78,19 @@ class BasePermission(object):
         self._permission_cache_filled_no_groups = True
         return self._cached_permissions_no_groups
 
+    @property
+    def cached_permissions_with_groups(self):
+        if self._permission_cache_filled_with_groups:
+            return self._cached_permissions_with_groups
+        self._cached_permissions_with_groups = \
+                self._get_permissions_with_groups()
+
+        self._permission_cache_filled_with_groups = True
+        return self._cached_permissions_with_groups
+
     def invalidate_cache(self):
         self._permission_cache_filled_no_groups = False
+        self._permission_cache_filled_with_groups = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
@@ -72,9 +98,16 @@ class BasePermission(object):
                 return True
             if not self.user.is_active:
                 return False
-            # check if a Permission object exists for the given params
-            cached_permissions_no_groups = self.cached_permissions_no_groups
-            cached_perm = cached_permissions_no_groups.get((
+
+            # The permissions cache is different if groups need to be checked
+            # as well.
+            if check_groups:
+                cached_permissions = self.cached_permissions_with_groups
+            else:
+                cached_permissions = self.cached_permissions_no_groups
+
+            # Check to see if the permission is in the cache.
+            cached_perm = cached_permissions.get((
                 obj.pk,
                 perm,
                 approved,
