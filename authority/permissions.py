@@ -40,30 +40,49 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
+        # Define variables needed for smart cache.
         self._permission_cache_filled = False
         self._cached_permissions = {}
 
     def _get_permissions(self):
+        """
+        Return a dictionary representation of the Permission objects that are
+        related to ``self.user``.
+        """
         perms = Permission.objects.filter(
             user=self.user,
         )
         # Pre cache all the permission in a dictionary.
         permissions = {}
         for perm in perms:
-            # Not currently handling groups.
+            # TODO Not currently handling groups.
             permissions[(perm.object_id, perm.codename, perm.approved)] = perm
         return permissions
 
     @property
     def cached_permissions(self):
+        """
+        cached_permissions will generate the cache in a lazy fashion.
+        """
+
+        # Check to see if the cache has been primed.
         if self._permission_cache_filled:
             return self._cached_permissions
+
+        # Prime the cache.
         self._cached_permissions = self._get_permissions()
 
         self._permission_cache_filled = True
         return self._cached_permissions
 
     def invalidate_cache(self):
+        """
+        In the event that the Permission table is changed during the use of a
+        permission the Permission cache will need to be invalidated and
+        regenerated. By calling this method the invalidation will occur, and
+        the next time the cached_permissions is used the cache will be
+        re-primed.
+        """
         self._permission_cache_filled = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
