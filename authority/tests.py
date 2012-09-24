@@ -175,3 +175,15 @@ class PerformanceTest(TestCase):
             self.check.has_user_perms('foo', self.user, True, True)
             self.check.has_user_perms('foo', self.user, True, True)
             self.check.has_user_perms('foo', self.user, True, True)
+
+    def test_invalidate_cache(self):
+        # Show that calling invalidate_cache will cause extra queries.
+        with self.assertNumQueries(2):
+            self.check.has_user_perms('foo', self.user, True, True)
+
+            # Invalidate the cache to show that a query will be generated when
+            # checking perms again.
+            self.check.invalidate_cache()
+
+            # One query to re generate the cache.
+            self.check.has_user_perms('foo', self.user, True, True)
