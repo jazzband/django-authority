@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import Permission as DjangoPermission
@@ -59,7 +58,12 @@ class BasePermission(object):
         # Pre cache all the permission in a dictionary.
         permissions = {}
         for perm in perms:
-            permissions[(perm.object_id, perm.codename, perm.approved)] = perm
+            permissions[(
+                perm.object_id,
+                perm.content_type.pk,
+                perm.codename,
+                perm.approved,
+            )] = perm
         return permissions
 
     def _get_cached_group_permissions(self):
@@ -68,12 +72,17 @@ class BasePermission(object):
         related to ``self.user``, including groups interactions.
         """
         perms = Permission.objects.filter(
-            Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
+            group__in=self.user.groups.all(),
         )
         # Pre cache all the permission in a dictionary.
         permissions = {}
         for perm in perms:
-            permissions[(perm.object_id, perm.codename, perm.approved)] = perm
+            permissions[(
+                perm.object_id,
+                perm.content_type.pk,
+                perm.codename,
+                perm.approved,
+            )] = perm
         return permissions
 
     @property
@@ -105,7 +114,7 @@ class BasePermission(object):
         self._group_permissions_cache_filled = True
         return self._cached_group_permissions
 
-    def invalidate_cache(self):
+    def invalidate_permissions_cache(self):
         """
         In the event that the Permission table is changed during the use of a
         permission the Permission cache will need to be invalidated and
@@ -113,7 +122,7 @@ class BasePermission(object):
         the next time the cached_permissions is used the cache will be
         re-primed.
         """
-        self._permission_cache_filled_no_groups = False
+        self._user_permissions_cache_filled = False
         self._group_permissions_cache_filled = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
@@ -123,22 +132,27 @@ class BasePermission(object):
             if not self.user.is_active:
                 return False
 
-            # The permissions cache is different if groups need to be checked
-            # as well.
-            if check_groups:
-                cached_permissions = self.cached_group_permissions
-            else:
-                cached_permissions = self.cached_user_permissions
+            def _user_has_perms(cached_perms):
+                # Check to see if the permission is in the cache.
+                return cached_perms.get((
+                    obj.pk,
+                    Permission.objects.get_content_type(obj).pk,
+                    perm,
+                    approved,
+                ))
+            # Check the permissions on the user.
+            cached_user_permissions = self.cached_user_permissions
 
             # Check to see if the permission is in the cache.
-            cached_perm = cached_permissions.get((
-                obj.pk,
-                perm,
-                approved,
-            ))
-
-            if cached_perm:
+            if _user_has_perms(cached_user_permissions):
                 return True
+
+            # Optionally check group permissions
+            if check_groups:
+                cached_group_permissions = self.cached_group_permissions
+                if _user_has_perms(cached_group_permissions):
+                    return True
+
             return False
         return False
 
