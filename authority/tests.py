@@ -192,24 +192,25 @@ class PerformanceTest(SmartCacheingTestCase):
         # Regardless of how many times has_user_perms is called, the number of
         # queries is the same.
         with self.assertNumQueries(1):
-            self.check.has_user_perms('foo', self.user, True, True)
-            self.check.has_user_perms('foo', self.user, True, True)
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
+            self.check.has_user_perms('foo', self.user, True, False)
+            self.check.has_user_perms('foo', self.user, True, False)
 
-    def test_invalidate_cache(self):
-        # Show that calling invalidate_cache will cause extra queries.
+    def test_invalidate_permissions_cache(self):
+        # Show that calling invalidate_permissions_cache will cause extra
+        # queries.
         with self.assertNumQueries(2):
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
 
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
-            self.check.invalidate_cache()
+            self.check.invalidate_permissions_cache()
 
             # One query to re generate the cache.
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
 
 
-class ExpectedBehaviourTestCase(SmartCacheingTestCase):
+class GroupPermissionCacheTestCase(SmartCacheingTestCase):
     """
     Tests that peg expected behaviour
     """
@@ -246,7 +247,7 @@ class ExpectedBehaviourTestCase(SmartCacheingTestCase):
         self.assertEqual([perm], list(perms))
 
         # Invalidate the cache.
-        self.check.invalidate_cache()
+        self.check.invalidate_permissions_cache()
         can_foo_with_group = self.check.has_user_perms(
             'foo',
             self.user,
