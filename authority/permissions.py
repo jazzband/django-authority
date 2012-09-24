@@ -90,13 +90,15 @@ class BasePermission(object):
             False,
         )
         if cache_filled:
-            return self.user._cached_user_permissions
+            # Don't really like the name for this, but this matches how Django
+            # does it.
+            return self.user._authority_perm_cache
 
         # Prime the cache.
-        self.user._cached_user_permissions = \
+        self.user._authority_perm_cache = \
                 self._get_cached_user_permissions()
         self.user._user_permissions_cache_filled = True
-        return self.user._cached_user_permissions
+        return self.user._authority_perm_cache
 
     @property
     def cached_group_permissions(self):
@@ -110,13 +112,13 @@ class BasePermission(object):
             False,
         )
         if cache_filled:
-            return self.user._cached_group_permissions
+            return self.user._authroity_group_perm_cache
 
         # Prime the cache.
-        self.user._cached_group_permissions = \
+        self.user._authroity_group_perm_cache = \
                 self._get_cached_group_permissions()
         self.user._group_permissions_cache_filled = True
-        return self.user._cached_group_permissions
+        return self.user._authroity_group_perm_cache
 
     def invalidate_permissions_cache(self):
         """
