@@ -40,10 +40,10 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
-        self._permission_cache_filled = False
-        self._cached_permissions = {}
+        self._permission_cache_filled_no_groups = False
+        self._cached_permissions_no_groups = {}
 
-    def _get_permissions(self):
+    def _get_permissions_no_groups(self):
         perms = Permission.objects.filter(
             user=self.user,
         )
@@ -55,16 +55,16 @@ class BasePermission(object):
         return permissions
 
     @property
-    def cached_permissions(self):
-        if self._permission_cache_filled:
-            return self._cached_permissions
-        self._cached_permissions = self._get_permissions()
+    def cached_permissions_no_groups(self):
+        if self._permission_cache_filled_no_groups:
+            return self._cached_permissions_no_groups
+        self._cached_permissions_no_groups = self._get_permissions_no_groups()
 
-        self._permission_cache_filled = True
-        return self._cached_permissions
+        self._permission_cache_filled_no_groups = True
+        return self._cached_permissions_no_groups
 
     def invalidate_cache(self):
-        self._permission_cache_filled = False
+        self._permission_cache_filled_no_groups = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
@@ -73,8 +73,8 @@ class BasePermission(object):
             if not self.user.is_active:
                 return False
             # check if a Permission object exists for the given params
-            cached_permissions = self.cached_permissions
-            cached_perm = cached_permissions.get((
+            cached_permissions_no_groups = self.cached_permissions_no_groups
+            cached_perm = cached_permissions_no_groups.get((
                 obj.pk,
                 perm,
                 approved,
