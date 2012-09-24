@@ -42,13 +42,13 @@ class BasePermission(object):
         super(BasePermission, self).__init__(*args, **kwargs)
 
         # Define variables needed for smart cache.
-        self._permission_cache_filled_no_groups = False
-        self._cached_permissions_no_groups = {}
+        self._user_permissions_cache_filled = False
+        self._cached_user_permissions = {}
 
-        self._permission_cache_filled_with_groups = False
-        self._cached_permissions_with_groups = {}
+        self._group_permissions_cache_filled = False
+        self._cached_group_permissions = {}
 
-    def _get_permissions_no_groups(self):
+    def _get_cached_user_permissions(self):
         """
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, excluding group interactions.
@@ -62,7 +62,7 @@ class BasePermission(object):
             permissions[(perm.object_id, perm.codename, perm.approved)] = perm
         return permissions
 
-    def _get_permissions_with_groups(self):
+    def _get_cached_group_permissions(self):
         """
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, including groups interactions.
@@ -77,33 +77,33 @@ class BasePermission(object):
         return permissions
 
     @property
-    def cached_permissions_no_groups(self):
+    def cached_user_permissions(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
-        if self._permission_cache_filled_no_groups:
-            return self._cached_permissions_no_groups
+        if self._user_permissions_cache_filled:
+            return self._cached_user_permissions
 
         # Prime the cache.
-        self._cached_permissions_no_groups = self._get_permissions_no_groups()
-        self._permission_cache_filled_no_groups = True
-        return self._cached_permissions_no_groups
+        self._cached_user_permissions = self._get_cached_user_permissions()
+        self._user_permissions_cache_filled = True
+        return self._cached_user_permissions
 
     @property
-    def cached_permissions_with_groups(self):
+    def cached_group_permissions(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
-        if self._permission_cache_filled_with_groups:
-            return self._cached_permissions_with_groups
+        if self._group_permissions_cache_filled:
+            return self._cached_group_permissions
 
         # Prime the cache.
-        self._cached_permissions_with_groups = \
-                self._get_permissions_with_groups()
-        self._permission_cache_filled_with_groups = True
-        return self._cached_permissions_with_groups
+        self._cached_group_permissions = \
+                self._get_cached_group_permissions()
+        self._group_permissions_cache_filled = True
+        return self._cached_group_permissions
 
     def invalidate_cache(self):
         """
@@ -114,7 +114,7 @@ class BasePermission(object):
         re-primed.
         """
         self._permission_cache_filled_no_groups = False
-        self._permission_cache_filled_with_groups = False
+        self._group_permissions_cache_filled = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
@@ -126,9 +126,9 @@ class BasePermission(object):
             # The permissions cache is different if groups need to be checked
             # as well.
             if check_groups:
-                cached_permissions = self.cached_permissions_with_groups
+                cached_permissions = self.cached_group_permissions
             else:
-                cached_permissions = self.cached_permissions_no_groups
+                cached_permissions = self.cached_user_permissions
 
             # Check to see if the permission is in the cache.
             cached_perm = cached_permissions.get((
