@@ -63,7 +63,7 @@ class BasePermission(object):
                 perm.content_type.pk,
                 perm.codename,
                 perm.approved,
-            )] = perm
+            )] = True
         return permissions
 
     def _get_cached_group_permissions(self):
@@ -82,7 +82,7 @@ class BasePermission(object):
                 perm.content_type.pk,
                 perm.codename,
                 perm.approved,
-            )] = perm
+            )] = True
         return permissions
 
     @property
