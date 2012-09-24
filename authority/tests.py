@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import Permission as DjangoPermission
 
 import authority
@@ -175,3 +175,66 @@ class PerformanceTest(TestCase):
             self.check.has_user_perms('foo', self.user, True, True)
             self.check.has_user_perms('foo', self.user, True, True)
             self.check.has_user_perms('foo', self.user, True, True)
+
+
+class ExpectedBehaviourTestCase(TestCase):
+    """
+    Tests that peg expected behaviour
+    """
+    fixtures = ['tests.json']
+
+    def setUp(self):
+        self.user = User.objects.get(username='jezdez')
+        self.check = UserPermission(self.user)
+
+    def _old_permission_check(self):
+        # This is what the old, pre-cache system would check to see if a user
+        # had a given permission.
+        return Permission.objects.user_permissions(
+            self.user,
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+
+    def test_has_user_perms_with_groups(self):
+        perms = self._old_permission_check()
+        self.assertEqual([], list(perms))
+
+        # Use the new cached user perms to show that the user does not have the
+        # perms.
+        can_foo_with_group = self.check.has_user_perms(
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+        self.assertFalse(can_foo_with_group)
+
+        # Create a group that the user is a part of.
+        group = Group.objects.create()
+        group.user_set.add(self.user)
+
+        # Create a permission with just that group.
+        perm = Permission.objects.create(
+            content_type=Permission.objects.get_content_type(User),
+            object_id=self.user.pk,
+            codename='foo',
+            group=group,
+            approved=True,
+        )
+
+        # Old permission check
+        perms = self._old_permission_check()
+        self.assertEqual([perm], list(perms))
+
+        # Invalidate the cache.
+        self.check.invalidate_cache()
+        can_foo_with_group = self.check.has_user_perms(
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+        self.assertTrue(can_foo_with_group)
