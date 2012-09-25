@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
 
@@ -41,30 +42,40 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
-        # Define variables needed for smart cache.
-        self._user_permissions_cache_filled = False
-        self._cached_user_permissions = {}
-
-        self._group_permissions_cache_filled = False
-        self._cached_group_permissions = {}
+    def _get_cached_permissions(self):
+        """
+        Set up both the user and group caches.
+        """
+        perms = Permission.objects.filter(
+            Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
+        ).select_related(
+            'group',
+        )
+        user_permissions = {}
+        group_permissions = {}
+        for perm in perms:
+            if perm.user_id == self.user.pk:
+                user_permissions[(
+                    perm.object_id,
+                    perm.content_type_id,
+                    perm.codename,
+                    perm.approved,
+                )] = True
+            if perm.group and self.user in perm.group.user_set.all():
+                group_permissions[(
+                    perm.object_id,
+                    perm.content_type_id,
+                    perm.codename,
+                    perm.approved,
+                )] = True
+        return user_permissions, group_permissions
 
     def _get_cached_user_permissions(self):
         """
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, excluding group interactions.
         """
-        perms = Permission.objects.filter(
-            user=self.user,
-        )
-        # Pre cache all the permission in a dictionary.
-        permissions = {}
-        for perm in perms:
-            permissions[(
-                perm.object_id,
-                perm.content_type.pk,
-                perm.codename,
-                perm.approved,
-            )] = True
+        permissions, _ = self._get_cached_permissions()
         return permissions
 
     def _get_cached_group_permissions(self):
@@ -72,18 +83,7 @@ class BasePermission(object):
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, including groups interactions.
         """
-        perms = Permission.objects.filter(
-            group__in=self.user.groups.all(),
-        )
-        # Pre cache all the permission in a dictionary.
-        permissions = {}
-        for perm in perms:
-            permissions[(
-                perm.object_id,
-                perm.content_type.pk,
-                perm.codename,
-                perm.approved,
-            )] = True
+        _, permissions = self._get_cached_permissions()
         return permissions
 
     @property
@@ -92,13 +92,21 @@ class BasePermission(object):
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
-        if self._user_permissions_cache_filled:
-            return self._cached_user_permissions
+        cache_filled = getattr(
+            self.user,
+            '_user_permissions_cache_filled',
+            False,
+        )
+        if cache_filled:
+            # Don't really like the name for this, but this matches how Django
+            # does it.
+            return self.user._authority_perm_cache
 
         # Prime the cache.
-        self._cached_user_permissions = self._get_cached_user_permissions()
-        self._user_permissions_cache_filled = True
-        return self._cached_user_permissions
+        self.user._authority_perm_cache = \
+                self._get_cached_user_permissions()
+        self.user._user_permissions_cache_filled = True
+        return self.user._authority_perm_cache
 
     @property
     def cached_group_permissions(self):
@@ -106,14 +114,19 @@ class BasePermission(object):
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
-        if self._group_permissions_cache_filled:
-            return self._cached_group_permissions
+        cache_filled = getattr(
+            self.user,
+            '_group_permissions_cache_filled',
+            False,
+        )
+        if cache_filled:
+            return self.user._authroity_group_perm_cache
 
         # Prime the cache.
-        self._cached_group_permissions = \
+        self.user._authroity_group_perm_cache = \
                 self._get_cached_group_permissions()
-        self._group_permissions_cache_filled = True
-        return self._cached_group_permissions
+        self.user._group_permissions_cache_filled = True
+        return self.user._authroity_group_perm_cache
 
     def invalidate_permissions_cache(self):
         """
@@ -123,8 +136,8 @@ class BasePermission(object):
         the next time the cached_permissions is used the cache will be
         re-primed.
         """
-        self._user_permissions_cache_filled = False
-        self._group_permissions_cache_filled = False
+        self.user._user_permissions_cache_filled = False
+        self.user._group_permissions_cache_filled = False
 
     @property
     def use_smart_cache(self):
