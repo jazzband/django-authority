@@ -143,7 +143,7 @@ class BasePermission(object):
     def use_smart_cache(self):
         # AUTHORITY_USE_SMART_CACHE defaults to False to maintain backwards
         # compatibility.
-        return getattr(settings, 'AUTHORITY_USE_SMART_CACHE', False)
+        return getattr(settings, 'AUTHORITY_USE_SMART_CACHE', True)
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
@@ -183,7 +183,7 @@ class BasePermission(object):
                     approved,
                     check_groups,
                 ).filter(
-                    object_id=obj.id,
+                    object_id=obj.pk,
                 ).exists()
 
         return False
