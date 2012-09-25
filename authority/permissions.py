@@ -53,17 +53,17 @@ class BasePermission(object):
         user_permissions = {}
         group_permissions = {}
         for perm in perms:
-            if perm.user == self.user:
+            if perm.user_id == self.user.pk:
                 user_permissions[(
                     perm.object_id,
-                    perm.content_type.pk,
+                    perm.content_type_id,
                     perm.codename,
                     perm.approved,
                 )] = True
-            if perm.group in self.user.groups.all():
+            if perm.group and self.user in perm.group.user_set.all():
                 group_permissions[(
                     perm.object_id,
-                    perm.content_type.pk,
+                    perm.content_type_id,
                     perm.codename,
                     perm.approved,
                 )] = True
