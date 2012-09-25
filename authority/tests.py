@@ -266,3 +266,38 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
             check_groups=True,
         )
         self.assertTrue(can_foo_with_group)
+
+    def test_has_group_perms_no_user(self):
+        # Make sure calling has_user_perms on a permission that does not have a
+        # user does not throw any errors.
+        can_foo_with_group = self.group_check.has_group_perms(
+            'foo',
+            self.user,
+            approved=True,
+        )
+        self.assertFalse(can_foo_with_group)
+
+        self.assertEqual(self.group_check.cached_user_permissions, {})
+        self.assertEqual(self.group_check.cached_group_permissions, {})
+
+        # Create a permission with just that group.
+        Permission.objects.create(
+            content_type=Permission.objects.get_content_type(User),
+            object_id=self.user.pk,
+            codename='foo',
+            group=self.group,
+            approved=True,
+        )
+
+        # Invalidate the cache.
+        self.group_check.invalidate_permissions_cache()
+
+        can_foo_with_group = self.group_check.has_group_perms(
+            'foo',
+            self.user,
+            approved=True,
+        )
+        self.assertTrue(can_foo_with_group)
+
+        self.assertEqual(self.group_check.cached_user_permissions, {})
+        self.assertEqual(self.group_check.cached_group_permissions, {})

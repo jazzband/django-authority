@@ -46,6 +46,8 @@ class BasePermission(object):
         """
         Set up both the user and group caches.
         """
+        if not self.user:
+            return {}, {}
         perms = Permission.objects.filter(
             Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
         ).select_related(
@@ -92,6 +94,8 @@ class BasePermission(object):
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
+        if not self.user:
+            return {}
         cache_filled = getattr(
             self.user,
             '_user_permissions_cache_filled',
@@ -114,6 +118,8 @@ class BasePermission(object):
         cached_permissions will generate the cache in a lazy fashion.
         """
         # Check to see if the cache has been primed.
+        if not self.user:
+            return {}
         cache_filled = getattr(
             self.user,
             '_group_permissions_cache_filled',
@@ -136,14 +142,16 @@ class BasePermission(object):
         the next time the cached_permissions is used the cache will be
         re-primed.
         """
-        self.user._user_permissions_cache_filled = False
-        self.user._group_permissions_cache_filled = False
+        if self.user:
+            self.user._user_permissions_cache_filled = False
+            self.user._group_permissions_cache_filled = False
 
     @property
     def use_smart_cache(self):
         # AUTHORITY_USE_SMART_CACHE defaults to False to maintain backwards
         # compatibility.
-        return getattr(settings, 'AUTHORITY_USE_SMART_CACHE', True)
+        use_smart_cache = getattr(settings, 'AUTHORITY_USE_SMART_CACHE', True)
+        return self.user and use_smart_cache
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if self.user:
