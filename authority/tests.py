@@ -15,6 +15,12 @@ class UserPermission(permissions.BasePermission):
 authority.register(User, UserPermission)
 
 
+class GroupPermission(permissions.BasePermission):
+    checks = ('browse',)
+    label = 'group_permission'
+authority.register(Group, GroupPermission)
+
+
 class BehaviourTest(TestCase):
     """
     self.user will be given:
@@ -158,9 +164,18 @@ class SmartCacheingTestCase(TestCase):
     fixtures = ['tests.json']
 
     def setUp(self):
+        # Create a user.
         self.user = User.objects.get(username='jezdez')
-        self.check = UserPermission(self.user)
 
+        # Create a group.
+        self.group = Group.objects.create()
+        self.group.user_set.add(self.user)
+
+        # Make the checks
+        self.user_check = UserPermission(user=self.user)
+        self.group_check = GroupPermission(group=self.group)
+
+        # Ensure we are using the smart cache.
         settings.AUTHORITY_USE_SMART_CACHE = True
 
     def _old_permission_check(self):
@@ -192,22 +207,22 @@ class PerformanceTest(SmartCacheingTestCase):
         # Regardless of how many times has_user_perms is called, the number of
         # queries is the same.
         with self.assertNumQueries(1):
-            self.check.has_user_perms('foo', self.user, True, False)
-            self.check.has_user_perms('foo', self.user, True, False)
-            self.check.has_user_perms('foo', self.user, True, False)
+            self.user_check.has_user_perms('foo', self.user, True, False)
+            self.user_check.has_user_perms('foo', self.user, True, False)
+            self.user_check.has_user_perms('foo', self.user, True, False)
 
     def test_invalidate_permissions_cache(self):
         # Show that calling invalidate_permissions_cache will cause extra
         # queries.
         with self.assertNumQueries(2):
-            self.check.has_user_perms('foo', self.user, True, False)
+            self.user_check.has_user_perms('foo', self.user, True, False)
 
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
-            self.check.invalidate_permissions_cache()
+            self.user_check.invalidate_permissions_cache()
 
             # One query to re generate the cache.
-            self.check.has_user_perms('foo', self.user, True, False)
+            self.user_check.has_user_perms('foo', self.user, True, False)
 
 
 class GroupPermissionCacheTestCase(SmartCacheingTestCase):
@@ -221,7 +236,7 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
 
         # Use the new cached user perms to show that the user does not have the
         # perms.
-        can_foo_with_group = self.check.has_user_perms(
+        can_foo_with_group = self.user_check.has_user_perms(
             'foo',
             self.user,
             approved=True,
@@ -229,16 +244,12 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
         )
         self.assertFalse(can_foo_with_group)
 
-        # Create a group that the user is a part of.
-        group = Group.objects.create()
-        group.user_set.add(self.user)
-
         # Create a permission with just that group.
         perm = Permission.objects.create(
             content_type=Permission.objects.get_content_type(User),
             object_id=self.user.pk,
             codename='foo',
-            group=group,
+            group=self.group,
             approved=True,
         )
 
@@ -247,8 +258,8 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
         self.assertEqual([perm], list(perms))
 
         # Invalidate the cache.
-        self.check.invalidate_permissions_cache()
-        can_foo_with_group = self.check.has_user_perms(
+        self.user_check.invalidate_permissions_cache()
+        can_foo_with_group = self.user_check.has_user_perms(
             'foo',
             self.user,
             approved=True,
