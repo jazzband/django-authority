@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models.base import Model, ModelBase
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import Permission as DjangoPermission
@@ -40,23 +41,40 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
+    def _get_cached_permissions(self):
+        """
+        Set up both the user and group caches.
+        """
+        perms = Permission.objects.filter(
+            Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
+        ).select_related(
+            'group',
+        )
+        user_permissions = {}
+        group_permissions = {}
+        for perm in perms:
+            if perm.user == self.user:
+                user_permissions[(
+                    perm.object_id,
+                    perm.content_type.pk,
+                    perm.codename,
+                    perm.approved,
+                )] = True
+            if perm.group in self.user.groups.all():
+                group_permissions[(
+                    perm.object_id,
+                    perm.content_type.pk,
+                    perm.codename,
+                    perm.approved,
+                )] = True
+        return user_permissions, group_permissions
+
     def _get_cached_user_permissions(self):
         """
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, excluding group interactions.
         """
-        perms = Permission.objects.filter(
-            user=self.user,
-        )
-        # Pre cache all the permission in a dictionary.
-        permissions = {}
-        for perm in perms:
-            permissions[(
-                perm.object_id,
-                perm.content_type.pk,
-                perm.codename,
-                perm.approved,
-            )] = True
+        permissions, _ = self._get_cached_permissions()
         return permissions
 
     def _get_cached_group_permissions(self):
@@ -64,18 +82,7 @@ class BasePermission(object):
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, including groups interactions.
         """
-        perms = Permission.objects.filter(
-            group__in=self.user.groups.all(),
-        )
-        # Pre cache all the permission in a dictionary.
-        permissions = {}
-        for perm in perms:
-            permissions[(
-                perm.object_id,
-                perm.content_type.pk,
-                perm.codename,
-                perm.approved,
-            )] = True
+        _, permissions = self._get_cached_permissions()
         return permissions
 
     @property
