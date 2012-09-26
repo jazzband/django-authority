@@ -157,7 +157,7 @@ class AssignExceptionsTest(TestCase):
         self.fail()
 
 
-class SmartCacheingTestCase(TestCase):
+class SmartCachingTestCase(TestCase):
     """
     The base test case for all tests that have to do with smart caching.
     """
@@ -190,7 +190,7 @@ class SmartCacheingTestCase(TestCase):
         )
 
 
-class PerformanceTest(SmartCacheingTestCase):
+class PerformanceTest(SmartCachingTestCase):
     """
     Tests that permission are actually cached and that the number of queries
     stays constant.
@@ -225,7 +225,7 @@ class PerformanceTest(SmartCacheingTestCase):
             self.user_check.has_user_perms('foo', self.user, True, False)
 
 
-class GroupPermissionCacheTestCase(SmartCacheingTestCase):
+class GroupPermissionCacheTestCase(SmartCachingTestCase):
     """
     Tests that peg expected behaviour
     """
@@ -277,8 +277,8 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
         )
         self.assertFalse(can_foo_with_group)
 
-        self.assertEqual(self.group_check.cached_user_permissions, {})
-        self.assertEqual(self.group_check.cached_group_permissions, {})
+        self.assertEqual(self.group_check.perm_cache, {})
+        self.assertEqual(self.group_check.group_perm_cache, {})
 
         # Create a permission with just that group.
         Permission.objects.create(
@@ -299,5 +299,5 @@ class GroupPermissionCacheTestCase(SmartCacheingTestCase):
         )
         self.assertTrue(can_foo_with_group)
 
-        self.assertEqual(self.group_check.cached_user_permissions, {})
-        self.assertEqual(self.group_check.cached_group_permissions, {})
+        self.assertEqual(self.group_check.perm_cache, {})
+        self.assertEqual(self.group_check.group_perm_cache, {})
