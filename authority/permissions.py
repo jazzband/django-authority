@@ -73,21 +73,15 @@ class BasePermission(object):
                 )] = True
         return user_permissions, group_permissions
 
-    def _get_perm_cache(self):
+    def _authority_prime_perm_caches(self):
         """
         Return a dictionary representation of the Permission objects that are
         related to ``self.user``, excluding group interactions.
         """
-        permissions, _ = self._get_cached_perms()
-        return permissions
-
-    def _get_group_perm_cache(self):
-        """
-        Return a dictionary representation of the Permission objects that are
-        related to ``self.user``, including groups interactions.
-        """
-        _, permissions = self._get_cached_perms()
-        return permissions
+        perm_cache, group_perm_cache = self._get_cached_perms()
+        self.user._authority_perm_cache = perm_cache
+        self.user._authority_group_perm_cache = group_perm_cache
+        self.user._authority_perm_cached_filled = True
 
     @property
     def perm_cache(self):
@@ -108,9 +102,7 @@ class BasePermission(object):
             return self.user._authority_perm_cache
 
         # Prime the cache.
-        self.user._authority_perm_cache = \
-                self._get_perm_cache()
-        self.user._authority_perm_cached_filled = True
+        self._authority_prime_perm_caches()
         return self.user._authority_perm_cache
 
     @property
@@ -123,16 +115,14 @@ class BasePermission(object):
             return {}
         cache_filled = getattr(
             self.user,
-            '_authority_group_perm_cached_filled',
+            '_authority_perm_cached_filled',
             False,
         )
         if cache_filled:
             return self.user._authority_group_perm_cache
 
         # Prime the cache.
-        self.user._authority_group_perm_cache = \
-                self._get_group_perm_cache()
-        self.user._authority_group_perm_cached_filled = True
+        self._authority_prime_perm_caches()
         return self.user._authority_group_perm_cache
 
     def invalidate_permissions_cache(self):
@@ -145,7 +135,6 @@ class BasePermission(object):
         """
         if self.user:
             self.user._authority_perm_cached_filled = False
-            self.user._authority_group_perm_cached_filled = False
 
     @property
     def use_smart_cache(self):
