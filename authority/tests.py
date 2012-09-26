@@ -151,7 +151,7 @@ class AssignExceptionsTest(TestCase):
         self.fail()
 
 
-class SmartCacheingTestCase(TestCase):
+class SmartCachingTestCase(TestCase):
     """
     The base test case for all tests that have to do with smart caching.
     """
@@ -175,7 +175,7 @@ class SmartCacheingTestCase(TestCase):
         )
 
 
-class PerformanceTest(SmartCacheingTestCase):
+class PerformanceTest(SmartCachingTestCase):
     """
     Tests that permission are actually cached and that the number of queries
     stays constant.
@@ -210,7 +210,7 @@ class PerformanceTest(SmartCacheingTestCase):
             self.check.has_user_perms('foo', self.user, True, False)
 
 
-class GroupPermissionCacheTestCase(SmartCacheingTestCase):
+class GroupPermissionCacheTestCase(SmartCachingTestCase):
     """
     Tests that peg expected behaviour
     """
