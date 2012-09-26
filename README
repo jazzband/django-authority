@@ -52,6 +52,14 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.5dev (2012-09-24):
+-----------------
+
+* It is now possible to minimize the number of queries when using
+  django-authority by caching the results of the Permission query. This can be
+  done by adding ``AUTHORITY_USE_SMART_CACHE = True`` to your settings.py
+
+
 0.4 (2010-01-15):
 -----------------
 
