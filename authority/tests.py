@@ -227,6 +227,39 @@ class PerformanceTest(SmartCachingTestCase):
             # One query to re generate the cache.
             self.user_check.has_user_perms('foo', self.user, True, False)
 
+    def test_has_user_perms_check_group(self):
+        # Create a permission with just a group.
+        Permission.objects.create(
+            content_type=Permission.objects.get_content_type(User),
+            object_id=self.user.pk,
+            codename='foo',
+            group=self.group,
+            approved=True,
+        )
+
+        # Check the number of queries.
+        with self.assertNumQueries(2):
+            self.user_check.has_user_perms('foo', self.user, True, True)
+
+        # Create a second group.
+        new_group = Group.objects.create(name='new_group')
+        new_group.user_set.add(self.user)
+
+        # Create a permission object for it.
+        Permission.objects.create(
+            content_type=Permission.objects.get_content_type(User),
+            object_id=self.user.pk,
+            codename='foo',
+            group=new_group,
+            approved=True,
+        )
+
+        self.user_check.invalidate_permissions_cache()
+
+        # Make sure it is the same number of queries.
+        with self.assertNumQueries(2):
+            self.user_check.has_user_perms('foo', self.user, True, True)
+
 
 class GroupPermissionCacheTestCase(SmartCachingTestCase):
     """
