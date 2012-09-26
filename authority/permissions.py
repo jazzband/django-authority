@@ -75,13 +75,13 @@ class BasePermission(object):
 
     def _authority_prime_perm_caches(self):
         """
-        Return a dictionary representation of the Permission objects that are
-        related to ``self.user``, excluding group interactions.
+        Prime both the user and group caches and put them on the ``self.user``.
+        In addition add a cache filled flag on ``self.user``.
         """
         perm_cache, group_perm_cache = self._get_cached_perms()
         self.user._authority_perm_cache = perm_cache
         self.user._authority_group_perm_cache = group_perm_cache
-        self.user._authority_perm_cached_filled = True
+        self.user._authority_perm_cache_filled = True
 
     @property
     def perm_cache(self):
@@ -93,7 +93,7 @@ class BasePermission(object):
             return {}
         cache_filled = getattr(
             self.user,
-            '_authority_perm_cached_filled',
+            '_authority_perm_cache_filled',
             False,
         )
         if cache_filled:
@@ -115,7 +115,7 @@ class BasePermission(object):
             return {}
         cache_filled = getattr(
             self.user,
-            '_authority_perm_cached_filled',
+            '_authority_perm_cache_filled',
             False,
         )
         if cache_filled:
@@ -134,7 +134,7 @@ class BasePermission(object):
         re-primed.
         """
         if self.user:
-            self.user._authority_perm_cached_filled = False
+            self.user._authority_perm_cache_filled = False
 
     @property
     def use_smart_cache(self):
@@ -162,20 +162,14 @@ class BasePermission(object):
                     perm,
                     approved,
                 ))
-            # Check the permissions on the user.
-            perm_cache = self.perm_cache
 
             # Check to see if the permission is in the cache.
-            if _user_has_perms(perm_cache):
-                return True
+            has_perm = _user_has_perms(self.perm_cache)
 
             # Optionally check group permissions
             if check_groups:
-                group_perm_cache = self.group_perm_cache
-                if _user_has_perms(group_perm_cache):
-                    return True
-
-            return False
+                has_perm = has_perm or _user_has_perms(self.group_perm_cache)
+            return has_perm
         else:
             return Permission.objects.user_permissions(
                 self.user,
