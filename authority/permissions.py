@@ -164,24 +164,24 @@ class BasePermission(object):
                 ))
 
             # Check to see if the permission is in the cache.
-            has_perm = _user_has_perms(self._perm_cache)
+            if _user_has_perms(self._perm_cache):
+                return True
 
             # Optionally check group permissions
             if check_groups:
-                has_perm = has_perm or _user_has_perms(self._group_perm_cache)
-            return has_perm
-        else:
-            return Permission.objects.user_permissions(
-                self.user,
-                perm,
-                obj,
-                approved,
-                check_groups,
-            ).filter(
-                object_id=obj.pk,
-            ).exists()
+                return _user_has_perms(self._group_perm_cache)
+            return False
 
-        return False
+        # Actually hit the DB, no smart cache used.
+        return Permission.objects.user_permissions(
+            self.user,
+            perm,
+            obj,
+            approved,
+            check_groups,
+        ).filter(
+            object_id=obj.pk,
+        ).exists()
 
     def has_group_perms(self, perm, obj, approved):
         """
