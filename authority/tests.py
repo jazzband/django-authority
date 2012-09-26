@@ -21,8 +21,11 @@ class GroupPermission(permissions.BasePermission):
 authority.register(Group, GroupPermission)
 
 
-class BehaviourTest(TestCase):
+class DjangoPermissionChecksTestCase(TestCase):
     """
+    Django permission objects have certain methods that are always present,
+    test those here.
+
     self.user will be given:
     - django permission add_user (test_add)
     - authority to delete_user which is him (test_delete)
