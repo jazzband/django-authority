@@ -139,34 +139,34 @@ class BasePermission(object):
         self.user._group_permissions_cache_filled = False
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
-        if self.user:
-            if self.user.is_superuser:
-                return True
-            if not self.user.is_active:
-                return False
-
-            def _user_has_perms(cached_perms):
-                # Check to see if the permission is in the cache.
-                return cached_perms.get((
-                    obj.pk,
-                    Permission.objects.get_content_type(obj).pk,
-                    perm,
-                    approved,
-                ))
-            # Check the permissions on the user.
-            cached_user_permissions = self.cached_user_permissions
-
-            # Check to see if the permission is in the cache.
-            if _user_has_perms(cached_user_permissions):
-                return True
-
-            # Optionally check group permissions
-            if check_groups:
-                cached_group_permissions = self.cached_group_permissions
-                if _user_has_perms(cached_group_permissions):
-                    return True
-
+        if not self.user:
             return False
+        if self.user.is_superuser:
+            return True
+        if not self.user.is_active:
+            return False
+
+        def _user_has_perms(cached_perms):
+            # Check to see if the permission is in the cache.
+            return cached_perms.get((
+                obj.pk,
+                Permission.objects.get_content_type(obj).pk,
+                perm,
+                approved,
+            ))
+        # Check the permissions on the user.
+        cached_user_permissions = self.cached_user_permissions
+
+        # Check to see if the permission is in the cache.
+        if _user_has_perms(cached_user_permissions):
+            return True
+
+        # Optionally check group permissions
+        if check_groups:
+            cached_group_permissions = self.cached_group_permissions
+            if _user_has_perms(cached_group_permissions):
+                return True
+
         return False
 
     def has_group_perms(self, perm, obj, approved):
