@@ -119,13 +119,13 @@ class BasePermission(object):
             False,
         )
         if cache_filled:
-            return self.user._authroity_group_perm_cache
+            return self.user._authority_group_perm_cache
 
         # Prime the cache.
-        self.user._authroity_group_perm_cache = \
+        self.user._authority_group_perm_cache = \
                 self._get_cached_group_permissions()
         self.user._group_permissions_cache_filled = True
-        return self.user._authroity_group_perm_cache
+        return self.user._authority_group_perm_cache
 
     def invalidate_permissions_cache(self):
         """
