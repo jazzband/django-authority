@@ -218,7 +218,12 @@ class PerformanceTest(SmartCachingTestCase):
         # Regardless of the number groups permissions, it should only take one
         # query to check both users and groups.
         with self.assertNumQueries(1):
-            self.user_check.has_user_perms('foo', self.user, True, True)
+            self.user_check.has_user_perms(
+                'foo',
+                self.user,
+                approved=True,
+                check_groups=True,
+            )
 
     def test_invalidate_permissions_cache(self):
         # Show that calling invalidate_permissions_cache will cause extra
@@ -319,8 +324,8 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         )
         self.assertFalse(can_foo_with_group)
 
-        self.assertEqual(self.group_check.perm_cache, {})
-        self.assertEqual(self.group_check.group_perm_cache, {})
+        self.assertEqual(self.group_check._perm_cache, {})
+        self.assertEqual(self.group_check._group_perm_cache, {})
 
         # Create a permission with just that group.
         Permission.objects.create(
@@ -341,5 +346,5 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         )
         self.assertTrue(can_foo_with_group)
 
-        self.assertEqual(self.group_check.perm_cache, {})
-        self.assertEqual(self.group_check.group_perm_cache, {})
+        self.assertEqual(self.group_check._perm_cache, {})
+        self.assertEqual(self.group_check._group_perm_cache, {})

@@ -73,7 +73,7 @@ class BasePermission(object):
                 )] = True
         return user_permissions, group_permissions
 
-    def _authority_prime_perm_caches(self):
+    def _prime_perm_caches(self):
         """
         Prime both the user and group caches and put them on the ``self.user``.
         In addition add a cache filled flag on ``self.user``.
@@ -84,7 +84,7 @@ class BasePermission(object):
         self.user._authority_perm_cache_filled = True
 
     @property
-    def perm_cache(self):
+    def _perm_cache(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
@@ -102,11 +102,11 @@ class BasePermission(object):
             return self.user._authority_perm_cache
 
         # Prime the cache.
-        self._authority_prime_perm_caches()
+        self._prime_perm_caches()
         return self.user._authority_perm_cache
 
     @property
-    def group_perm_cache(self):
+    def _group_perm_cache(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
@@ -122,7 +122,7 @@ class BasePermission(object):
             return self.user._authority_group_perm_cache
 
         # Prime the cache.
-        self._authority_prime_perm_caches()
+        self._prime_perm_caches()
         return self.user._authority_group_perm_cache
 
     def invalidate_permissions_cache(self):
@@ -164,11 +164,11 @@ class BasePermission(object):
                 ))
 
             # Check to see if the permission is in the cache.
-            has_perm = _user_has_perms(self.perm_cache)
+            has_perm = _user_has_perms(self._perm_cache)
 
             # Optionally check group permissions
             if check_groups:
-                has_perm = has_perm or _user_has_perms(self.group_perm_cache)
+                has_perm = has_perm or _user_has_perms(self._group_perm_cache)
             return has_perm
         else:
             return Permission.objects.user_permissions(
