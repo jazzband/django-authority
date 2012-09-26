@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import Permission as DjangoPermission
 
 import authority
@@ -172,18 +172,82 @@ class PerformanceTest(TestCase):
         # Regardless of how many times has_user_perms is called, the number of
         # queries is the same.
         with self.assertNumQueries(1):
-            self.check.has_user_perms('foo', self.user, True, True)
-            self.check.has_user_perms('foo', self.user, True, True)
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
+            self.check.has_user_perms('foo', self.user, True, False)
+            self.check.has_user_perms('foo', self.user, True, False)
 
-    def test_invalidate_cache(self):
-        # Show that calling invalidate_cache will cause extra queries.
+    def test_invalidate_permissions_cache(self):
+        # Show that calling invalidate_permissions_cache will cause extra
+        # queries.
         with self.assertNumQueries(2):
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
 
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
-            self.check.invalidate_cache()
+            self.check.invalidate_permissions_cache()
 
             # One query to re generate the cache.
-            self.check.has_user_perms('foo', self.user, True, True)
+            self.check.has_user_perms('foo', self.user, True, False)
+
+
+class GroupPermissionCacheTestCase(TestCase):
+    """
+    Tests that peg expected behaviour
+    """
+    fixtures = ['tests.json']
+
+    def setUp(self):
+        self.user = User.objects.get(username='jezdez')
+        self.check = UserPermission(self.user)
+
+    def _old_permission_check(self):
+        # This is what the old, pre-cache system would check to see if a user
+        # had a given permission.
+        return Permission.objects.user_permissions(
+            self.user,
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+
+    def test_has_user_perms_with_groups(self):
+        perms = self._old_permission_check()
+        self.assertEqual([], list(perms))
+
+        # Use the new cached user perms to show that the user does not have the
+        # perms.
+        can_foo_with_group = self.check.has_user_perms(
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+        self.assertFalse(can_foo_with_group)
+
+        # Create a group that the user is a part of.
+        group = Group.objects.create()
+        group.user_set.add(self.user)
+
+        # Create a permission with just that group.
+        perm = Permission.objects.create(
+            content_type=Permission.objects.get_content_type(User),
+            object_id=self.user.pk,
+            codename='foo',
+            group=group,
+            approved=True,
+        )
+
+        # Old permission check
+        perms = self._old_permission_check()
+        self.assertEqual([perm], list(perms))
+
+        # Invalidate the cache.
+        self.check.invalidate_permissions_cache()
+        can_foo_with_group = self.check.has_user_perms(
+            'foo',
+            self.user,
+            approved=True,
+            check_groups=True,
+        )
+        self.assertTrue(can_foo_with_group)
