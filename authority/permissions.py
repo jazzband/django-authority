@@ -50,8 +50,6 @@ class BasePermission(object):
             return {}, {}
         perms = Permission.objects.filter(
             Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
-        ).select_related(
-            'group',
         )
         user_permissions = {}
         group_permissions = {}
@@ -63,7 +61,10 @@ class BasePermission(object):
                     perm.codename,
                     perm.approved,
                 )] = True
-            if perm.group and self.user in perm.group.user_set.all():
+            # If the user has the permission do for something, but perm.user !=
+            # self.user then by definition that permission came from the
+            # group.
+            else:
                 group_permissions[(
                     perm.object_id,
                     perm.content_type_id,
@@ -162,11 +163,13 @@ class BasePermission(object):
             return False
 
         if self.use_smart_cache:
+            content_type_pk = Permission.objects.get_content_type(obj).pk
+
             def _user_has_perms(cached_perms):
                 # Check to see if the permission is in the cache.
                 return cached_perms.get((
                     obj.pk,
-                    Permission.objects.get_content_type(obj).pk,
+                    content_type_pk,
                     perm,
                     approved,
                 ))
