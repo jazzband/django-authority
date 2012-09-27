@@ -23,6 +23,11 @@ This application provides three abilities:
    voodoo-code to Django's ``contrib.auth`` system, it keeps your existing
    permission system intact!
 
+django-authority uses a cache that is stored on the user object to help improve
+performance. However, if the ``Permission`` table changes the cache will need
+to be invalidated. More information about this can be found in the tips and
+tricks section.
+
 .. warning:: We have just started with the documentation and it's far from
    being perfect. If you find glitches, errors or just have feedback, please
    contact the team: :ref:`support`.
