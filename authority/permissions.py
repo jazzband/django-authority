@@ -42,7 +42,7 @@ class BasePermission(object):
         self.group = group
         super(BasePermission, self).__init__(*args, **kwargs)
 
-    def _get_cached_perms(self):
+    def _get_user_cached_perms(self):
         """
         Set up both the user and group caches.
         """
@@ -73,15 +73,43 @@ class BasePermission(object):
                 )] = True
         return user_permissions, group_permissions
 
+    def _get_group_cached_perms(self):
+        """
+        Set group cache.
+        """
+        if not self.group:
+            return {}
+        perms = Permission.objects.filter(
+            group=self.group,
+        )
+        group_permissions = {}
+        for perm in perms:
+            group_permissions[(
+                perm.object_id,
+                perm.content_type_id,
+                perm.codename,
+                perm.approved,
+            )] = True
+        return group_permissions
+
     def _prime_user_perm_caches(self):
         """
         Prime both the user and group caches and put them on the ``self.user``.
         In addition add a cache filled flag on ``self.user``.
         """
-        perm_cache, group_perm_cache = self._get_cached_perms()
+        perm_cache, group_perm_cache = self._get_user_cached_perms()
         self.user._authority_perm_cache = perm_cache
         self.user._authority_group_perm_cache = group_perm_cache
         self.user._authority_perm_cache_filled = True
+
+    def _prime_group_perm_caches(self):
+        """
+        Prime both the user and group caches and put them on the ``self.user``.
+        In addition add a cache filled flag on ``self.user``.
+        """
+        perm_cache = self._get_group_cached_perms()
+        self.group._authority_perm_cache = perm_cache
+        self.group._authority_perm_cache_filled = True
 
     @property
     def _user_perm_cache(self):
@@ -104,6 +132,28 @@ class BasePermission(object):
         # Prime the cache.
         self._prime_user_perm_caches()
         return self.user._authority_perm_cache
+
+    @property
+    def _group_perm_cache(self):
+        """
+        cached_permissions will generate the cache in a lazy fashion.
+        """
+        # Check to see if the cache has been primed.
+        if not self.group:
+            return {}
+        cache_filled = getattr(
+            self.group,
+            '_authority_perm_cache_filled',
+            False,
+        )
+        if cache_filled:
+            # Don't really like the name for this, but this matches how Django
+            # does it.
+            return self.group._authority_perm_cache
+
+        # Prime the cache.
+        self._prime_group_perm_caches()
+        return self.group._authority_perm_cache
 
     @property
     def _user_group_perm_cache(self):
@@ -135,13 +185,15 @@ class BasePermission(object):
         """
         if self.user:
             self.user._authority_perm_cache_filled = False
+        if self.group:
+            self.group._authority_perm_cache_filled = False
 
     @property
     def use_smart_cache(self):
         # AUTHORITY_USE_SMART_CACHE defaults to False to maintain backwards
         # compatibility.
         use_smart_cache = getattr(settings, 'AUTHORITY_USE_SMART_CACHE', True)
-        return self.user and use_smart_cache
+        return (self.user or self.group) and use_smart_cache
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
         if not self.user:
@@ -189,6 +241,21 @@ class BasePermission(object):
         """
         if not self.group:
             return False
+
+        if self.use_smart_cache:
+            content_type_pk = Permission.objects.get_content_type(obj).pk
+
+            def _group_has_perms(cached_perms):
+                # Check to see if the permission is in the cache.
+                return cached_perms.get((
+                    obj.pk,
+                    content_type_pk,
+                    perm,
+                    approved,
+                ))
+
+            # Check to see if the permission is in the cache.
+            return _group_has_perms(self._group_perm_cache)
 
         # Actually hit the DB, no smart cache used.
         return Permission.objects.group_permissions(
