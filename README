@@ -52,7 +52,7 @@ html version using the setup.py::
 Changelog:
 ==========
 
-0.5dev (2012-09-24):
+0.5 (2013-03-18):
 -----------------
 
 * It is now possible to minimize the number of queries when using
