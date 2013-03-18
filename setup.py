@@ -33,7 +33,7 @@ setup(
         'Framework :: Django :: 1.4',
         'Framework :: Django :: 1.5',
     ],
-    install_requires=['django', 'django-extensions', 'django-debug-toolbar'],
+    install_requires=['django'],
     package_data = {
         'authority': [
             'fixtures/test.json',
