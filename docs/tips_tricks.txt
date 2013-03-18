@@ -66,3 +66,7 @@ invalidate_permissions_cache in order to see that changes::
 This is particularly useful if you are using the permission instances during a
 request, where it is unlikely that the state of the ``Permission`` table will
 change.
+
+Although the previous example was only passing in a ``user`` into the
+permission, smart caching is used when getting permissions in a ``group`` as
+well.

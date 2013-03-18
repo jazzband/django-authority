@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from django.contrib.flatpages.views import flatpage
 from django.contrib.flatpages.models import FlatPage
 
@@ -12,5 +14,5 @@ def top_secret(request, url, lala=None):
     """
     A wrapping view that performs the permission check given in the decorator
     """
-    print "secret!"
+    print("secret!")
     return flatpage(request, url)
