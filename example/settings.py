@@ -8,12 +8,16 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = os.path.join(PROJECT_ROOT, 'example.db')
-DATABASE_USER = ''
-DATABASE_PASSWORD = ''
-DATABASE_HOST = ''
-DATABASE_PORT = ''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(PROJECT_ROOT, 'example.db'),
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
+    }
+}
 
 TIME_ZONE = 'America/Chicago'
 
@@ -83,6 +87,6 @@ TEMPLATE_DIRS = (
 
 # Use local_settings.py for things to override privately
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except ImportError:
     pass
