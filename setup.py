@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python',
         'Framework :: Django',
     ],
+    install_requires=['django', 'django-extensions'],
     package_data = {
         'authority': [
             'fixtures/test.json',

@@ -8,7 +8,7 @@ env:
   - TRAVIS_DJANGO_VERSION=1.4
   - TRAVIS_DJANGO_VERSION=1.5
 install:
-  - pip install django==$TRAVIS_DJANGO_VERSION --use-mirrors
+  - pip install django-extensions django==$TRAVIS_DJANGO_VERSION --use-mirrors
 notifications:
   email:
     - jason.louard.ward@gmail.com
