@@ -31,3 +31,38 @@ Within a permission class, you can refer to Django's basic permissions::
                 # ...
 
     authority.register(Flatpage, FlagpagePermisson)
+
+If the ``Permission`` table changes during the lifespan of a django-authority
+permission instance and the smart cache is being used, you will need to call
+invalidate_permissions_cache in order to see that changes::
+
+    class UserPermission(permission.BasePermission):
+        label = 'user_permission'
+        checks = ('do_foo',)
+    authority.register(User, UserPermission)
+
+    user_permission = UserPermission(user)
+
+    # can_foo is False here since the permission has not yet been added.
+    can_foo = user_permission.has_user_perms('foo', user)
+
+    Permission.objects.create(
+        content_type=Permission.objects.get_content_type(User),
+        object_id=user.pk,
+        codename='foo',
+        user=user,
+        approved=True,
+    )
+
+    # can_foo is still False because the permission cache has not been
+    invalidated yet.
+    can_foo = user_permission.has_user_perms('foo', user)
+
+    user_permission.invalidate_permissions_cache()
+
+    # can_foo is now True
+    can_foo = user_permission.has_user_perms('foo', user)
+
+This is particularly useful if you are using the permission instances during a
+request, where it is unlikely that the state of the ``Permission`` table will
+change.
