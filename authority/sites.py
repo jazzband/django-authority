@@ -110,7 +110,7 @@ class PermissionSite(object):
                 'check': check_name}
             func.check_name = check_name
             if func_name not in permission.checks:
-                permission.checks.append(func_name)
+                permission.checks = (list(permission.checks) + [func_name])
             setattr(permission, func_name, func)
         setattr(model, "permissions", PermissionDescriptor())
 

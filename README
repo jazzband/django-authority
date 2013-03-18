@@ -58,6 +58,9 @@ Changelog:
 * It is now possible to minimize the number of queries when using
   django-authority by caching the results of the Permission query. This can be
   done by adding ``AUTHORITY_USE_SMART_CACHE = True`` to your settings.py
+* Confirmed support (via travis ci) for all combinations of Python 2.6,
+  Python2.7 and Django 1.3, Django 1.4, Django 1.5. Added Python 3.3 support
+  for Django 1.5
 
 
 0.4 (2010-01-15):

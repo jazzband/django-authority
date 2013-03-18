@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name='django-authority',
-    version='0.4',
+    version='0.5',
     description=(
         "A Django app that provides generic per-object-permissions "
         "for Django's auth app."
@@ -28,12 +28,13 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
         'Framework :: Django',
         'Framework :: Django :: 1.3',
         'Framework :: Django :: 1.4',
         'Framework :: Django :: 1.5',
     ],
-    install_requires=['django', 'django-extensions', 'django-debug-toolbar'],
+    install_requires=['django'],
     package_data = {
         'authority': [
             'fixtures/test.json',
