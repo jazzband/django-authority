@@ -73,7 +73,7 @@ class BasePermission(object):
                 )] = True
         return user_permissions, group_permissions
 
-    def _prime_perm_caches(self):
+    def _prime_user_perm_caches(self):
         """
         Prime both the user and group caches and put them on the ``self.user``.
         In addition add a cache filled flag on ``self.user``.
@@ -84,7 +84,7 @@ class BasePermission(object):
         self.user._authority_perm_cache_filled = True
 
     @property
-    def _perm_cache(self):
+    def _user_perm_cache(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
@@ -102,11 +102,11 @@ class BasePermission(object):
             return self.user._authority_perm_cache
 
         # Prime the cache.
-        self._prime_perm_caches()
+        self._prime_user_perm_caches()
         return self.user._authority_perm_cache
 
     @property
-    def _group_perm_cache(self):
+    def _user_group_perm_cache(self):
         """
         cached_permissions will generate the cache in a lazy fashion.
         """
@@ -122,7 +122,7 @@ class BasePermission(object):
             return self.user._authority_group_perm_cache
 
         # Prime the cache.
-        self._prime_perm_caches()
+        self._prime_user_perm_caches()
         return self.user._authority_group_perm_cache
 
     def invalidate_permissions_cache(self):
@@ -164,12 +164,12 @@ class BasePermission(object):
                 ))
 
             # Check to see if the permission is in the cache.
-            if _user_has_perms(self._perm_cache):
+            if _user_has_perms(self._user_perm_cache):
                 return True
 
             # Optionally check group permissions
             if check_groups:
-                return _user_has_perms(self._group_perm_cache)
+                return _user_has_perms(self._user_group_perm_cache)
             return False
 
         # Actually hit the DB, no smart cache used.
@@ -187,11 +187,17 @@ class BasePermission(object):
         """
         Check if group has the permission for the given object
         """
-        if self.group:
-            perms = Permission.objects.group_permissions(self.group, perm, obj,
-                                                         approved)
-            return perms.filter(object_id=obj.pk)
-        return False
+        if not self.group:
+            return False
+
+        # Actually hit the DB, no smart cache used.
+        return Permission.objects.group_permissions(
+            self.group,
+            perm, obj,
+            approved,
+        ).filter(
+            object_id=obj.pk,
+        ).exists()
 
     def has_perm(self, perm, obj, check_groups=True, approved=True):
         """
