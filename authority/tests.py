@@ -210,9 +210,24 @@ class PerformanceTest(SmartCachingTestCase):
         # Regardless of how many times has_user_perms is called, the number of
         # queries is the same.
         with self.assertNumQueries(1):
-            self.user_check.has_user_perms('foo', self.user, True, False)
-            self.user_check.has_user_perms('foo', self.user, True, False)
-            self.user_check.has_user_perms('foo', self.user, True, False)
+            for _ in range(5):
+                # Need to assert it so the query actually gets executed.
+                assert not self.user_check.has_user_perms(
+                    'foo',
+                    self.user,
+                    True,
+                    False,
+                )
+
+    def test_group_has_perms(self):
+        with self.assertNumQueries(1):
+            for _ in range(5):
+                # Need to assert it so the query actually gets executed.
+                assert not self.group_check.has_group_perms(
+                    'foo',
+                    self.group,
+                    True,
+                )
 
     def test_has_user_perms_check_group(self):
         # Regardless of the number groups permissions, it should only take one
@@ -225,18 +240,53 @@ class PerformanceTest(SmartCachingTestCase):
                 check_groups=True,
             )
 
-    def test_invalidate_permissions_cache(self):
+    def test_invalidate_user_permissions_cache(self):
         # Show that calling invalidate_permissions_cache will cause extra
         # queries.
         with self.assertNumQueries(2):
-            self.user_check.has_user_perms('foo', self.user, True, False)
+            for _ in range(5):
+                assert not self.user_check.has_user_perms(
+                    'foo',
+                    self.user,
+                    True,
+                    False,
+                )
 
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
             self.user_check.invalidate_permissions_cache()
 
             # One query to re generate the cache.
-            self.user_check.has_user_perms('foo', self.user, True, False)
+            for _ in range(5):
+                assert not self.user_check.has_user_perms(
+                    'foo',
+                    self.user,
+                    True,
+                    False,
+                )
+
+    def test_invalidate_group_permissions_cache(self):
+        # Show that calling invalidate_permissions_cache will cause extra
+        # queries.
+        with self.assertNumQueries(2):
+            for _ in range(5):
+                assert not self.group_check.has_group_perms(
+                    'foo',
+                    self.group,
+                    True,
+                )
+
+            # Invalidate the cache to show that a query will be generated when
+            # checking perms again.
+            self.group_check.invalidate_permissions_cache()
+
+            # One query to re generate the cache.
+            for _ in range(5):
+                assert not self.group_check.has_group_perms(
+                    'foo',
+                    self.group,
+                    True,
+                )
 
     def test_has_user_perms_check_group_multiple(self):
         # Create a permission with just a group.
@@ -250,7 +300,7 @@ class PerformanceTest(SmartCachingTestCase):
 
         # Check the number of queries.
         with self.assertNumQueries(1):
-            self.user_check.has_user_perms('foo', self.user, True, True)
+            assert self.user_check.has_user_perms('foo', self.user, True, True)
 
         # Create a second group.
         new_group = Group.objects.create(name='new_group')
@@ -269,7 +319,7 @@ class PerformanceTest(SmartCachingTestCase):
 
         # Make sure it is the same number of queries.
         with self.assertNumQueries(1):
-            self.user_check.has_user_perms('foo', self.user, True, True)
+            assert self.user_check.has_user_perms('foo', self.user, True, True)
 
 
 class GroupPermissionCacheTestCase(SmartCachingTestCase):
