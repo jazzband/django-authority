@@ -185,7 +185,7 @@ class SmartCachingTestCase(TestCase):
     def tearDown(self):
         ContentType.objects.clear_cache()
 
-    def _old_permission_check(self):
+    def _old_user_permission_check(self):
         # This is what the old, pre-cache system would check to see if a user
         # had a given permission.
         return Permission.objects.user_permissions(
@@ -194,6 +194,16 @@ class SmartCachingTestCase(TestCase):
             self.user,
             approved=True,
             check_groups=True,
+        )
+
+    def _old_group_permission_check(self):
+        # This is what the old, pre-cache system would check to see if a user
+        # had a given permission.
+        return Permission.objects.group_permissions(
+            self.group,
+            'foo',
+            self.group,
+            approved=True,
         )
 
 
@@ -342,7 +352,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
     """
 
     def test_has_user_perms_with_groups(self):
-        perms = self._old_permission_check()
+        perms = self._old_user_permission_check()
         self.assertEqual([], list(perms))
 
         # Use the new cached user perms to show that the user does not have the
@@ -365,12 +375,11 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         )
 
         # Old permission check
-        perms = self._old_permission_check()
+        perms = self._old_user_permission_check()
         self.assertEqual([perm], list(perms))
 
         # Invalidate the cache.
         self.user_check.invalidate_permissions_cache()
-        ContentType.objects.clear_cache()
         can_foo_with_group = self.user_check.has_user_perms(
             'foo',
             self.user,
@@ -389,28 +398,28 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         )
         self.assertFalse(can_foo_with_group)
 
-        self.assertEqual(self.group_check._perm_cache, {})
-        self.assertEqual(self.group_check._group_perm_cache, {})
+        perms = self._old_group_permission_check()
+        self.assertEqual([], list(perms))
 
         # Create a permission with just that group.
-        Permission.objects.create(
-            content_type=Permission.objects.get_content_type(User),
-            object_id=self.user.pk,
+        perm = Permission.objects.create(
+            content_type=Permission.objects.get_content_type(Group),
+            object_id=self.group.pk,
             codename='foo',
             group=self.group,
             approved=True,
         )
 
+        # Old permission check
+        perms = self._old_group_permission_check()
+        self.assertEqual([perm], list(perms))
+
         # Invalidate the cache.
         self.group_check.invalidate_permissions_cache()
-        ContentType.objects.clear_cache()
 
         can_foo_with_group = self.group_check.has_group_perms(
             'foo',
-            self.user,
+            self.group,
             approved=True,
         )
         self.assertTrue(can_foo_with_group)
-
-        self.assertEqual(self.group_check._perm_cache, {})
-        self.assertEqual(self.group_check._group_perm_cache, {})
