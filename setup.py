@@ -1,13 +1,17 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name='django-authority',
-    version='0.4',
-    description="A Django app that provides generic per-object-permissions for Django's auth app.",
+    version='0.5',
+    description=(
+        "A Django app that provides generic per-object-permissions "
+        "for Django's auth app."
+    ),
     long_description=read('README'),
     author='Jannis Leidel',
     author_email='jannis@leidel.info',
@@ -22,8 +26,15 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
         'Framework :: Django',
+        'Framework :: Django :: 1.3',
+        'Framework :: Django :: 1.4',
+        'Framework :: Django :: 1.5',
     ],
+    install_requires=['django'],
     package_data = {
         'authority': [
             'fixtures/test.json',
