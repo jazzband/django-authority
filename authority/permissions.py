@@ -104,8 +104,8 @@ class BasePermission(object):
 
     def _prime_group_perm_caches(self):
         """
-        Prime both the user and group caches and put them on the ``self.user``.
-        In addition add a cache filled flag on ``self.user``.
+        Prime the group cache and put them on the ``self.group``.
+        In addition add a cache filled flag on ``self.group``.
         """
         perm_cache = self._get_group_cached_perms()
         self.group._authority_perm_cache = perm_cache

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.auth.models import User, Group
 from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
 
 import authority
 from authority import permissions
@@ -181,6 +182,9 @@ class SmartCachingTestCase(TestCase):
         # Ensure we are using the smart cache.
         settings.AUTHORITY_USE_SMART_CACHE = True
 
+    def tearDown(self):
+        ContentType.objects.clear_cache()
+
     def _old_permission_check(self):
         # This is what the old, pre-cache system would check to see if a user
         # had a given permission.
@@ -209,7 +213,8 @@ class PerformanceTest(SmartCachingTestCase):
 
         # Regardless of how many times has_user_perms is called, the number of
         # queries is the same.
-        with self.assertNumQueries(1):
+        # Content type and permissions (2 queries)
+        with self.assertNumQueries(2):
             for _ in range(5):
                 # Need to assert it so the query actually gets executed.
                 assert not self.user_check.has_user_perms(
@@ -220,9 +225,8 @@ class PerformanceTest(SmartCachingTestCase):
                 )
 
     def test_group_has_perms(self):
-        with self.assertNumQueries(1):
+        with self.assertNumQueries(2):
             for _ in range(5):
-                # Need to assert it so the query actually gets executed.
                 assert not self.group_check.has_group_perms(
                     'foo',
                     self.group,
@@ -232,7 +236,8 @@ class PerformanceTest(SmartCachingTestCase):
     def test_has_user_perms_check_group(self):
         # Regardless of the number groups permissions, it should only take one
         # query to check both users and groups.
-        with self.assertNumQueries(1):
+        # Content type and permissions (2 queries)
+        with self.assertNumQueries(2):
             self.user_check.has_user_perms(
                 'foo',
                 self.user,
@@ -243,7 +248,10 @@ class PerformanceTest(SmartCachingTestCase):
     def test_invalidate_user_permissions_cache(self):
         # Show that calling invalidate_permissions_cache will cause extra
         # queries.
-        with self.assertNumQueries(2):
+        # For each time invalidate_permissions_cache gets called, you
+        # will need to do one query to get content type and one to get
+        # the permissions.
+        with self.assertNumQueries(4):
             for _ in range(5):
                 assert not self.user_check.has_user_perms(
                     'foo',
@@ -255,6 +263,7 @@ class PerformanceTest(SmartCachingTestCase):
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
             self.user_check.invalidate_permissions_cache()
+            ContentType.objects.clear_cache()
 
             # One query to re generate the cache.
             for _ in range(5):
@@ -268,7 +277,9 @@ class PerformanceTest(SmartCachingTestCase):
     def test_invalidate_group_permissions_cache(self):
         # Show that calling invalidate_permissions_cache will cause extra
         # queries.
-        with self.assertNumQueries(2):
+        # For each time invalidate_permissions_cache gets called, you
+        # will need to do one query to get content type and one to get
+        with self.assertNumQueries(4):
             for _ in range(5):
                 assert not self.group_check.has_group_perms(
                     'foo',
@@ -279,6 +290,7 @@ class PerformanceTest(SmartCachingTestCase):
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
             self.group_check.invalidate_permissions_cache()
+            ContentType.objects.clear_cache()
 
             # One query to re generate the cache.
             for _ in range(5):
@@ -297,6 +309,8 @@ class PerformanceTest(SmartCachingTestCase):
             group=self.group,
             approved=True,
         )
+        # By creating the Permission objects the Content type cache
+        # gets created.
 
         # Check the number of queries.
         with self.assertNumQueries(1):
@@ -356,6 +370,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
 
         # Invalidate the cache.
         self.user_check.invalidate_permissions_cache()
+        ContentType.objects.clear_cache()
         can_foo_with_group = self.user_check.has_user_perms(
             'foo',
             self.user,
@@ -388,6 +403,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
 
         # Invalidate the cache.
         self.group_check.invalidate_permissions_cache()
+        ContentType.objects.clear_cache()
 
         can_foo_with_group = self.group_check.has_group_perms(
             'foo',
