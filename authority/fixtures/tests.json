@@ -16,5 +16,29 @@
             "email": "", 
             "date_joined": "2009-11-02 03:06:19"
         }
+    },
+    {
+        "pk": 1,
+        "model": "auth.group",
+        "fields": {
+            "name": "Test Group 1",
+            "permissions": []
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.group",
+        "fields": {
+            "name": "Test Group 2",
+            "permissions": []
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.group",
+        "fields": {
+            "name": "Test Group 3",
+            "permissions": []
+        }
     }
 ]
