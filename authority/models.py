@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from authority.managers import PermissionManager
 
+USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 class Permission(models.Model):
     """
     A granular permission model, per-object permission in other words.
@@ -18,9 +20,9 @@ class Permission(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(User, null=True, blank=True, related_name='granted_permissions')
+    user = models.ForeignKey(USER_MODEL, null=True, blank=True, related_name='granted_permissions')
     group = models.ForeignKey(Group, null=True, blank=True)
-    creator = models.ForeignKey(User, null=True, blank=True, related_name='created_permissions')
+    creator = models.ForeignKey(USER_MODEL, null=True, blank=True, related_name='created_permissions')
 
     approved = models.BooleanField(_('approved'), default=False, help_text=_("Designates whether the permission has been approved and treated as active. Unselect this instead of deleting permissions."))
 
