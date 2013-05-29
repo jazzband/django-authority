@@ -30,7 +30,6 @@ class PermissionInline(generic.GenericTabularInline):
             perm_choices = get_choices_for(self.parent_model)
             kwargs['label'] = _('permission')
             kwargs['widget'] = forms.Select(choices=perm_choices)
-            return db_field.formfield(**kwargs)
         return super(PermissionInline, self).formfield_for_dbfield(db_field, **kwargs)
 
 class ActionPermissionInline(PermissionInline):
@@ -134,9 +133,8 @@ class PermissionAdmin(admin.ModelAdmin):
         if db_field.name in [f.fk_field for f in self.model._meta.virtual_fields if f.name in self.generic_fields]:
             for gfk in self.model._meta.virtual_fields:
                 if gfk.fk_field == db_field.name:
-                    return db_field.formfield(
-                        widget=GenericForeignKeyRawIdWidget(
-                            gfk.ct_field, self.admin_site._registry.keys()))
+                    kwargs['widget'] = GenericForeignKeyRawIdWidget(
+                        gfk.ct_field, self.admin_site._registry.keys())
         return super(PermissionAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def queryset(self, request):
