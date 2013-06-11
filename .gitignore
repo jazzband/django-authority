@@ -2,3 +2,4 @@
 *.egg-info
 *.sql
 docs/build/*
+.DS_Store

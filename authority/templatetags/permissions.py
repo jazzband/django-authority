@@ -1,15 +1,20 @@
 from django import template
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
 
 from authority import get_check
 from authority import permissions
 from authority.models import Permission
 from authority.forms import UserPermissionForm
+from authority.utils import get_user_class
+
 
 register = template.Library()
+
+User = get_user_class()
+
 
 @register.simple_tag
 def url_for_obj(view_name, obj):

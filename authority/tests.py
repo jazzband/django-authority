@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
@@ -8,6 +8,10 @@ import authority
 from authority import permissions
 from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
+from authority.utils import get_user_class
+
+
+User = get_user_class()
 
 
 class UserPermission(permissions.BasePermission):
