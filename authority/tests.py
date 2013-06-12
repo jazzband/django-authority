@@ -8,10 +8,7 @@ import authority
 from authority import permissions
 from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
-from authority.utils import get_user_class
-
-
-User = get_user_class()
+from authority.utils import User
 
 
 class UserPermission(permissions.BasePermission):

@@ -8,12 +8,10 @@ from authority import get_check
 from authority import permissions
 from authority.models import Permission
 from authority.forms import UserPermissionForm
-from authority.utils import get_user_class
+from authority.utils import User
 
 
 register = template.Library()
-
-User = get_user_class()
 
 
 @register.simple_tag

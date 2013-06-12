@@ -6,10 +6,7 @@ from django.utils.safestring import mark_safe
 
 from authority import permissions, get_choices_for
 from authority.models import Permission
-from authority.utils import get_user_class
-
-
-User = get_user_class()
+from authority.utils import User
 
 
 class BasePermissionForm(forms.ModelForm):

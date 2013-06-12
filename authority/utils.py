@@ -6,3 +6,6 @@ def get_user_class():
         return auth.get_user_model()
     else:
         return auth.models.User
+
+
+User = get_user_class()
