@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
@@ -6,6 +7,8 @@ from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
 from authority.managers import PermissionManager
+from authority.utils import User
+
 
 class Permission(models.Model):
     """

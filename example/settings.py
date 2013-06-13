@@ -1,5 +1,7 @@
 import os
 
+from django import VERSION
+
 PROJECT_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 ADMINS = (
@@ -78,6 +80,10 @@ INSTALLED_APPS = (
     'authority',
     'example.exampleapp',
 )
+
+if VERSION >= (1, 5):
+    INSTALLED_APPS = INSTALLED_APPS + ('example.users',)
+    AUTH_USER_MODEL = 'users.User'
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
