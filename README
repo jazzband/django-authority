@@ -51,6 +51,9 @@ html version using the setup.py::
 
 Changelog:
 ==========
+0.6 (2013-06-13):
+
+* Added support for custom user models (Django 1.5 only).
 
 0.5 (2013-03-18):
 -----------------
