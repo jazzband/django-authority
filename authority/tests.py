@@ -1,6 +1,9 @@
+from django import VERSION
 from django.conf import settings
+from django.contrib import auth
 from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.auth.models import Group
+from django.db.models import Q
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
@@ -9,6 +12,14 @@ from authority import permissions
 from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
 from authority.utils import User
+
+
+if VERSION >= (1, 5):
+    FIXTURES = ['tests_custom.json']
+    QUERY = Q(email="jezdez@github.com")
+else:
+    FIXTURES = ['tests.json']
+    QUERY = Q(username="jezdez")
 
 
 class UserPermission(permissions.BasePermission):
@@ -35,10 +46,10 @@ class DjangoPermissionChecksTestCase(TestCase):
     This permissions are given in the test case and not in the fixture, for
     later reference.
     """
-    fixtures = ['tests.json']
+    fixtures = FIXTURES
 
     def setUp(self):
-        self.user = User.objects.get(username='jezdez')
+        self.user = User.objects.get(QUERY)
         self.check = UserPermission(self.user)
 
     def test_no_permission(self):
@@ -66,7 +77,7 @@ class DjangoPermissionChecksTestCase(TestCase):
         # test
         self.assertFalse(self.check.delete_user())
         self.assertTrue(self.check.delete_user(self.user))
-
+        
 
 class AssignBehaviourTest(TestCase):
     """
@@ -75,10 +86,10 @@ class AssignBehaviourTest(TestCase):
     - permission delete_user for him (test_delete),
     - all existing codenames permissions: a/b/c/d (test_all),
     """
-    fixtures = ['tests.json']
+    fixtures = FIXTURES
 
     def setUp(self):
-        self.user = User.objects.get(username='jezdez')
+        self.user = User.objects.get(QUERY)
         self.check = UserPermission(self.user)
 
     def test_add(self):
@@ -112,10 +123,10 @@ class GenericAssignBehaviourTest(TestCase):
     - permission add (test_add),
     - permission delete for him (test_delete),
     """
-    fixtures = ['tests.json']
+    fixtures = FIXTURES
 
     def setUp(self):
-        self.user = User.objects.get(username='jezdez')
+        self.user = User.objects.get(QUERY)
         self.check = UserPermission(self.user)
 
     def test_add(self):
@@ -141,10 +152,10 @@ class AssignExceptionsTest(TestCase):
     Tests that exceptions are thrown if assign() was called with inconsistent
     arguments.
     """
-    fixtures = ['tests.json']
+    fixtures = FIXTURES
 
     def setUp(self):
-        self.user = User.objects.get(username='jezdez')
+        self.user = User.objects.get(QUERY)
         self.check = UserPermission(self.user)
 
     def test_unsaved_model(self):
@@ -166,11 +177,11 @@ class SmartCachingTestCase(TestCase):
     """
     The base test case for all tests that have to do with smart caching.
     """
-    fixtures = ['tests.json']
+    fixtures = FIXTURES
 
     def setUp(self):
         # Create a user.
-        self.user = User.objects.get(username='jezdez')
+        self.user = User.objects.get(QUERY)
 
         # Create a group.
         self.group = Group.objects.create()
