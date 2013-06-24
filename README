@@ -6,12 +6,12 @@ This is a Django app for per-object-permissions that includes a bunch of
 helpers to create custom permission checks.
 
 The main website for django-authority is
-`packages.python.org/django-authority`_. You can also install the
+`django-authority.readthedocs.org`_. You can also install the
 `in-development version`_ of django-authority with
 ``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
 
-.. _packages.python.org/django-authority: http://packages.python.org/django-authority/
-.. _in-development version: http://bitbucket.org/jezdez/django-authority/get/tip.gz#egg=django-authority-dev
+.. _`django-authority.readthedocs.org`: http://django-authority.readthedocs.org/
+.. _in-development version: https://github.com/jezdez/django-authority/archive/master.zip#egg=django-authority-dev
 
 Example
 =======
@@ -39,7 +39,7 @@ Don't hesitate to use the admin to edit the permission objects.
 
 Full docs coming soon.
 
-Please use http://bitbucket.org/jezdez/django-authority/issues/ for issues and bug reports.
+Please use https://github.com/jezdez/django-authority/issues/ for issues and bug reports.
 
 Documentation
 =============
@@ -51,7 +51,9 @@ html version using the setup.py::
 
 Changelog:
 ==========
+
 0.6 (2013-06-13):
+-----------------
 
 * Added support for custom user models (Django 1.5 only).
 
@@ -127,4 +129,4 @@ Changelog:
   allows to request permissions, but also add them (only for users with
   the 'authority.add_permission' Django permission).
 
-.. _`migrations/`: http://bitbucket.org/jezdez/django-authority/src/tip/migrations/
+.. _`migrations/`: https://github.com/jezdez/django-authority/tree/master/migrations

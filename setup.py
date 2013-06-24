@@ -16,8 +16,7 @@ setup(
     author='Jannis Leidel',
     author_email='jannis@leidel.info',
     license='BSD',
-    url='http://bitbucket.org/jezdez/django-authority/',
-    download_url='http://bitbucket.org/jezdez/django-authority/downloads/',
+    url='https://github.com/jezdez/django-authority/',
     packages=find_packages(),
     classifiers=[
         'Development Status :: 3 - Alpha',

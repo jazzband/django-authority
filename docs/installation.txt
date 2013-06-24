@@ -26,10 +26,10 @@ would prefer either ``pip`` or ``easy_install``::
 Development version
 ===================
 
-The latest development version is located on it's `Bitbucket account`_. You
+The latest development version is located on it's `Github account`_. You
 can checkout the package using the Mercurial_ scm::
 
-    hg clone http://bitbucket.org/jezdez/django-authority/
+    git clone https://github.com/jezdez/django-authority.git
 
 Then install it manually::
 
@@ -39,5 +39,5 @@ Then install it manually::
 .. warning:: The development version is not fully tested and may contain
     bugs, so we prefer to use the latest package from pypi.
 
-.. _Bitbucket account: http://bitbucket.org/jezdez/django-authority/
+.. _Github account: https://github.com/jezdez/django-authority/
 .. _Mercurial: http://www.selenic.com/mercurial/
