@@ -48,8 +48,12 @@ class BasePermission(object):
         """
         if not self.user:
             return {}, {}
+        group_pks = set(self.user.groups.values_list(
+            'pk',
+            flat=True,
+        ))
         perms = Permission.objects.filter(
-            Q(user__pk=self.user.pk) | Q(group__in=self.user.groups.all()),
+            Q(user__pk=self.user.pk) | Q(group__pk__in=group_pks),
         )
         user_permissions = {}
         group_permissions = {}
