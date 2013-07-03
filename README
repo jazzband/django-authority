@@ -52,6 +52,12 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.7 (2013-07-03):
+-----------------
+
+* No longer doing dependent sub-queries. It will be faster to do two small
+  queries instead of one with a dependent sub-query in the general case.
+
 0.6 (2013-06-13):
 -----------------
 
