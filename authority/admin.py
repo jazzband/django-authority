@@ -94,7 +94,6 @@ def edit_permissions(modeladmin, request, queryset):
         'errors': ActionErrorList(formsets),
         'title': ugettext('Permissions for %s') % force_text(opts.verbose_name_plural),
         'inline_admin_formsets': inline_admin_formsets,
-        'root_path': modeladmin.admin_site.root_path,
         'app_label': app_label,
         'change': True,
         'ordered_objects': ordered_objects,

@@ -40,11 +40,6 @@ MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_media/'
-
 # Don't share this with anybody.
 SECRET_KEY = 'ljlv2lb2d&)#by6th=!v=03-c^(o4lop92i@z4b3f1&ve0yx6d'
 

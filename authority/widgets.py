@@ -38,7 +38,7 @@ class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
         output.append("""%(generic_script)s
             <a href="%(related)s%(url)s" class="related-lookup" id="lookup_id_%(name)s" onclick="return showGenericRelatedObjectLookupPopup(document.getElementById('id_%(ct_field)s'), this, '%(related)s%(url)s');"> """
              % {'generic_script': generic_script, 'related': related_url, 'url': url, 'name': name, 'ct_field': self.ct_field})
-        output.append('<img src="%simg/admin/selector-search.gif" width="16" height="16" alt="%s" /></a>' % (settings.ADMIN_MEDIA_PREFIX, _('Lookup')))
+        output.append('<img src="%s/admin/img/selector-search.gif" width="16" height="16" alt="%s" /></a>' % (settings.STATIC_URL, _('Lookup')))
 
         from django.contrib.contenttypes.models import ContentType
         content_types = """
