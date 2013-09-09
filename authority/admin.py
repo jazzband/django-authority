@@ -2,7 +2,6 @@ from django import forms, template
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
 from django.shortcuts import render_to_response
-from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
 from django.contrib import admin
@@ -10,6 +9,11 @@ from django.contrib.admin import helpers
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+
+try:
+    from django.utils.encoding import force_text
+except ImportError:
+    from django.utils.encoding import force_unicode as force_text
 
 try:
     from django.contrib.admin import actions
@@ -88,7 +92,7 @@ def edit_permissions(modeladmin, request, queryset):
 
     context = {
         'errors': ActionErrorList(formsets),
-        'title': ugettext('Permissions for %s') % force_unicode(opts.verbose_name_plural),
+        'title': ugettext('Permissions for %s') % force_text(opts.verbose_name_plural),
         'inline_admin_formsets': inline_admin_formsets,
         'root_path': modeladmin.admin_site.root_path,
         'app_label': app_label,
@@ -105,7 +109,7 @@ def edit_permissions(modeladmin, request, queryset):
         'show_delete': False,
         'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         'queryset': queryset,
-        "object_name": force_unicode(opts.verbose_name),
+        "object_name": force_text(opts.verbose_name),
     }
     template_name = getattr(modeladmin, 'permission_change_form_template', [
         "admin/%s/%s/permission_change_form.html" % (app_label, opts.object_name.lower()),
