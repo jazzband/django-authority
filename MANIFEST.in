@@ -1,5 +1,6 @@
 include AUTHORS
 include LICENSE
+include README.rst
 include buildout.cfg
 include bootstrap.py
 recursive-include authority/templates/authority *.html
