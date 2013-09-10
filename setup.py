@@ -12,7 +12,7 @@ setup(
         "A Django app that provides generic per-object-permissions "
         "for Django's auth app."
     ),
-    long_description=read('README'),
+    long_description=read('README.rst'),
     author='Jannis Leidel',
     author_email='jannis@leidel.info',
     license='BSD',
