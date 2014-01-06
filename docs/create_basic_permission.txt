@@ -23,12 +23,12 @@ Let's start with an example::
 
     import authority
     from authority import permissions
-    from django.contrib.flatpages.models import Flatpage
+    from django.contrib.flatpages.models import FlatPage
 
     class FlatpagePermission(permissions.BasePermission):
         label = 'flatpage_permission'
 
-    authority.register(Flatpage, FlatpagePermission)
+    authority.register(FlatPage, FlatpagePermission)
 
 Let's have a look at the code above. First of, if you want to create a new
 permission you have to subclass it from the BasePermission class::
@@ -45,14 +45,14 @@ Next, you need to name this permission using the ``label`` attribute::
 And finally you need to register the permission with the pool of all other
 permissions::
 
-    authority.register(Flatpage, FlatpagePermission)
+    authority.register(FlatPage, FlatpagePermission)
 
 The syntax of this is simple::
 
     authority.register(<model>, <permission_class>)
 
 While this is not much code, you already wrapped Django's basic permissions
-(add_flatpage, change_flatpage, delete_flatpage) for the model ``Flatpage``
+(add_flatpage, change_flatpage, delete_flatpage) for the model ``FlatPage``
 and you are ready to use it within your templates or code:
 
 .. note:: See `Django's basic permissions`_ how Django creates this permissions for you.
