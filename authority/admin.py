@@ -66,7 +66,7 @@ def edit_permissions(modeladmin, request, queryset):
         prefix = "%s-%s" % (FormSet.get_default_prefix(), obj.pk)
         prefixes[prefix] = prefixes.get(prefix, 0) + 1
         if prefixes[prefix] != 1:
-            prefix = "%s-%s-%s" % (prefix, prefixes[prefix])
+            prefix = "%s-%s" % (prefix, prefixes[prefix])
         if request.POST.get('post'):
             formset = FormSet(data=request.POST, files=request.FILES,
                               instance=obj, prefix=prefix)
