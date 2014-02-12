@@ -87,6 +87,10 @@ def edit_permissions(modeladmin, request, queryset):
         if all_valid(formsets):
             for formset in formsets:
                 formset.save()
+        else:
+            modeladmin.message_user(request, '; '.join(
+                err.as_text() for formset in formsets for err in formset.errors
+            ))
         # redirect to full request path to make sure we keep filter
         return HttpResponseRedirect(request.get_full_path())
 
