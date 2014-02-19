@@ -36,7 +36,7 @@ A custom permission is a simple method of the permission class::
 Note that we first added the name of your custom permission to the ``checks``
 attribute, like in :ref:`create-per-object-permission`::
 
-    checks = (my_custom_check',)
+    checks = ('my_custom_check',)
 
 The permission itself is a simple function that accepts an arbitrary number of
 arguments. A permission class should always return a boolean whether the
