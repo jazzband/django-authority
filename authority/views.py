@@ -24,7 +24,7 @@ def get_next(request, obj=None):
 @login_required
 def add_permission(request, app_label, module_name, pk, approved=False,
                    template_name = 'authority/permission_form.html',
-                   extra_context={}, form_class=UserPermissionForm):
+                   extra_context=None, form_class=UserPermissionForm):
     codename = request.POST.get('codename', None)
     model = get_model(app_label, module_name)
     if model is None:
@@ -61,7 +61,8 @@ def add_permission(request, app_label, module_name, pk, approved=False,
         'perm': codename,
         'approved': approved,
     }
-    context.update(extra_context)
+    if extra_context:
+        context.update(extra_context)
     return render_to_response(template_name, context,
                               context_instance=RequestContext(request))
 
@@ -90,7 +91,7 @@ def delete_permission(request, permission_pk, approved):
     next = get_next(request)
     return HttpResponseRedirect(next)
 
-def permission_denied(request, template_name=None, extra_context={}):
+def permission_denied(request, template_name=None, extra_context=None):
     """
     Default 403 handler.
 
@@ -104,6 +105,7 @@ def permission_denied(request, template_name=None, extra_context={}):
     context = {
         'request_path': request.path,
     }
-    context.update(extra_context)
+    if extra_context:
+        context.update(extra_context)
     return HttpResponseForbidden(loader.render_to_string(template_name, context,
                                  context_instance=RequestContext(request)))
