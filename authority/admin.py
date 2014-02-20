@@ -1,3 +1,4 @@
+import django
 from django import forms, template
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
@@ -20,6 +21,11 @@ try:
 except ImportError:
     actions = False
 
+# From 1.7 forward, Django consistenly uses the name "utils", 
+# not "util". We alias for backwards compatibility.
+if django.VERSION[:2] < (1, 7):
+    forms.utils = forms.util
+
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
 from authority import get_choices_for
@@ -40,7 +46,7 @@ class ActionPermissionInline(PermissionInline):
     raw_id_fields = ()
     template = 'admin/edit_inline/action_tabular.html'
 
-class ActionErrorList(forms.util.ErrorList):
+class ActionErrorList(forms.utils.ErrorList):
     def __init__(self, inline_formsets):
         for inline_formset in inline_formsets:
             self.extend(inline_formset.non_form_errors())
