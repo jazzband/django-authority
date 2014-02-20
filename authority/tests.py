@@ -2,6 +2,7 @@ from django import VERSION
 from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.auth.models import Group
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
@@ -89,6 +90,9 @@ class AssignBehaviourTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(QUERY)
+        self.group1 = Group.objects.get(name='Test Group 1')
+        self.group2 = Group.objects.get(name='Test Group 2')
+        self.group3 = Group.objects.get(name='Test Group 2')
         self.check = UserPermission(self.user)
 
     def test_add(self):
@@ -96,6 +100,44 @@ class AssignBehaviourTest(TestCase):
 
         self.assertTrue(isinstance(result[0], DjangoPermission))
         self.assertTrue(self.check.add_user())
+
+    def test_assign_to_group(self):
+        result = UserPermission(group=self.group1).assign(
+            check='delete_user', content_object=self.user)
+
+        self.assertIsInstance(result, list)
+        self.assertIsInstance(result[0], Permission)
+        self.assertTrue(
+            UserPermission(group=self.group1).delete_user(self.user)
+        )
+
+    def test_assign_to_group_does_not_overwrite_other_group_permission(self):
+        UserPermission(group=self.group1).assign(
+            check='delete_user', content_object=self.user)
+        UserPermission(group=self.group2).assign(
+            check='delete_user', content_object=self.user)
+        self.assertTrue(
+            UserPermission(group=self.group2).delete_user(self.user)
+        )
+        self.assertTrue(
+            UserPermission(group=self.group1).delete_user(self.user)
+        )
+
+    def test_assign_to_group_does_not_fail_when_two_group_perms_exist(self):
+        for group in self.group1, self.group2:
+            perm = Permission(
+                group=group,
+                content_object=self.user,
+                codename='user_permission.delete_user',
+                approved=True
+            )
+            perm.save()
+
+        try:
+            UserPermission(group=self.group3).assign(
+                check='delete_user', content_object=self.user)
+        except MultipleObjectsReturned:
+            self.fail("assign() should not have raised this exception")
 
     def test_delete(self):
         result = self.check.assign(
