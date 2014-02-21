@@ -124,7 +124,7 @@ def ifhasperm(parser, token):
             meh
         {% endifhasperm %}
 
-        {% if hasperm "poll_permission.change_poll" request.user %}
+        {% ifhasperm "poll_permission.change_poll" request.user %}
             lalala
         {% else %}
             meh
