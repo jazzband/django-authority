@@ -81,7 +81,6 @@ def edit_permissions(modeladmin, request, queryset):
         inline_admin_formsets.append(inline_admin_formset)
         media = media + inline_admin_formset.media
 
-    ordered_objects = opts.get_ordered_objects()
     if request.POST.get('post'):
         if all_valid(formsets):
             for formset in formsets:
@@ -99,7 +98,6 @@ def edit_permissions(modeladmin, request, queryset):
         'inline_admin_formsets': inline_admin_formsets,
         'app_label': app_label,
         'change': True,
-        'ordered_objects': ordered_objects,
         'form_url': mark_safe(''),
         'opts': opts,
         'target_opts': queryset.model._meta,
