@@ -9,6 +9,7 @@ env:
   - TRAVIS_DJANGO_VERSION=1.4
   - TRAVIS_DJANGO_VERSION=1.5
   - TRAVIS_DJANGO_VERSION=1.6
+  - TRAVIS_DJANGO_VERSION=1.7
 install:
   - pip install django==$TRAVIS_DJANGO_VERSION --use-mirrors
 matrix:
