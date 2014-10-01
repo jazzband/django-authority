@@ -52,6 +52,10 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.9 (2014-10-??):
+
+* Added support for Django 1.7
+
 0.8 (2013-12-20):
 -----------------
 
