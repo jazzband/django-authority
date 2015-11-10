@@ -10,9 +10,10 @@ import authority
 from authority import permissions
 from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
-from authority.utils import User
+from authority.compat import get_user_model
 
 
+User = get_user_model()
 if VERSION >= (1, 5):
     FIXTURES = ['tests_custom.json']
     QUERY = Q(email="jezdez@github.com")

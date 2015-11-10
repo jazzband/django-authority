@@ -47,7 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    # 'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 INTERNAL_IPS = ('127.0.0.1',)
@@ -94,3 +94,7 @@ try:
     from local_settings import *  # noqa
 except ImportError:
     pass
+
+
+if VERSION >= (1, 6):
+    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
