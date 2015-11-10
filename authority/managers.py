@@ -25,8 +25,14 @@ class PermissionManager(models.Manager):
         # http://bugs.python.org/issue2460
         # Which is triggered by django's deepcopy which backports that fix in
         # Django 1.2
-        return perms.select_related('user', 'user__groups', 'creator').filter(
-            Q(user__pk=user.pk) | Q(group__in=user.groups.all()))
+        return perms.select_related(
+            'user',
+            'creator'
+        ).prefetch_related(
+            'user__groups'
+        ).filter(
+            Q(user__pk=user.pk) | Q(group__in=user.groups.all())
+        )
 
     def user_permissions(
             self, user, perm, obj, approved=True, check_groups=True):
