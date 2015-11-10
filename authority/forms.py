@@ -6,7 +6,10 @@ from django.utils.safestring import mark_safe
 
 from authority import permissions, get_choices_for
 from authority.models import Permission
-from authority.utils import User
+from authority.compat import get_user_model
+
+
+User = get_user_model()
 
 
 class BasePermissionForm(forms.ModelForm):
@@ -33,6 +36,7 @@ class BasePermissionForm(forms.ModelForm):
         self.instance.codename = self.perm
         self.instance.approved = self.approved
         return super(BasePermissionForm, self).save(commit)
+
 
 class UserPermissionForm(BasePermissionForm):
     user = forms.CharField(label=_('User'))

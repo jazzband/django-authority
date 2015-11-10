@@ -1,13 +1,12 @@
 from datetime import datetime
-from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
 
+from authority.compat import user_model_label
 from authority.managers import PermissionManager
-from authority.utils import User
 
 
 class Permission(models.Model):
@@ -21,9 +20,9 @@ class Permission(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(User, null=True, blank=True, related_name='granted_permissions')
+    user = models.ForeignKey(user_model_label, null=True, blank=True, related_name='granted_permissions')
     group = models.ForeignKey(Group, null=True, blank=True)
-    creator = models.ForeignKey(User, null=True, blank=True, related_name='created_permissions')
+    creator = models.ForeignKey(user_model_label, null=True, blank=True, related_name='created_permissions')
 
     approved = models.BooleanField(_('approved'), default=False, help_text=_("Designates whether the permission has been approved and treated as active. Unselect this instead of deleting permissions."))
 

@@ -1,29 +1,32 @@
 from django import template
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import AnonymousUser
 
 from authority import get_check
 from authority import permissions
+from authority.compat import get_user_model
 from authority.models import Permission
 from authority.forms import UserPermissionForm
-from authority.utils import User
 
 
+User = get_user_model()
 register = template.Library()
 
 
 @register.simple_tag
 def url_for_obj(view_name, obj):
     return reverse(view_name, kwargs={
-            'app_label': obj._meta.app_label,
-            'module_name': obj._meta.module_name,
-            'pk': obj.pk})
+        'app_label': obj._meta.app_label,
+        'module_name': obj._meta.module_name,
+        'pk': obj.pk}
+    )
+
 
 @register.simple_tag
 def add_url_for_obj(obj):
     return url_for_obj('authority-add-permission', obj)
+
 
 @register.simple_tag
 def request_url_for_obj(obj):
@@ -59,21 +62,23 @@ class PermissionComparisonNode(ResolverNode):
     def handle_token(cls, parser, token):
         bits = token.contents.split()
         if 5 < len(bits) < 3:
-            raise template.TemplateSyntaxError("'%s' tag takes three, "
-                                                "four or five arguments" % bits[0])
+            raise template.TemplateSyntaxError(
+                "'%s' tag takes three, "
+                "four or five arguments" % bits[0]
+            )
         end_tag = 'endifhasperm'
         nodelist_true = parser.parse(('else', end_tag))
         token = parser.next_token()
-        if token.contents == 'else': # there is an 'else' clause in the tag
+        if token.contents == 'else':  # there is an 'else' clause in the tag
             nodelist_false = parser.parse((end_tag,))
             parser.delete_first_token()
         else:
             nodelist_false = template.NodeList()
-        if len(bits) == 3: # this tag requires at most 2 objects . None is given
+        if len(bits) == 3:  # this tag requires at most 2 objects . None is given
             objs = (None, None)
-        elif len(bits) == 4:# one is given
+        elif len(bits) == 4:  # one is given
             objs = (bits[3], None)
-        else: #two are given
+        else:  # two are given
             objs = (bits[3], bits[4])
         return cls(bits[2], bits[1], nodelist_true, nodelist_false, *objs)
 
@@ -110,6 +115,7 @@ class PermissionComparisonNode(ResolverNode):
         except (TypeError, AttributeError):
             return ''
         return self.nodelist_false.render(context)
+
 
 @register.tag
 def ifhasperm(parser, token):
@@ -253,7 +259,7 @@ def get_permissions(parser, token):
     """
     Retrieves all permissions associated with the given obj and user
     and assigns the result to a context variable.
-    
+
     Syntax::
 
         {% get_permissions obj %}
@@ -273,7 +279,7 @@ def get_permission_requests(parser, token):
     """
     Retrieves all permissions requests associated with the given obj and user
     and assigns the result to a context variable.
-    
+
     Syntax::
 
         {% get_permission_requests obj %}
@@ -343,7 +349,7 @@ def get_permission(parser, token):
 
         {% get_permission "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
         {% get_permission "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
-        
+
         {% if is_allowed %}
             I've got ze power to change ze pollllllzzz. Muahahaa.
         {% else %}
@@ -367,7 +373,7 @@ def get_permission_request(parser, token):
 
         {% get_permission_request "poll_permission.change_poll" for request.user and poll as "asked_for_permissio" %}
         {% get_permission_request "poll_permission.change_poll" for request.user and poll,second_poll as "asked_for_permissio" %}
-        
+
         {% if asked_for_permissio %}
             Dude, you already asked for permission!
         {% else %}
@@ -402,7 +408,7 @@ def permission_delete_link(context, perm):
 @register.inclusion_tag('authority/permission_request_delete_link.html', takes_context=True)
 def permission_request_delete_link(context, perm):
     """
-    Renders a html link to the delete view of the given permission request. 
+    Renders a html link to the delete view of the given permission request.
     Returns no content if the request-user has no permission to delete foreign
     permissions.
     """
@@ -421,7 +427,7 @@ def permission_request_delete_link(context, perm):
 @register.inclusion_tag('authority/permission_request_approve_link.html', takes_context=True)
 def permission_request_approve_link(context, perm):
     """
-    Renders a html link to the approve view of the given permission request. 
+    Renders a html link to the approve view of the given permission request.
     Returns no content if the request-user has no permission to delete foreign
     permissions.
     """
