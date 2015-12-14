@@ -52,6 +52,11 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.10 (2015-12-14):
+-----------------
+
+* Fixed a bug with BasePermissionForm and django 1.8
+
 0.9 (2015-11-11):
 -----------------
 
