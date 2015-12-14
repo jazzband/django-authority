@@ -12,6 +12,9 @@ from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
 from authority.compat import get_user_model
 
+# Load the form
+from authority.forms import UserPermissionForm  # noqa
+
 
 User = get_user_model()
 if VERSION >= (1, 5):

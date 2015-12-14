@@ -3,3 +3,5 @@
 *.sql
 docs/build/*
 .DS_Store
+.tox/
+dist/
