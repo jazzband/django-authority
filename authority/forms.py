@@ -17,6 +17,7 @@ class BasePermissionForm(forms.ModelForm):
 
     class Meta:
         model = Permission
+        exclude = []
 
     def __init__(self, perm=None, obj=None, approved=False, *args, **kwargs):
         self.perm = perm
