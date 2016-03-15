@@ -2,6 +2,10 @@
 django-authority
 ================
 
+.. image:: https://jazzband.co/static/img/jazzband.svg
+   :target: https://jazzband.co/
+   :alt: Jazzband
+
 This is a Django app for per-object-permissions that includes a bunch of
 helpers to create custom permission checks.
 
@@ -53,7 +57,7 @@ Changelog:
 ==========
 
 0.10 (2015-12-14):
------------------
+------------------
 
 * Fixed a bug with BasePermissionForm and django 1.8
 
