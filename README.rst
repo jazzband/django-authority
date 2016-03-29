@@ -52,6 +52,15 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.11 (2016-03-29):
+-----------------
+
+* Added Migration in order to support Django 1.8
+
+* Dropped Support for Django 1.7 and lower
+
+* Fix linter issues
+
 0.10 (2015-12-14):
 -----------------
 
