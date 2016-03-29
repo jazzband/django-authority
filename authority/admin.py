@@ -1,4 +1,3 @@
-import django
 from django import forms, template
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
@@ -21,14 +20,10 @@ try:
 except ImportError:
     actions = False
 
-# From 1.7 forward, Django consistenly uses the name "utils", 
-# not "util". We alias for backwards compatibility.
-if django.VERSION[:2] < (1, 7):
-    forms.utils = forms.util
-
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
 from authority import get_choices_for
+
 
 class PermissionInline(generic.GenericTabularInline):
     model = Permission
@@ -42,9 +37,11 @@ class PermissionInline(generic.GenericTabularInline):
             kwargs['widget'] = forms.Select(choices=perm_choices)
         return super(PermissionInline, self).formfield_for_dbfield(db_field, **kwargs)
 
+
 class ActionPermissionInline(PermissionInline):
     raw_id_fields = ()
     template = 'admin/edit_inline/action_tabular.html'
+
 
 class ActionErrorList(forms.utils.ErrorList):
     def __init__(self, inline_formsets):
@@ -52,6 +49,7 @@ class ActionErrorList(forms.utils.ErrorList):
             self.extend(inline_formset.non_form_errors())
             for errors_in_inline_form in inline_formset.errors:
                 self.extend(errors_in_inline_form.values())
+
 
 def edit_permissions(modeladmin, request, queryset):
     opts = modeladmin.model._meta
@@ -128,6 +126,7 @@ def edit_permissions(modeladmin, request, queryset):
                               context_instance=template.RequestContext(request))
 edit_permissions.short_description = _("Edit permissions for selected %(verbose_name_plural)s")
 
+
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ('codename', 'content_type', 'user', 'group', 'approved')
     list_filter = ('approved', 'content_type')
@@ -143,7 +142,10 @@ class PermissionAdmin(admin.ModelAdmin):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         # For generic foreign keys marked as generic_fields we use a special widget
-        if db_field.name in [f.fk_field for f in self.model._meta.virtual_fields if f.name in self.generic_fields]:
+        names = [f.fk_field
+                 for f in self.model._meta.virtual_fields
+                 if f.name in self.generic_fields]
+        if db_field.name in names:
             for gfk in self.model._meta.virtual_fields:
                 if gfk.fk_field == db_field.name:
                     kwargs['widget'] = GenericForeignKeyRawIdWidget(
@@ -161,7 +163,8 @@ class PermissionAdmin(admin.ModelAdmin):
     def approve_permissions(self, request, queryset):
         for permission in queryset:
             permission.approve(request.user)
-        message = ungettext("%(count)d permission successfully approved.",
+        message = ungettext(
+            "%(count)d permission successfully approved.",
             "%(count)d permissions successfully approved.", len(queryset))
         self.message_user(request, message % {'count': len(queryset)})
     approve_permissions.short_description = _("Approve selected permissions")

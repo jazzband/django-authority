@@ -10,6 +10,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from authority import get_check
 from authority.views import permission_denied
 
+
 def permission_required(perm, *lookup_variables, **kwargs):
     """
     Decorator for views that checks whether a user has a particular permission
@@ -18,6 +19,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
     login_url = kwargs.pop('login_url', settings.LOGIN_URL)
     redirect_field_name = kwargs.pop('redirect_field_name', REDIRECT_FIELD_NAME)
     redirect_to_login = kwargs.pop('redirect_to_login', True)
+
     def decorate(view_func):
         def decorated(request, *args, **kwargs):
             if request.user.is_authenticated():
@@ -59,6 +61,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
             return permission_denied(request)
         return wraps(view_func)(decorated)
     return decorate
+
 
 def permission_required_or_403(perm, *args, **kwargs):
     """

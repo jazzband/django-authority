@@ -95,7 +95,8 @@ class GroupPermissionForm(BasePermissionForm):
         check = permissions.BasePermission(group=group)
         if check.has_perm(self.perm, self.obj):
             raise forms.ValidationError(mark_safe(
-                _("This group already has the permission '%(perm)s' for %(object_name)s '%(obj)s'") % {
+                _("This group already has the permission '%(perm)s' "
+                  "for %(object_name)s '%(obj)s'") % {
                     'perm': self.perm,
                     'object_name': self.obj._meta.object_name.lower(),
                     'obj': self.obj,

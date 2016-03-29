@@ -20,11 +20,17 @@ class Permission(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    user = models.ForeignKey(user_model_label, null=True, blank=True, related_name='granted_permissions')
+    user = models.ForeignKey(
+        user_model_label, null=True, blank=True, related_name='granted_permissions')
     group = models.ForeignKey(Group, null=True, blank=True)
-    creator = models.ForeignKey(user_model_label, null=True, blank=True, related_name='created_permissions')
+    creator = models.ForeignKey(
+        user_model_label, null=True, blank=True, related_name='created_permissions')
 
-    approved = models.BooleanField(_('approved'), default=False, help_text=_("Designates whether the permission has been approved and treated as active. Unselect this instead of deleting permissions."))
+    approved = models.BooleanField(
+        _('approved'),
+        default=False,
+        help_text=_("Designates whether the permission has been approved and treated as active. "
+                    "Unselect this instead of deleting permissions."))
 
     date_requested = models.DateTimeField(_('date requested'), default=datetime.now)
     date_approved = models.DateTimeField(_('date approved'), blank=True, null=True)

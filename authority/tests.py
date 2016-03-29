@@ -1,10 +1,9 @@
-from django import VERSION
 from django.conf import settings
 from django.contrib.auth.models import Permission as DjangoPermission
 from django.contrib.auth.models import Group
-from django.db.models import Q
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 import authority
 from authority import permissions
@@ -17,13 +16,8 @@ from authority.forms import UserPermissionForm  # noqa
 
 
 User = get_user_model()
-if VERSION >= (1, 5):
-    FIXTURES = ['tests_custom.json']
-    QUERY = Q(email="jezdez@github.com")
-else:
-    FIXTURES = ['tests.json']
-    QUERY = Q(username="jezdez")
-
+FIXTURES = ['tests_custom.json']
+QUERY = Q(email="jezdez@github.com")
 
 class UserPermission(permissions.BasePermission):
     checks = ('browse',)
