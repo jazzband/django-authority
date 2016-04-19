@@ -1,12 +1,20 @@
 language: python
 python:
-  - "2.7"
+- '2.7'
 env:
-  - TOX_ENV=py27-django18
-  - TOX_ENV=py33-django18
+- TOX_ENV=py27-django18
+- TOX_ENV=py33-django18
 install:
-  - pip install tox
+- pip install tox
 notifications:
   email:
-    - jason.louard.ward@gmail.com
+  - jason.louard.ward@gmail.com
 script: tox -e $TOX_ENV
+deploy:
+  provider: pypi
+  user: safwanrahman
+  password:
+    secure: V3mMo5E43FTTvliByLj6CiIhYTO79BeCCYAIf/gi7Oe3UV5TPdf3bLDJSyQozROJcPzGSbjxTMabjrg37bVxMLjj5umVz92XCkejww3tnvhgjc5UA93GPoSgmUxZr5KLzoJq+sjgPsOATdmmzQ4Nkk8ZpVNIJDdfPG46ySfSjOephSJxblk9CRD5Js6IEP+PwFF/wqt8HG82PYc8/mHvynvvrpQGEuvT3+BM3Xm3uAylYHz0ErJMIjqaW6jEnFJGKwTkwdmbDVIurn71zMD5yW1xMR0f7Cu0SCMSHsPg5EMPtSv3uhWTioo+/ztmiAYvJ8yioCN/1JB2mjtGS/wBaKniPvWXP2o8lBINkYnxQ/aNl31hMOe9MrHBtdqL5k7KFrjPu9EpxU8ksNKET7d4xBv2I8mauXZ/n9rTMso9D+MRTury1TJnY5MyyzinQ4c/TuU2nFAS+N9vAv4b1Cubr09J9a7JC6928QYYkEgViLURrBo08/VTmEoZcrrpwV6H3X7iXFR7tf1QYl12a3f9VzpKZN+USEK4CXRWB7GRLz3d45kud9qzaMeUkFklkQhWOdx4RYlMD+eze/nVXhpcHujf6B5D8HobkfIPkJipaXiyI7sxb2+u0a4wA0W+DsMG47Z4mRv7JyqAoViS7ag/UjMAAPygtrb8tzzlMjFrWJg=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
