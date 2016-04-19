@@ -6,11 +6,14 @@ from django.core.exceptions import ImproperlyConfigured
 
 from authority.permissions import BasePermission
 
+
 class AlreadyRegistered(Exception):
     pass
 
+
 class NotRegistered(Exception):
     pass
+
 
 class PermissionSite(object):
     """
@@ -64,8 +67,8 @@ class PermissionSite(object):
 
         if permission_class.label in self.get_labels():
             raise ImproperlyConfigured(
-                "The name of %s conflicts with %s" % (permission_class,
-                     self.get_permission_by_label(permission_class.label)))
+                "The name of %s conflicts with %s" % (
+                    permission_class, self.get_permission_by_label(permission_class.label)))
 
         for model in model_or_iterable:
             if model in self._registry:
@@ -73,8 +76,8 @@ class PermissionSite(object):
                     'The model %s is already registered' % model.__name__)
             if options:
                 options['__module__'] = __name__
-                permission_class = type("%sPermission" % model.__name__,
-                    (permission_class,), options)
+                permission_class = type(
+                    "%sPermission" % model.__name__, (permission_class,), options)
 
             permission_class.model = model
             self.setup(model, permission_class)
@@ -94,7 +97,9 @@ class PermissionSite(object):
             if check_func is not None:
                 func = self.create_check(check_name, check_func)
                 func.__name__ = check_name
-                func.short_description = getattr(check_func, 'short_description',
+                func.short_description = getattr(
+                    check_func,
+                    'short_description',
                     _("%(object_name)s permission '%(check)s'") % {
                         'object_name': model._meta.object_name,
                         'check': check_name})
@@ -121,6 +126,7 @@ class PermissionSite(object):
                 return check_func(self, *args, **kwargs)
             return granted
         return check
+
 
 class PermissionDescriptor(object):
     def get_content_type(self, obj=None):

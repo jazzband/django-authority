@@ -145,7 +145,6 @@ class PermissionFormNode(ResolverNode):
     @classmethod
     def handle_token(cls, parser, token, approved):
         bits = token.contents.split()
-        tag_name = bits[0]
         kwargs = {
             'obj': cls.next_bit_for(bits, 'for'),
             'perm': cls.next_bit_for(bits, 'using', None),
@@ -164,7 +163,7 @@ class PermissionFormNode(ResolverNode):
         obj = self.resolve(self.obj, context)
         perm = self.resolve(self.perm, context)
         if self.template_name:
-            template_name = [self.resolve(obj, context) for obj in self.template_name.split(',')]
+            template_name = [self.resolve(o, context) for o in self.template_name.split(',')]
         else:
             template_name = 'authority/permission_form.html'
         request = context['request']
@@ -185,12 +184,15 @@ class PermissionFormNode(ResolverNode):
                     'form_url': url_for_obj('authority-add-permission-request', obj),
                     'next': request.build_absolute_uri(),
                     'approved': self.approved,
-                    'form': UserPermissionForm(perm, obj,
-                        approved=self.approved, initial=dict(
-                        codename=perm, user=request.user.username)),
+                    'form': UserPermissionForm(
+                        perm,
+                        obj,
+                        approved=self.approved,
+                        initial=dict(codename=perm, user=request.user.username)),
                 }
-        return template.loader.render_to_string(template_name, extra_context,
-                            context_instance=template.RequestContext(request))
+        return template.loader.render_to_string(
+            template_name, extra_context, context_instance=template.RequestContext(request))
+
 
 @register.tag
 def permission_form(parser, token):
@@ -206,6 +208,7 @@ def permission_form(parser, token):
     """
     return PermissionFormNode.handle_token(parser, token, approved=True)
 
+
 @register.tag
 def permission_request_form(parser, token):
     """
@@ -215,7 +218,8 @@ def permission_request_form(parser, token):
     Syntax::
 
         {% permission_request_form for OBJ and PERMISSION_LABEL.CHECK_NAME [with TEMPLATE] %}
-        {% permission_request_form for lesson using "lesson_permission.add_lesson" with "authority/permission_request_form.html" %}
+        {% permission_request_form for lesson using "lesson_permission.add_lesson"
+            with "authority/permission_request_form.html" %}
 
     """
     return PermissionFormNode.handle_token(parser, token, approved=False)
@@ -254,6 +258,7 @@ class PermissionsForObjectNode(ResolverNode):
         context[var_name] = perms
         return ''
 
+
 @register.tag
 def get_permissions(parser, token):
     """
@@ -273,6 +278,7 @@ def get_permissions(parser, token):
     """
     return PermissionsForObjectNode.handle_token(parser, token, approved=True,
                                                  name='"permissions"')
+
 
 @register.tag
 def get_permission_requests(parser, token):
@@ -294,6 +300,7 @@ def get_permission_requests(parser, token):
     return PermissionsForObjectNode.handle_token(parser, token,
                                                  approved=False,
                                                  name='"permission_requests"')
+
 
 class PermissionForObjectNode(ResolverNode):
 
@@ -337,6 +344,7 @@ class PermissionForObjectNode(ResolverNode):
         context[var_name] = granted
         return ''
 
+
 @register.tag
 def get_permission(parser, token):
     """
@@ -347,8 +355,10 @@ def get_permission(parser, token):
 
         {% get_permission PERMISSION_LABEL.CHECK_NAME for USER and *OBJS [as VARNAME] %}
 
-        {% get_permission "poll_permission.change_poll" for request.user and poll as "is_allowed" %}
-        {% get_permission "poll_permission.change_poll" for request.user and poll,second_poll as "is_allowed" %}
+        {% get_permission "poll_permission.change_poll"
+            for request.user and poll as "is_allowed" %}
+        {% get_permission "poll_permission.change_poll"
+            for request.user and poll,second_poll as "is_allowed" %}
 
         {% if is_allowed %}
             I've got ze power to change ze pollllllzzz. Muahahaa.
@@ -361,6 +371,7 @@ def get_permission(parser, token):
                                                 approved=True,
                                                 name='"permission"')
 
+
 @register.tag
 def get_permission_request(parser, token):
     """
@@ -371,8 +382,10 @@ def get_permission_request(parser, token):
 
         {% get_permission_request PERMISSION_LABEL.CHECK_NAME for USER and *OBJS [as VARNAME] %}
 
-        {% get_permission_request "poll_permission.change_poll" for request.user and poll as "asked_for_permissio" %}
-        {% get_permission_request "poll_permission.change_poll" for request.user and poll,second_poll as "asked_for_permissio" %}
+        {% get_permission_request "poll_permission.change_poll"
+            for request.user and poll as "asked_for_permissio" %}
+        {% get_permission_request "poll_permission.change_poll"
+            for request.user and poll,second_poll as "asked_for_permissio" %}
 
         {% if asked_for_permissio %}
             Dude, you already asked for permission!
@@ -381,15 +394,16 @@ def get_permission_request(parser, token):
         {% endif %}
 
     """
-    return PermissionForObjectNode.handle_token(parser, token,
-                                                 approved=False,
-                                                 name='"permission_request"')
+    return PermissionForObjectNode.handle_token(
+        parser, token, approved=False, name='"permission_request"')
+
 
 def base_link(context, perm, view_name):
     return {
         'next': context['request'].build_absolute_uri(),
-        'url': reverse(view_name, kwargs={'permission_pk': perm.pk,}),
+        'url': reverse(view_name, kwargs={'permission_pk': perm.pk}),
     }
+
 
 @register.inclusion_tag('authority/permission_delete_link.html', takes_context=True)
 def permission_delete_link(context, perm):
@@ -400,10 +414,11 @@ def permission_delete_link(context, perm):
     """
     user = context['request'].user
     if user.is_authenticated():
-        if user.has_perm('authority.delete_foreign_permissions') \
-            or user.pk == perm.creator.pk:
+        if (user.has_perm('authority.delete_foreign_permissions') or
+                user.pk == perm.creator.pk):
             return base_link(context, perm, 'authority-delete-permission')
     return {'url': None}
+
 
 @register.inclusion_tag('authority/permission_request_delete_link.html', takes_context=True)
 def permission_request_delete_link(context, perm):
@@ -424,6 +439,7 @@ def permission_request_delete_link(context, perm):
             return link_kwargs
     return {'url': None}
 
+
 @register.inclusion_tag('authority/permission_request_approve_link.html', takes_context=True)
 def permission_request_approve_link(context, perm):
     """
@@ -434,6 +450,5 @@ def permission_request_approve_link(context, perm):
     user = context['request'].user
     if user.is_authenticated():
         if user.has_perm('authority.approve_permission_requests'):
-            return base_link(context, perm,
-                'authority-approve-permission-request')
+            return base_link(context, perm, 'authority-approve-permission-request')
     return {'url': None}

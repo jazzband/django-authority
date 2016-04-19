@@ -1,6 +1,4 @@
-from datetime import datetime
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.decorators.http import require_POST
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.db.models.loading import get_model
 from django.utils.translation import ugettext as _
@@ -12,6 +10,7 @@ from authority.models import Permission
 from authority.forms import UserPermissionForm
 from authority.templatetags.permissions import url_for_obj
 
+
 def get_next(request, obj=None):
     next = request.REQUEST.get('next')
     if not next:
@@ -21,9 +20,10 @@ def get_next(request, obj=None):
             next = '/'
     return next
 
+
 @login_required
 def add_permission(request, app_label, module_name, pk, approved=False,
-                   template_name = 'authority/permission_form.html',
+                   template_name='authority/permission_form.html',
                    extra_context=None, form_class=UserPermissionForm):
     codename = request.POST.get('codename', None)
     model = get_model(app_label, module_name)
@@ -47,7 +47,7 @@ def add_permission(request, app_label, module_name, pk, approved=False,
             # Limit permission request to current user
             form.data['user'] = request.user
         if form.is_valid():
-            permission = form.save(request)
+            form.save(request)
             request.user.message_set.create(
                 message=_('You added a permission request.'))
             return HttpResponseRedirect(next)
@@ -66,6 +66,7 @@ def add_permission(request, app_label, module_name, pk, approved=False,
     return render_to_response(template_name, context,
                               context_instance=RequestContext(request))
 
+
 @login_required
 def approve_permission_request(request, permission_pk):
     requested_permission = get_object_or_404(Permission, pk=permission_pk)
@@ -76,12 +77,13 @@ def approve_permission_request(request, permission_pk):
     next = get_next(request, requested_permission)
     return HttpResponseRedirect(next)
 
+
 @login_required
 def delete_permission(request, permission_pk, approved):
     permission = get_object_or_404(Permission,  pk=permission_pk,
                                    approved=approved)
-    if (request.user.has_perm('authority.delete_foreign_permissions')
-            or request.user == permission.creator):
+    if (request.user.has_perm('authority.delete_foreign_permissions') or
+            request.user == permission.creator):
         permission.delete()
         if approved:
             msg = _('You removed the permission.')
@@ -90,6 +92,7 @@ def delete_permission(request, permission_pk, approved):
         request.user.message_set.create(message=msg)
     next = get_next(request)
     return HttpResponseRedirect(next)
+
 
 def permission_denied(request, template_name=None, extra_context=None):
     """
