@@ -6,6 +6,12 @@ django-authority
    :target: https://jazzband.co/
    :alt: Jazzband
 
+.. image:: https://travis-ci.org/jazzband/django-authority.svg?branch=master
+    :target: https://travis-ci.org/jazzband/django-authority
+
+.. image:: https://codecov.io/gh/jazzband/django-authority/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/jazzband/django-authority
+
 This is a Django app for per-object-permissions that includes a bunch of
 helpers to create custom permission checks.
 
