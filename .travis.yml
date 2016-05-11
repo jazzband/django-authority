@@ -1,12 +1,27 @@
 language: python
-python:
-  - "2.7"
+python: 3.5
+sudo: false
+cache:
+  directories:
+  - "~/.cache/pip"
 env:
-  - TOX_ENV=py27-django18
-  - TOX_ENV=py33-django18
+  matrix:
+  - TOXENV=py27-dj18
+  - TOXENV=py33-dj18
+  - TOXENV=py34-dj18
+  - TOXENV=py35-dj18
 install:
-  - pip install tox
-notifications:
-  email:
-    - jason.louard.ward@gmail.com
-script: tox -e $TOX_ENV
+- pip install tox codecov
+script: tox -v
+after_success:
+- codecov
+deploy:
+  provider: pypi
+  user: jazzband
+  distributions: sdist bdist_wheel
+  password:
+    secure: XoXuSeFfJ+cM5/eCAAVuT6E/KsvuvMl9u9On5id6miq+wYqftpWiN9e/fjb3pDWkfZITooPeJBTpMJBGu+2Yc5i8JVGsYQgvP9dFqOH14P6NV4JU1ZF8iP7dpdWX3+h3K/QnqTvwwHmRF3mrDd/lnN9AB74bXLFYS282glJLVKM=
+  on:
+    tags: true
+    condition: "$TOXENV = py27-dj18"
+    repo: jazzband/django-authority
