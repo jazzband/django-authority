@@ -22,21 +22,18 @@ Example
 
 To get the example project running do:
 
-- Bootstrap the buildout by running::
+- Bootstrap the environment by running in a virtualenv::
 
-    python bootstrap.py
-
-- Get the required packages by running::
-
-    bin/buildout
+    pip install Django
+    pip install -e .
 
 - Sync the database::
 
-    bin/django-trunk syncdb
+    python example/manage.py migrate
 
 - Run the development server and visit the admin at http://127.0.0.1:8000/admin/::
 
-    bin/django-trunk runserver
+    python example/manage.py runserver
 
 Now create a flatage and open it to see some of the templatetags in action.
 Don't hesitate to use the admin to edit the permission objects.
