@@ -14,4 +14,4 @@ For more specific issues and bug reports please use the `issue tracker`_ on
 django-authority's Github page.
 
 .. _google group: http://groups.google.com/group/django-authority
-.. _issue tracker: https://github.com/jezdez/django-authority/issues/
+.. _issue tracker: https://github.com/jazzband/django-authority/issues/

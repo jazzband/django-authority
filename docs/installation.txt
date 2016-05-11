@@ -29,7 +29,7 @@ Development version
 The latest development version is located on it's `Github account`_. You
 can checkout the package using the Mercurial_ scm::
 
-    git clone https://github.com/jezdez/django-authority.git
+    git clone https://github.com/jazzband/django-authority
 
 Then install it manually::
 
@@ -39,5 +39,5 @@ Then install it manually::
 .. warning:: The development version is not fully tested and may contain
     bugs, so we prefer to use the latest package from pypi.
 
-.. _Github account: https://github.com/jezdez/django-authority/
+.. _Github account: https://github.com/jazzband/django-authority/
 .. _Mercurial: http://www.selenic.com/mercurial/

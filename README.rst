@@ -15,7 +15,7 @@ The main website for django-authority is
 ``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
 
 .. _`django-authority.readthedocs.org`: http://django-authority.readthedocs.org/
-.. _in-development version: https://github.com/jezdez/django-authority/archive/master.zip#egg=django-authority-dev
+.. _in-development version: https://github.com/jazzband/django-authority/archive/master.zip#egg=django-authority-dev
 
 Example
 =======
@@ -38,9 +38,7 @@ To get the example project running do:
 Now create a flatage and open it to see some of the templatetags in action.
 Don't hesitate to use the admin to edit the permission objects.
 
-Full docs coming soon.
-
-Please use https://github.com/jezdez/django-authority/issues/ for issues and bug reports.
+Please use https://github.com/jazzband/django-authority/issues/ for issues and bug reports.
 
 Documentation
 =============
@@ -162,4 +160,4 @@ Changelog:
   allows to request permissions, but also add them (only for users with
   the 'authority.add_permission' Django permission).
 
-.. _`migrations/`: https://github.com/jezdez/django-authority/tree/master/migrations
+.. _`migrations/`: https://github.com/jazzbands/django-authority/tree/master/migrations
