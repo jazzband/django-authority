@@ -20,7 +20,7 @@ The main website for django-authority is
 `in-development version`_ of django-authority with
 ``pip install django-authority==dev`` or ``easy_install django-authority==dev``.
 
-.. _`django-authority.readthedocs.org`: http://django-authority.readthedocs.org/
+.. _`django-authority.readthedocs.org`: https://django-authority.readthedocs.io/
 .. _in-development version: https://github.com/jazzband/django-authority/archive/master.zip#egg=django-authority-dev
 
 Example
