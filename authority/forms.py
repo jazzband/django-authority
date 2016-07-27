@@ -4,7 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
-from authority import permissions, get_choices_for
+from authority import permissions
+from authority.utils import get_choices_for
 from authority.models import Permission
 from authority.compat import get_user_model
 
