@@ -22,13 +22,13 @@ QUERY = Q(email="jezdez@github.com")
 class UserPermission(permissions.BasePermission):
     checks = ('browse',)
     label = 'user_permission'
-authority.register(User, UserPermission)
+authority.utils.register(User, UserPermission)
 
 
 class GroupPermission(permissions.BasePermission):
     checks = ('browse',)
     label = 'group_permission'
-authority.register(Group, GroupPermission)
+authority.utils.register(Group, GroupPermission)
 
 
 class DjangoPermissionChecksTestCase(TestCase):
