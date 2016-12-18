@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 
-from authority import get_check
+from authority.utils import get_check
 from authority import permissions
 from authority.compat import get_user_model
 from authority.models import Permission
