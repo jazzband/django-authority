@@ -2,12 +2,13 @@ import inspect
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
 from django.utils.functional import wraps
-from django.db.models import Model, get_model
+from django.db.models import Model
+from django.apps import apps
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from authority import get_check
+from authority.utils import get_check
 from authority.views import permission_denied
 
 
@@ -36,7 +37,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
                         if value is None:
                             continue
                         if isinstance(model, basestring):
-                            model_class = get_model(*model.split("."))
+                            model_class = apps.get_model(*model.split("."))
                         else:
                             model_class = model
                         if model_class is None:

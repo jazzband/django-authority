@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AnonymousUser
 
-from authority import get_check
+from authority.utils import get_check
 from authority import permissions
 from authority.compat import get_user_model
 from authority.models import Permission
@@ -190,8 +190,8 @@ class PermissionFormNode(ResolverNode):
                         approved=self.approved,
                         initial=dict(codename=perm, user=request.user.username)),
                 }
-        return template.loader.render_to_string(
-            template_name, extra_context, context_instance=template.RequestContext(request))
+        return template.loader.render_to_string(template_name, extra_context,
+                                                request)
 
 
 @register.tag

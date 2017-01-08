@@ -1,8 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.db.models.loading import get_model
+from django.apps import apps
 from django.utils.translation import ugettext as _
-from django.template.context import RequestContext
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 
@@ -26,7 +25,7 @@ def add_permission(request, app_label, module_name, pk, approved=False,
                    template_name='authority/permission_form.html',
                    extra_context=None, form_class=UserPermissionForm):
     codename = request.POST.get('codename', None)
-    model = get_model(app_label, module_name)
+    model = apps.get_model(app_label, module_name)
     if model is None:
         return permission_denied(request)
     obj = get_object_or_404(model, pk=pk)
@@ -63,8 +62,7 @@ def add_permission(request, app_label, module_name, pk, approved=False,
     }
     if extra_context:
         context.update(extra_context)
-    return render_to_response(template_name, context,
-                              context_instance=RequestContext(request))
+    return render_to_response(template_name, context, request)
 
 
 @login_required
@@ -110,5 +108,5 @@ def permission_denied(request, template_name=None, extra_context=None):
     }
     if extra_context:
         context.update(extra_context)
-    return HttpResponseForbidden(loader.render_to_string(template_name, context,
-                                 context_instance=RequestContext(request)))
+    return HttpResponseForbidden(loader.render_to_string(template_name,
+                                                         context, request))

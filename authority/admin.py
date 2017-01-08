@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
 from django.contrib import admin
 from django.contrib.admin import helpers
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 
@@ -22,10 +22,10 @@ except ImportError:
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
-from authority import get_choices_for
+from authority.utils import get_choices_for
 
 
-class PermissionInline(generic.GenericTabularInline):
+class PermissionInline(GenericTabularInline):
     model = Permission
     raw_id_fields = ('user', 'group', 'creator')
     extra = 1
@@ -122,8 +122,7 @@ def edit_permissions(modeladmin, request, queryset):
         "admin/%s/permission_change_form.html" % app_label,
         "admin/permission_change_form.html"
     ])
-    return render_to_response(template_name, context,
-                              context_instance=template.RequestContext(request))
+    return render_to_response(template_name, context, request)
 edit_permissions.short_description = _("Edit permissions for selected %(verbose_name_plural)s")
 
 
