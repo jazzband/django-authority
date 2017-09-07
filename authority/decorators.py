@@ -26,7 +26,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
             if request.user.is_authenticated():
                 params = []
                 for lookup_variable in lookup_variables:
-                    if isinstance(lookup_variable, basestring):
+                    if isinstance(lookup_variable, str):
                         value = kwargs.get(lookup_variable, None)
                         if value is None:
                             continue
@@ -36,7 +36,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
                         value = kwargs.get(varname, None)
                         if value is None:
                             continue
-                        if isinstance(model, basestring):
+                        if isinstance(model, str):
                             model_class = apps.get_model(*model.split("."))
                         else:
                             model_class = model
