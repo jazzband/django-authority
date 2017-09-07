@@ -122,8 +122,7 @@ def edit_permissions(modeladmin, request, queryset):
         "admin/%s/permission_change_form.html" % app_label,
         "admin/permission_change_form.html"
     ])
-    return render_to_response(template_name, context,
-                              context_instance=template.RequestContext(request))
+    return render_to_response(template_name, context, request)
 edit_permissions.short_description = _("Edit permissions for selected %(verbose_name_plural)s")
 
 

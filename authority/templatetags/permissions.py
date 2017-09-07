@@ -190,8 +190,8 @@ class PermissionFormNode(ResolverNode):
                         approved=self.approved,
                         initial=dict(codename=perm, user=request.user.username)),
                 }
-        return template.loader.render_to_string(
-            template_name, extra_context, context_instance=template.RequestContext(request))
+        return template.loader.render_to_string(template_name, extra_context,
+                                                request)
 
 
 @register.tag
