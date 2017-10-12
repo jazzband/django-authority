@@ -1,3 +1,5 @@
+from django.utils.module_loading import autodiscover_modules
+
 LOADING = False
 
 
@@ -11,5 +13,4 @@ def autodiscover():
         return
     LOADING = True
 
-    from authority import utils
-    utils.autodiscover_modules()
+    autodiscover_modules('permissions')
