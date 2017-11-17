@@ -7,7 +7,7 @@ from authority.permissions import BasePermission
 class FlatPagePermission(BasePermission):
     """
     This class contains a bunch of checks:
-    
+
     1. the default checks 'add_flatpage', 'browse_flatpage',
        'change_flatpage' and 'delete_flatpage'
     2. the custom checks:
@@ -49,4 +49,4 @@ class FlatPagePermission(BasePermission):
         return False
     top_secret.short_description=_('Is allowed to see top secret flatpages')
 
-authority.register(FlatPage, FlatPagePermission)
+authority.sites.register(FlatPage, FlatPagePermission)
