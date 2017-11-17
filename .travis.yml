@@ -10,6 +10,7 @@ env:
   - TOXENV=py33-dj18
   - TOXENV=py34-dj18
   - TOXENV=py35-dj18
+  - TOXENV=py27-dj111
 install:
 - pip install tox codecov
 script: tox -v
