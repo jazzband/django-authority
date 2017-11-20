@@ -109,5 +109,8 @@ def permission_denied(request, template_name=None, extra_context=None):
     }
     if extra_context:
         context.update(extra_context)
-    return HttpResponseForbidden(loader.render_to_string(template_name,
-                                                         context, request))
+    return HttpResponseForbidden(loader.render_to_string(
+        template_name=template_name,
+        context=context,
+        request=request,
+    ))
