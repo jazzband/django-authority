@@ -57,6 +57,11 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.12 (TBD):
+-----------------
+
+* Added support for Django 1.11
+
 0.11 (2016-07-17):
 -----------------
 
