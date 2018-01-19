@@ -25,8 +25,9 @@ def add_permission(request, app_label, module_name, pk, approved=False,
                    template_name='authority/permission_form.html',
                    extra_context=None, form_class=UserPermissionForm):
     codename = request.POST.get('codename', None)
-    model = apps.get_model(app_label, module_name)
-    if model is None:
+    try:
+        model = apps.get_model(app_label, module_name)
+    except LookupError:
         return permission_denied(request)
     obj = get_object_or_404(model, pk=pk)
     next = get_next(request, obj)
@@ -108,5 +109,8 @@ def permission_denied(request, template_name=None, extra_context=None):
     }
     if extra_context:
         context.update(extra_context)
-    return HttpResponseForbidden(loader.render_to_string(template_name,
-                                                         context, request))
+    return HttpResponseForbidden(loader.render_to_string(
+        template_name=template_name,
+        context=context,
+        request=request,
+    ))

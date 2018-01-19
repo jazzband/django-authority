@@ -1,23 +1,26 @@
-"""
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
-"""
-
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
+from authority.compat import get_user_model
 
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
 
->>> 1 + 1 == 2
-True
-"""}
+class AddPermissionTestCase(TestCase):
+    def test_add_permission_permission_denied_is_403(self):
+        user = get_user_model().objects.create(
+            username='foo',
+            email='foo@example.com',
+        )
+        user.set_password('pw')
+        user.save()
 
+        assert self.client.login(username='foo@example.com', password='pw')
+        url = reverse(
+            'authority-add-permission-request',
+            kwargs={
+                'app_label': 'foo',
+                'module_name': 'Bar',
+                'pk': 1,
+            },
+        )
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 403)
