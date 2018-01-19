@@ -57,10 +57,12 @@ html version using the setup.py::
 Changelog:
 ==========
 
-0.12 (TBD):
+0.12 (2018-01-19):
 -----------------
 
 * Added support for Django 1.11
+* Drop Support for Python 3.3
+* Fixed a bug with template loader
 
 0.11 (2016-07-17):
 -----------------
