@@ -1,19 +1,12 @@
 language: python
-python: 3.5
+python:
+- 2.7
+- 3.4
+- 3.5
 sudo: false
-cache:
-  directories:
-  - "~/.cache/pip"
-env:
-  matrix:
-  - TOXENV=py27-dj18
-  - TOXENV=py34-dj18
-  - TOXENV=py35-dj18
-  - TOXENV=py27-dj111
-  - TOXENV=py34-dj111
-  - TOXENV=py35-dj111
+cache: pip
 install:
-- pip install tox codecov
+- pip install tox-travis codecov
 script: tox -v
 after_success:
 - codecov
@@ -26,5 +19,5 @@ deploy:
     secure: TZJdf9naBzdkE+HDyhtoCIIc0ddEXLWW/VUD975gJUWQpOA69h4ZjCCQ6z21AZdrWczCUh6/cOLYYSoC9OeaHqF+Jzunn3iEomvdVRsW7SX7MAxTFUENQHF3S3j8fYlqIPWvNDOgxJ/AERisMUSZkRKWIYjEInYo31RoJ1ySN0w=
   on:
     tags: true
-    condition: "$TOXENV = py27-dj18"
+    python: 3.5
     repo: jazzband/django-authority
