@@ -6,3 +6,5 @@ docs/build/*
 .tox/
 dist/
 build/
+.coverage
+.eggs/
