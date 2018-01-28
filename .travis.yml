@@ -20,9 +20,10 @@ after_success:
 deploy:
   provider: pypi
   user: jazzband
+  server: https://jazzband.co/projects/django-authority/upload
   distributions: sdist bdist_wheel
   password:
-    secure: XoXuSeFfJ+cM5/eCAAVuT6E/KsvuvMl9u9On5id6miq+wYqftpWiN9e/fjb3pDWkfZITooPeJBTpMJBGu+2Yc5i8JVGsYQgvP9dFqOH14P6NV4JU1ZF8iP7dpdWX3+h3K/QnqTvwwHmRF3mrDd/lnN9AB74bXLFYS282glJLVKM=
+    secure: TZJdf9naBzdkE+HDyhtoCIIc0ddEXLWW/VUD975gJUWQpOA69h4ZjCCQ6z21AZdrWczCUh6/cOLYYSoC9OeaHqF+Jzunn3iEomvdVRsW7SX7MAxTFUENQHF3S3j8fYlqIPWvNDOgxJ/AERisMUSZkRKWIYjEInYo31RoJ1ySN0w=
   on:
     tags: true
     condition: "$TOXENV = py27-dj18"
