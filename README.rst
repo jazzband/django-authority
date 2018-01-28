@@ -57,6 +57,11 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.13.1 (2018-01-28):
+--------------------
+
+* Minor fixes to the documentation and versioning.
+
 0.13 (2018-01-28):
 -----------------
 
