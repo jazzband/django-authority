@@ -57,7 +57,7 @@ html version using the setup.py::
 Changelog:
 ==========
 
-0.13 (2018-01-19):
+0.13 (2018-01-28):
 -----------------
 
 * Added support for Django 1.11
