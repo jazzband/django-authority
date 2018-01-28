@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name='django-authority',
-    version='0.12',
+    use_scm_version=True,
     description=(
         "A Django app that provides generic per-object-permissions "
         "for Django's auth app."
@@ -35,6 +35,7 @@ setup(
         'Framework :: Django',
     ],
     install_requires=['django'],
+    setup_requires=['setuptools_scm'],
     package_data={
         'authority': [
             'fixtures/*.json',
