@@ -48,7 +48,7 @@ copyright = u'2009, the django-authority team'
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = get_distribution('authority').version
+release = get_distribution('django-authority').version
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
 
