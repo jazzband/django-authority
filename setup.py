@@ -5,9 +5,10 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 setup(
     name='django-authority',
-    version='0.11',
+    version='0.12',
     description=(
         "A Django app that provides generic per-object-permissions "
         "for Django's auth app."
@@ -34,7 +35,7 @@ setup(
         'Framework :: Django',
     ],
     install_requires=['django'],
-    package_data = {
+    package_data={
         'authority': [
             'fixtures/*.json',
             'templates/authority/*.html',
