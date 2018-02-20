@@ -134,7 +134,9 @@ Changelog:
 
 * Added ability to override form class in ``add_permission`` view.
 
-* Added easy way to assign permissions via a permission instance, e.g.::
+* Added easy way to assign permissions via a permission instance, e.g.:
+
+  .. code-block:: python
 
     from django.contrib.auth.models import User
     from mysite.articles.permissions import ArticlePermission
@@ -162,13 +164,17 @@ Changelog:
 * The templatetags have also been refactored to be easier to customize
   which required a change in the template tag signature:
 
-  Old::
+  Old:
+
+  .. code-block:: html+django
 
     {% permission_form flatpage %}
     {% permission_form flatpage "flatpage_permission.top_secret" %}
     {% permission_form OBJ PERMISSION_LABEL.CHECK_NAME %}
 
-  New::
+  New:
+
+  .. code-block:: html+django
 
     {% permission_form for flatpage %}
     {% permission_form for flatpage using "flatpage_permission.top_secret" %}
