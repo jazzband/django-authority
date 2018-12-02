@@ -2,6 +2,7 @@ import inspect
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
 from django.utils.functional import wraps
+from django.utils.six import string_types
 from django.db.models import Model
 from django.apps import apps
 from django.shortcuts import get_object_or_404
@@ -26,7 +27,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
             if request.user.is_authenticated():
                 params = []
                 for lookup_variable in lookup_variables:
-                    if isinstance(lookup_variable, basestring):
+                    if isinstance(lookup_variable, string_types):
                         value = kwargs.get(lookup_variable, None)
                         if value is None:
                             continue
@@ -36,7 +37,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
                         value = kwargs.get(varname, None)
                         if value is None:
                             continue
-                        if isinstance(model, basestring):
+                        if isinstance(model, string_types):
                             model_class = apps.get_model(*model.split("."))
                         else:
                             model_class = model
