@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'django-authority'
-copyright = u'2009-2019, Janis Leidel'
+copyright = u'2009-2019, Jannis Leidel'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
