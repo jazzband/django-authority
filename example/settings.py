@@ -109,7 +109,3 @@ try:
     from local_settings import *  # noqa
 except ImportError:
     pass
-
-
-if VERSION >= (1, 6):
-    TEST_RUNNER = 'django.test.runner.DiscoverRunner'
