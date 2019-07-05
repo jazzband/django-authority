@@ -19,7 +19,7 @@ DATABASES = {
         'HOST': '',
         'PORT': '',
         'TEST': {
-            'NAME': os.path.join(PROJECT_ROOT, 'example.db'),
+            'NAME': ':memory:',
             'ENGINE': 'django.db.backends.sqlite3',
         },
     }
