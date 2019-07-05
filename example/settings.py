@@ -18,6 +18,10 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
+        'TEST': {
+            'NAME': os.path.join(PROJECT_ROOT, 'example.db'),
+            'ENGINE': 'django.db.backends.sqlite3',
+        },
     }
 }
 
