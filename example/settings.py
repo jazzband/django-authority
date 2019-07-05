@@ -43,10 +43,11 @@ MEDIA_URL = '/media/'
 # Don't share this with anybody.
 SECRET_KEY = 'ljlv2lb2d&)#by6th=!v=03-c^(o4lop92i@z4b3f1&ve0yx6d'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     # 'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
@@ -66,6 +67,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'django.contrib.messages',
     'django.contrib.admin',
     'authority',
     'example.exampleapp',
