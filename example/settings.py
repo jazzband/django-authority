@@ -75,6 +75,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'authority',
     'example.exampleapp',
+    'django_nose',
 )
 
 if VERSION >= (1, 5):
@@ -109,3 +110,5 @@ try:
     from local_settings import *  # noqa
 except ImportError:
     pass
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
