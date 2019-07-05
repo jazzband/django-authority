@@ -16,15 +16,15 @@ class Permission(models.Model):
     of any content type.
     """
     codename = models.CharField(_('codename'), max_length=100)
-    content_type = models.ForeignKey(ContentType, related_name="row_permissions")
+    content_type = models.ForeignKey(ContentType, related_name="row_permissions", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
     user = models.ForeignKey(
-        user_model_label, null=True, blank=True, related_name='granted_permissions')
-    group = models.ForeignKey(Group, null=True, blank=True)
+        user_model_label, null=True, blank=True, related_name='granted_permissions', on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     creator = models.ForeignKey(
-        user_model_label, null=True, blank=True, related_name='created_permissions')
+        user_model_label, null=True, blank=True, related_name='created_permissions', on_delete=models.CASCADE)
 
     approved = models.BooleanField(
         _('approved'),
