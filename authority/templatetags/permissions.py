@@ -169,7 +169,7 @@ class PermissionFormNode(ResolverNode):
         request = context['request']
         extra_context = {}
         if self.approved:
-            if (request.user.is_authenticated() and
+            if (request.user.is_authenticated and
                     request.user.has_perm('authority.add_permission')):
                 extra_context = {
                     'form_url': url_for_obj('authority-add-permission', obj),
@@ -179,7 +179,7 @@ class PermissionFormNode(ResolverNode):
                                                initial=dict(codename=perm)),
                 }
         else:
-            if request.user.is_authenticated() and not request.user.is_superuser:
+            if request.user.is_authenticated and not request.user.is_superuser:
                 extra_context = {
                     'form_url': url_for_obj('authority-add-permission-request', obj),
                     'next': request.build_absolute_uri(),
@@ -413,7 +413,7 @@ def permission_delete_link(context, perm):
     permissions.
     """
     user = context['request'].user
-    if user.is_authenticated():
+    if user.is_authenticated:
         if (user.has_perm('authority.delete_foreign_permissions') or
                 user.pk == perm.creator.pk):
             return base_link(context, perm, 'authority-delete-permission')
@@ -428,7 +428,7 @@ def permission_request_delete_link(context, perm):
     permissions.
     """
     user = context['request'].user
-    if user.is_authenticated():
+    if user.is_authenticated:
         link_kwargs = base_link(context, perm,
                                 'authority-delete-permission-request')
         if user.has_perm('authority.delete_permission'):
@@ -448,7 +448,7 @@ def permission_request_approve_link(context, perm):
     permissions.
     """
     user = context['request'].user
-    if user.is_authenticated():
+    if user.is_authenticated:
         if user.has_perm('authority.approve_permission_requests'):
             return base_link(context, perm, 'authority-approve-permission-request')
     return {'url': None}

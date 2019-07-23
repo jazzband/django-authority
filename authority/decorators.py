@@ -24,7 +24,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
 
     def decorate(view_func):
         def decorated(request, *args, **kwargs):
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 params = []
                 for lookup_variable in lookup_variables:
                     if isinstance(lookup_variable, string_types):
