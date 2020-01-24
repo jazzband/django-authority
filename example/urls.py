@@ -26,7 +26,7 @@ urlpatterns = (
         kwargs={'approved': False, 'form_class': SpecialUserPermissionForm}
     ),
     url(r'^authority/', include(authority.urls)),
-    url(r'^accounts/login/$', django.contrib.auth.views.login),
+    url(r'^accounts/login/$', django.contrib.auth.views.LoginView.as_view()),
     url(
         r'^(?P<url>[\/0-9A-Za-z]+)$',
         example.exampleapp.views.top_secret,
