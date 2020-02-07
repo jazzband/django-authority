@@ -63,6 +63,8 @@ Changelog:
 * Add Django 2.2 support
 * Add Python 3.7 support
 * Various fixes around the test harness.
+* Use Django's own method of auto-loading permissions modules.
+* Fix Django admin incompatibility regarding a method removed years ago.
 
 0.13.1 (2018-01-28):
 --------------------
