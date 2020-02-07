@@ -1,4 +1,5 @@
 from inspect import getmembers, ismethod
+from django.apps import apps
 from django.db import models
 from django.db.models.base import ModelBase
 from django.utils.translation import ugettext_lazy as _
@@ -139,7 +140,7 @@ class PermissionSite(object):
 
 class PermissionDescriptor(object):
     def get_content_type(self, obj=None):
-        ContentType = models.get_model("contenttypes", "contenttype")
+        ContentType = apps.get_model("contenttypes", "contenttype")
         if obj:
             return ContentType.objects.get_for_model(obj)
         else:

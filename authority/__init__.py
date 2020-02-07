@@ -20,4 +20,5 @@ def autodiscover():
     LOADING = True
 
     from django.utils.module_loading import autodiscover_modules
-    autodiscover_modules('permissions')
+
+    autodiscover_modules("permissions")
