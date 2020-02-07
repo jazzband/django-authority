@@ -1,16 +1,16 @@
 from django.conf import settings
-from django.contrib.auth.models import Permission as DjangoPermission
-from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission as DjangoPermission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.test import TestCase
+from django.urls import reverse
 
 import authority
 from authority import permissions
 from authority.models import Permission
 from authority.exceptions import NotAModel, UnsavedModelInstance
-from authority.compat import get_user_model
 
 # Load the form
 from authority.forms import UserPermissionForm  # noqa
@@ -436,3 +436,18 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
             "foo", self.group, approved=True,
         )
         self.assertTrue(can_foo_with_group)
+
+
+class AddPermissionTestCase(TestCase):
+    def test_add_permission_permission_denied_is_403(self):
+        user = get_user_model().objects.create(username="foo", email="foo@example.com",)
+        user.set_password("pw")
+        user.save()
+
+        assert self.client.login(username="foo@example.com", password="pw")
+        url = reverse(
+            "authority-add-permission-request",
+            kwargs={"app_label": "foo", "module_name": "Bar", "pk": 1,},
+        )
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 403)
