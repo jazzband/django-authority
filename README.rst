@@ -65,6 +65,8 @@ Changelog:
 * Various fixes around the test harness.
 * Use Django's own method of auto-loading permissions modules.
 * Fix Django admin incompatibility regarding a method removed years ago.
+* Removed unused compatibility code.
+* Fix BasePermission.assign for group permissions.
 
 0.13.1 (2018-01-28):
 --------------------
