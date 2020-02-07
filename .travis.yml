@@ -11,10 +11,7 @@ jobs:
   fast_finish: true
   include:
     - stage: deploy
-      env:
       python: 3.7
-      script: skip
-      after_success: skip
       deploy:
         provider: pypi
         user: jazzband
