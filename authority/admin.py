@@ -1,11 +1,11 @@
-from django import forms, template
+from django import forms
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
 from django.shortcuts import render_to_response
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
 from django.contrib import admin
-from django.contrib.admin import helpers
+from django.contrib.admin import actions, helpers
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
@@ -14,11 +14,6 @@ try:
     from django.utils.encoding import force_text
 except ImportError:
     from django.utils.encoding import force_unicode as force_text
-
-try:
-    from django.contrib.admin import actions
-except ImportError:
-    actions = False
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget

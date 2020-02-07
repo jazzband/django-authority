@@ -1,11 +1,11 @@
 from django import template
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.contrib.auth.models import AnonymousUser
 
 from authority.utils import get_check
 from authority import permissions
-from authority.compat import get_user_model
 from authority.models import Permission
 from authority.forms import UserPermissionForm
 

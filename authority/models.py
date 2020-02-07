@@ -1,12 +1,14 @@
 from datetime import datetime
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
 
-from authority.compat import user_model_label
 from authority.managers import PermissionManager
+
+USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class Permission(models.Model):
@@ -24,7 +26,7 @@ class Permission(models.Model):
     content_object = GenericForeignKey("content_type", "object_id")
 
     user = models.ForeignKey(
-        user_model_label,
+        USER_MODEL,
         null=True,
         blank=True,
         related_name="granted_permissions",
@@ -32,7 +34,7 @@ class Permission(models.Model):
     )
     group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     creator = models.ForeignKey(
-        user_model_label,
+        USER_MODEL,
         null=True,
         blank=True,
         related_name="created_permissions",
