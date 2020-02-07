@@ -57,6 +57,13 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.14 (2020-02-07):
+------------------
+
+* Add Django 2.2 support
+* Add Python 3.7 support
+* Various fixes around the test harness.
+
 0.13.1 (2018-01-28):
 --------------------
 
