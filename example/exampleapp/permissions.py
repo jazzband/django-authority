@@ -4,10 +4,11 @@ from django.utils.translation import ugettext_lazy as _
 import authority
 from authority.permissions import BasePermission
 
+
 class FlatPagePermission(BasePermission):
     """
     This class contains a bunch of checks:
-    
+
     1. the default checks 'add_flatpage', 'browse_flatpage',
        'change_flatpage' and 'delete_flatpage'
     2. the custom checks:
@@ -40,13 +41,16 @@ class FlatPagePermission(BasePermission):
         {% endifhasperm %}
 
     """
-    label = 'flatpage_permission'
-    checks = ('review', 'top_secret')
+
+    label = "flatpage_permission"
+    checks = ("review", "top_secret")
 
     def top_secret(self, flatpage=None, lala=None):
         if flatpage and flatpage.registration_required:
             return self.browse_flatpage(obj=flatpage)
         return False
-    top_secret.short_description=_('Is allowed to see top secret flatpages')
 
-authority.register(FlatPage, FlatPagePermission)
+    top_secret.short_description = _("Is allowed to see top secret flatpages")
+
+
+authority.sites.register(FlatPage, FlatPagePermission)

@@ -57,8 +57,32 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.14 (2020-02-07):
+------------------
+
+* Add Django 2.2 support
+* Add Python 3.7 support
+* Various fixes around the test harness.
+
+0.13.1 (2018-01-28):
+--------------------
+
+* Minor fixes to the documentation and versioning.
+
+0.13 (2018-01-28):
+------------------
+
+* Added support for Django 1.11
+* Drop Support for Python 3.3
+* Fixed a bug with template loader
+
+0.12 (2017-01-10):
+------------------
+
+* Added support for Django 1.10
+
 0.11 (2016-07-17):
------------------
+------------------
 
 * Added Migration in order to support Django 1.8
 
@@ -117,7 +141,9 @@ Changelog:
 
 * Added ability to override form class in ``add_permission`` view.
 
-* Added easy way to assign permissions via a permission instance, e.g.::
+* Added easy way to assign permissions via a permission instance, e.g.:
+
+  .. code-block:: python
 
     from django.contrib.auth.models import User
     from mysite.articles.permissions import ArticlePermission
@@ -145,13 +171,17 @@ Changelog:
 * The templatetags have also been refactored to be easier to customize
   which required a change in the template tag signature:
 
-  Old::
+  Old:
+
+  .. code-block:: html+django
 
     {% permission_form flatpage %}
     {% permission_form flatpage "flatpage_permission.top_secret" %}
     {% permission_form OBJ PERMISSION_LABEL.CHECK_NAME %}
 
-  New::
+  New:
+
+  .. code-block:: html+django
 
     {% permission_form for flatpage %}
     {% permission_form for flatpage using "flatpage_permission.top_secret" %}

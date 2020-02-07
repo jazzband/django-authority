@@ -27,20 +27,20 @@ from authority.utils import get_choices_for
 
 class PermissionInline(GenericTabularInline):
     model = Permission
-    raw_id_fields = ('user', 'group', 'creator')
+    raw_id_fields = ("user", "group", "creator")
     extra = 1
 
     def formfield_for_dbfield(self, db_field, **kwargs):
-        if db_field.name == 'codename':
+        if db_field.name == "codename":
             perm_choices = get_choices_for(self.parent_model)
-            kwargs['label'] = _('permission')
-            kwargs['widget'] = forms.Select(choices=perm_choices)
+            kwargs["label"] = _("permission")
+            kwargs["widget"] = forms.Select(choices=perm_choices)
         return super(PermissionInline, self).formfield_for_dbfield(db_field, **kwargs)
 
 
 class ActionPermissionInline(PermissionInline):
     raw_id_fields = ()
-    template = 'admin/edit_inline/action_tabular.html'
+    template = "admin/edit_inline/action_tabular.html"
 
 
 class ActionErrorList(forms.utils.ErrorList):
@@ -56,9 +56,11 @@ def edit_permissions(modeladmin, request, queryset):
     app_label = opts.app_label
 
     # Check that the user has the permission to edit permissions
-    if not (request.user.is_superuser or
-            request.user.has_perm('authority.change_permission') or
-            request.user.has_perm('authority.change_foreign_permissions')):
+    if not (
+        request.user.is_superuser
+        or request.user.has_perm("authority.change_permission")
+        or request.user.has_perm("authority.change_foreign_permissions")
+    ):
         raise PermissionDenied
 
     inline = ActionPermissionInline(queryset.model, modeladmin.admin_site)
@@ -70,9 +72,10 @@ def edit_permissions(modeladmin, request, queryset):
         prefixes[prefix] = prefixes.get(prefix, 0) + 1
         if prefixes[prefix] != 1:
             prefix = "%s-%s" % (prefix, prefixes[prefix])
-        if request.POST.get('post'):
-            formset = FormSet(data=request.POST, files=request.FILES,
-                              instance=obj, prefix=prefix)
+        if request.POST.get("post"):
+            formset = FormSet(
+                data=request.POST, files=request.FILES, instance=obj, prefix=prefix
+            )
         else:
             formset = FormSet(instance=obj, prefix=prefix)
         formsets.append(formset)
@@ -86,76 +89,90 @@ def edit_permissions(modeladmin, request, queryset):
         media = media + inline_admin_formset.media
 
     ordered_objects = opts.get_ordered_objects()
-    if request.POST.get('post'):
+    if request.POST.get("post"):
         if all_valid(formsets):
             for formset in formsets:
                 formset.save()
         else:
-            modeladmin.message_user(request, '; '.join(
-                err.as_text() for formset in formsets for err in formset.errors
-            ))
+            modeladmin.message_user(
+                request,
+                "; ".join(
+                    err.as_text() for formset in formsets for err in formset.errors
+                ),
+            )
         # redirect to full request path to make sure we keep filter
         return HttpResponseRedirect(request.get_full_path())
 
     context = {
-        'errors': ActionErrorList(formsets),
-        'title': ugettext('Permissions for %s') % force_text(opts.verbose_name_plural),
-        'inline_admin_formsets': inline_admin_formsets,
-        'app_label': app_label,
-        'change': True,
-        'ordered_objects': ordered_objects,
-        'form_url': mark_safe(''),
-        'opts': opts,
-        'target_opts': queryset.model._meta,
-        'content_type_id': ContentType.objects.get_for_model(queryset.model).id,
-        'save_as': False,
-        'save_on_top': False,
-        'is_popup': False,
-        'media': mark_safe(media),
-        'show_delete': False,
-        'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-        'queryset': queryset,
+        "errors": ActionErrorList(formsets),
+        "title": ugettext("Permissions for %s") % force_text(opts.verbose_name_plural),
+        "inline_admin_formsets": inline_admin_formsets,
+        "app_label": app_label,
+        "change": True,
+        "ordered_objects": ordered_objects,
+        "form_url": mark_safe(""),
+        "opts": opts,
+        "target_opts": queryset.model._meta,
+        "content_type_id": ContentType.objects.get_for_model(queryset.model).id,
+        "save_as": False,
+        "save_on_top": False,
+        "is_popup": False,
+        "media": mark_safe(media),
+        "show_delete": False,
+        "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+        "queryset": queryset,
         "object_name": force_text(opts.verbose_name),
     }
-    template_name = getattr(modeladmin, 'permission_change_form_template', [
-        "admin/%s/%s/permission_change_form.html" % (app_label, opts.object_name.lower()),
-        "admin/%s/permission_change_form.html" % app_label,
-        "admin/permission_change_form.html"
-    ])
+    template_name = getattr(
+        modeladmin,
+        "permission_change_form_template",
+        [
+            "admin/%s/%s/permission_change_form.html"
+            % (app_label, opts.object_name.lower()),
+            "admin/%s/permission_change_form.html" % app_label,
+            "admin/permission_change_form.html",
+        ],
+    )
     return render_to_response(template_name, context, request)
-edit_permissions.short_description = _("Edit permissions for selected %(verbose_name_plural)s")
+
+
+edit_permissions.short_description = _(
+    "Edit permissions for selected %(verbose_name_plural)s"
+)
 
 
 class PermissionAdmin(admin.ModelAdmin):
-    list_display = ('codename', 'content_type', 'user', 'group', 'approved')
-    list_filter = ('approved', 'content_type')
-    search_fields = ('user__username', 'group__name', 'codename')
-    raw_id_fields = ('user', 'group', 'creator')
-    generic_fields = ('content_object',)
-    actions = ['approve_permissions']
+    list_display = ("codename", "content_type", "user", "group", "approved")
+    list_filter = ("approved", "content_type")
+    search_fields = ("user__username", "group__name", "codename")
+    raw_id_fields = ("user", "group", "creator")
+    generic_fields = ("content_object",)
+    actions = ["approve_permissions"]
     fieldsets = (
-        (None, {'fields': ('codename', ('content_type', 'object_id'))}),
-        (_('Permitted'), {'fields': ('approved', 'user', 'group')}),
-        (_('Creation'), {'fields': ('creator', 'date_requested', 'date_approved')}),
+        (None, {"fields": ("codename", ("content_type", "object_id"))}),
+        (_("Permitted"), {"fields": ("approved", "user", "group")}),
+        (_("Creation"), {"fields": ("creator", "date_requested", "date_approved")}),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         # For generic foreign keys marked as generic_fields we use a special widget
-        names = [f.fk_field
-                 for f in self.model._meta.virtual_fields
-                 if f.name in self.generic_fields]
+        names = [
+            f.fk_field
+            for f in self.model._meta.virtual_fields
+            if f.name in self.generic_fields
+        ]
         if db_field.name in names:
             for gfk in self.model._meta.virtual_fields:
                 if gfk.fk_field == db_field.name:
-                    kwargs['widget'] = GenericForeignKeyRawIdWidget(
-                        gfk.ct_field, self.admin_site._registry.keys())
+                    kwargs["widget"] = GenericForeignKeyRawIdWidget(
+                        gfk.ct_field, self.admin_site._registry.keys()
+                    )
                     break
         return super(PermissionAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def queryset(self, request):
         user = request.user
-        if (user.is_superuser or
-                user.has_perm('permissions.change_foreign_permissions')):
+        if user.is_superuser or user.has_perm("permissions.change_foreign_permissions"):
             return super(PermissionAdmin, self).queryset(request)
         return super(PermissionAdmin, self).queryset(request).filter(creator=user)
 
@@ -164,9 +181,13 @@ class PermissionAdmin(admin.ModelAdmin):
             permission.approve(request.user)
         message = ungettext(
             "%(count)d permission successfully approved.",
-            "%(count)d permissions successfully approved.", len(queryset))
-        self.message_user(request, message % {'count': len(queryset)})
+            "%(count)d permissions successfully approved.",
+            len(queryset),
+        )
+        self.message_user(request, message % {"count": len(queryset)})
+
     approve_permissions.short_description = _("Approve selected permissions")
+
 
 admin.site.register(Permission, PermissionAdmin)
 

@@ -1,39 +1,44 @@
-try:
-    from django.conf.urls import patterns, include, handler500, url
-except ImportError:  # django < 1.4
-    from django.conf.urls.defaults import patterns, include, handler500, url
+import django.contrib.auth.views
+from django.conf.urls import include, handler500, url
 from django.conf import settings
-from django.contrib import admin
-import authority
 
-admin.autodiscover()
-authority.autodiscover()
-
-handler500 # Pyflakes
+import authority.views
+import authority.urls
+import example.exampleapp.views
 
 from exampleapp.forms import SpecialUserPermissionForm
 
-urlpatterns = patterns('',
-    (r'^admin/(.*)', admin.site.root),
-    #('^admin/', include(admin.site.urls)),
-    url(r'^authority/permission/add/(?P<app_label>[\w\-]+)/(?P<module_name>[\w\-]+)/(?P<pk>\d+)/$',
-        view='authority.views.add_permission',
+authority.autodiscover()
+
+handler500  # flake8
+
+urlpatterns = (
+    url(
+        r"^authority/permission/add/(?P<app_label>[\w\-]+)/(?P<module_name>[\w\-]+)/(?P<pk>\d+)/$",  # noqa
+        view=authority.views.add_permission,
         name="authority-add-permission",
-        kwargs={'approved': True, 'form_class': SpecialUserPermissionForm}
+        kwargs={"approved": True, "form_class": SpecialUserPermissionForm},
     ),
-    url(r'^request/add/(?P<app_label>[\w\-]+)/(?P<module_name>[\w\-]+)/(?P<pk>\d+)/$',
-        view='authority.views.add_permission',
+    url(
+        r"^request/add/(?P<app_label>[\w\-]+)/(?P<module_name>[\w\-]+)/(?P<pk>\d+)/$",  # noqa
+        view=authority.views.add_permission,
         name="authority-add-permission-request",
-        kwargs={'approved': False, 'form_class': SpecialUserPermissionForm}
+        kwargs={"approved": False, "form_class": SpecialUserPermissionForm},
     ),
-    (r'^authority/', include('authority.urls')),
-    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-    url(r'^(?P<url>[\/0-9A-Za-z]+)$', 'example.exampleapp.views.top_secret', {'lala': 'oh yeah!'}),
+    url(r"^authority/", include(authority.urls)),
+    url(r"^accounts/login/$", django.contrib.auth.views.LoginView.as_view()),
+    url(
+        r"^(?P<url>[\/0-9A-Za-z]+)$",
+        example.exampleapp.views.top_secret,
+        {"lala": "oh yeah!"},
+    ),
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.MEDIA_ROOT,
-        }),
+    urlpatterns += (
+        url(
+            r"^media/(?P<path>.*)$",
+            django.views.static.serve,
+            {"document_root": settings.MEDIA_ROOT,},
+        ),
     )

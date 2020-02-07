@@ -11,54 +11,70 @@ from authority.templatetags.permissions import url_for_obj
 
 
 def get_next(request, obj=None):
-    next = request.REQUEST.get('next')
+    next = request.REQUEST.get("next")
     if not next:
-        if obj and hasattr(obj, 'get_absolute_url'):
+        if obj and hasattr(obj, "get_absolute_url"):
             next = obj.get_absolute_url()
         else:
-            next = '/'
+            next = "/"
     return next
 
 
 @login_required
-def add_permission(request, app_label, module_name, pk, approved=False,
-                   template_name='authority/permission_form.html',
-                   extra_context=None, form_class=UserPermissionForm):
-    codename = request.POST.get('codename', None)
-    model = apps.get_model(app_label, module_name)
-    if model is None:
+def add_permission(
+    request,
+    app_label,
+    module_name,
+    pk,
+    approved=False,
+    template_name="authority/permission_form.html",
+    extra_context=None,
+    form_class=UserPermissionForm,
+):
+    codename = request.POST.get("codename", None)
+    try:
+        model = apps.get_model(app_label, module_name)
+    except LookupError:
         return permission_denied(request)
     obj = get_object_or_404(model, pk=pk)
     next = get_next(request, obj)
     if approved:
-        if not request.user.has_perm('authority.add_permission'):
+        if not request.user.has_perm("authority.add_permission"):
             return HttpResponseRedirect(
-                url_for_obj('authority-add-permission-request', obj))
-        view_name = 'authority-add-permission'
+                url_for_obj("authority-add-permission-request", obj)
+            )
+        view_name = "authority-add-permission"
     else:
-        view_name = 'authority-add-permission-request'
-    if request.method == 'POST':
+        view_name = "authority-add-permission-request"
+    if request.method == "POST":
         if codename is None:
             return HttpResponseForbidden(next)
-        form = form_class(data=request.POST, obj=obj, approved=approved,
-                          perm=codename, initial=dict(codename=codename))
+        form = form_class(
+            data=request.POST,
+            obj=obj,
+            approved=approved,
+            perm=codename,
+            initial=dict(codename=codename),
+        )
         if not approved:
             # Limit permission request to current user
-            form.data['user'] = request.user
+            form.data["user"] = request.user
         if form.is_valid():
             form.save(request)
             request.user.message_set.create(
-                message=_('You added a permission request.'))
+                message=_("You added a permission request.")
+            )
             return HttpResponseRedirect(next)
     else:
-        form = form_class(obj=obj, approved=approved, perm=codename,
-                          initial=dict(codename=codename))
+        form = form_class(
+            obj=obj, approved=approved, perm=codename, initial=dict(codename=codename)
+        )
     context = {
-        'form': form,
-        'form_url': url_for_obj(view_name, obj),
-        'next': next,
-        'perm': codename,
-        'approved': approved,
+        "form": form,
+        "form_url": url_for_obj(view_name, obj),
+        "next": next,
+        "perm": codename,
+        "approved": approved,
     }
     if extra_context:
         context.update(extra_context)
@@ -68,25 +84,27 @@ def add_permission(request, app_label, module_name, pk, approved=False,
 @login_required
 def approve_permission_request(request, permission_pk):
     requested_permission = get_object_or_404(Permission, pk=permission_pk)
-    if request.user.has_perm('authority.approve_permission_requests'):
+    if request.user.has_perm("authority.approve_permission_requests"):
         requested_permission.approve(request.user)
         request.user.message_set.create(
-            message=_('You approved the permission request.'))
+            message=_("You approved the permission request.")
+        )
     next = get_next(request, requested_permission)
     return HttpResponseRedirect(next)
 
 
 @login_required
 def delete_permission(request, permission_pk, approved):
-    permission = get_object_or_404(Permission,  pk=permission_pk,
-                                   approved=approved)
-    if (request.user.has_perm('authority.delete_foreign_permissions') or
-            request.user == permission.creator):
+    permission = get_object_or_404(Permission, pk=permission_pk, approved=approved)
+    if (
+        request.user.has_perm("authority.delete_foreign_permissions")
+        or request.user == permission.creator
+    ):
         permission.delete()
         if approved:
-            msg = _('You removed the permission.')
+            msg = _("You removed the permission.")
         else:
-            msg = _('You removed the permission request.')
+            msg = _("You removed the permission request.")
         request.user.message_set.create(message=msg)
     next = get_next(request)
     return HttpResponseRedirect(next)
@@ -102,11 +120,14 @@ def permission_denied(request, template_name=None, extra_context=None):
             The path of the requested URL (e.g., '/app/pages/bad_page/')
     """
     if template_name is None:
-        template_name = ('403.html', 'authority/403.html')
+        template_name = ("403.html", "authority/403.html")
     context = {
-        'request_path': request.path,
+        "request_path": request.path,
     }
     if extra_context:
         context.update(extra_context)
-    return HttpResponseForbidden(loader.render_to_string(template_name,
-                                                         context, request))
+    return HttpResponseForbidden(
+        loader.render_to_string(
+            template_name=template_name, context=context, request=request,
+        )
+    )

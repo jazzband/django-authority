@@ -28,14 +28,14 @@ class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
     def render(self, name, value, attrs=None):
         if attrs is None:
             attrs = {}
-        related_url = '../../../'
+        related_url = "../../../"
         params = self.url_parameters()
         if params:
-            url = '?' + '&amp;'.join(['%s=%s' % (k, v) for k, v in params.iteritems()])
+            url = "?" + "&amp;".join(["%s=%s" % (k, v) for k, v in params.iteritems()])
         else:
-            url = ''
-        if 'class' not in attrs:
-            attrs['class'] = 'vForeignKeyRawIdAdminField'
+            url = ""
+        if "class" not in attrs:
+            attrs["class"] = "vForeignKeyRawIdAdminField"
         output = [forms.TextInput.render(self, name, value, attrs)]
         output.append(
             """%(generic_script)s
@@ -44,30 +44,41 @@ class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
                     id="lookup_id_%(name)s"
                     onclick="return showGenericRelatedObjectLookupPopup(
                         document.getElementById('id_%(ct_field)s'), this, '%(related)s%(url)s');">
-            """ % {
-                'generic_script': generic_script,
-                'related': related_url,
-                'url': url,
-                'name': name,
-                'ct_field': self.ct_field
-            })
+            """
+            % {
+                "generic_script": generic_script,
+                "related": related_url,
+                "url": url,
+                "name": name,
+                "ct_field": self.ct_field,
+            }
+        )
         output.append(
             '<img src="%s/admin/img/selector-search.gif" width="16" height="16" alt="%s" /></a>'
-            % (settings.STATIC_URL, _('Lookup')))
+            % (settings.STATIC_URL, _("Lookup"))
+        )
 
         from django.contrib.contenttypes.models import ContentType
+
         content_types = """
         <script type="text/javascript">
         var content_types = new Array();
         %s
         </script>
-        """ % ('\n'.join([
-            "content_types[%s] = '%s/%s/';" % (
-                ContentType.objects.get_for_model(ct).id,
-                ct._meta.app_label,
-                ct._meta.object_name.lower()
-            ) for ct in self.cts]))
-        return mark_safe(u''.join(output) + content_types)
+        """ % (
+            "\n".join(
+                [
+                    "content_types[%s] = '%s/%s/';"
+                    % (
+                        ContentType.objects.get_for_model(ct).id,
+                        ct._meta.app_label,
+                        ct._meta.object_name.lower(),
+                    )
+                    for ct in self.cts
+                ]
+            )
+        )
+        return mark_safe(u"".join(output) + content_types)
 
     def url_parameters(self):
         return {}

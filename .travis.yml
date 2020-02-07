@@ -1,27 +1,28 @@
 language: python
-python: 3.5
-sudo: false
-cache:
-  directories:
-  - "~/.cache/pip"
-env:
-  matrix:
-  - TOXENV=py27-dj18
-  - TOXENV=py33-dj18
-  - TOXENV=py34-dj18
-  - TOXENV=py35-dj18
-install:
-- pip install tox codecov
+dist: xenial
+python:
+- 2.7
+- 3.7
+cache: pip
+install: pip install tox-travis codecov
 script: tox -v
-after_success:
-- codecov
-deploy:
-  provider: pypi
-  user: jazzband
-  distributions: sdist bdist_wheel
-  password:
-    secure: XoXuSeFfJ+cM5/eCAAVuT6E/KsvuvMl9u9On5id6miq+wYqftpWiN9e/fjb3pDWkfZITooPeJBTpMJBGu+2Yc5i8JVGsYQgvP9dFqOH14P6NV4JU1ZF8iP7dpdWX3+h3K/QnqTvwwHmRF3mrDd/lnN9AB74bXLFYS282glJLVKM=
-  on:
-    tags: true
-    condition: "$TOXENV = py27-dj18"
-    repo: jazzband/django-authority
+after_success: codecov
+jobs:
+  fast_finish: true
+  include:
+    - stage: deploy
+      env:
+      python: 3.7
+      install: skip
+      script: skip
+      after_success: skip
+      deploy:
+        provider: pypi
+        user: jazzband
+        server: https://jazzband.co/projects/django-authority/upload
+        distributions: sdist bdist_wheel
+        password:
+          secure: TZJdf9naBzdkE+HDyhtoCIIc0ddEXLWW/VUD975gJUWQpOA69h4ZjCCQ6z21AZdrWczCUh6/cOLYYSoC9OeaHqF+Jzunn3iEomvdVRsW7SX7MAxTFUENQHF3S3j8fYlqIPWvNDOgxJ/AERisMUSZkRKWIYjEInYo31RoJ1ySN0w=
+        on:
+          tags: true
+          repo: jazzband/django-authority
