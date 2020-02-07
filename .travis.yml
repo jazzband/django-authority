@@ -13,7 +13,6 @@ jobs:
     - stage: deploy
       env:
       python: 3.7
-      install: skip
       script: skip
       after_success: skip
       deploy:
