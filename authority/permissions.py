@@ -14,9 +14,9 @@ class PermissionMetaclass(type):
     Used to generate the default set of permission checks "add", "change" and
     "delete".
     """
+
     def __new__(cls, name, bases, attrs):
-        new_class = super(
-            PermissionMetaclass, cls).__new__(cls, name, bases, attrs)
+        new_class = super(PermissionMetaclass, cls).__new__(cls, name, bases, attrs)
         if not new_class.label:
             new_class.label = "%s_permission" % new_class.__name__.lower()
         new_class.label = slugify(new_class.label)
@@ -31,11 +31,12 @@ class BasePermission(object):
     """
     Base Permission class to be used to define app permissions.
     """
+
     __metaclass__ = PermissionMetaclass
 
     checks = ()
     label = None
-    generic_checks = ['add', 'browse', 'change', 'delete']
+    generic_checks = ["add", "browse", "change", "delete"]
 
     def __init__(self, user=None, group=None, *args, **kwargs):
         self.user = user
@@ -48,10 +49,7 @@ class BasePermission(object):
         """
         if not self.user:
             return {}, {}
-        group_pks = set(self.user.groups.values_list(
-            'pk',
-            flat=True,
-        ))
+        group_pks = set(self.user.groups.values_list("pk", flat=True,))
         perms = Permission.objects.filter(
             Q(user__pk=self.user.pk) | Q(group__pk__in=group_pks),
         )
@@ -59,22 +57,26 @@ class BasePermission(object):
         group_permissions = {}
         for perm in perms:
             if perm.user_id == self.user.pk:
-                user_permissions[(
-                    perm.object_id,
-                    perm.content_type_id,
-                    perm.codename,
-                    perm.approved,
-                )] = True
+                user_permissions[
+                    (
+                        perm.object_id,
+                        perm.content_type_id,
+                        perm.codename,
+                        perm.approved,
+                    )
+                ] = True
             # If the user has the permission do for something, but perm.user !=
             # self.user then by definition that permission came from the
             # group.
             else:
-                group_permissions[(
-                    perm.object_id,
-                    perm.content_type_id,
-                    perm.codename,
-                    perm.approved,
-                )] = True
+                group_permissions[
+                    (
+                        perm.object_id,
+                        perm.content_type_id,
+                        perm.codename,
+                        perm.approved,
+                    )
+                ] = True
         return user_permissions, group_permissions
 
     def _get_group_cached_perms(self):
@@ -83,17 +85,12 @@ class BasePermission(object):
         """
         if not self.group:
             return {}
-        perms = Permission.objects.filter(
-            group=self.group,
-        )
+        perms = Permission.objects.filter(group=self.group,)
         group_permissions = {}
         for perm in perms:
-            group_permissions[(
-                perm.object_id,
-                perm.content_type_id,
-                perm.codename,
-                perm.approved,
-            )] = True
+            group_permissions[
+                (perm.object_id, perm.content_type_id, perm.codename, perm.approved,)
+            ] = True
         return group_permissions
 
     def _prime_user_perm_caches(self):
@@ -123,11 +120,7 @@ class BasePermission(object):
         # Check to see if the cache has been primed.
         if not self.user:
             return {}
-        cache_filled = getattr(
-            self.user,
-            '_authority_perm_cache_filled',
-            False,
-        )
+        cache_filled = getattr(self.user, "_authority_perm_cache_filled", False,)
         if cache_filled:
             # Don't really like the name for this, but this matches how Django
             # does it.
@@ -145,11 +138,7 @@ class BasePermission(object):
         # Check to see if the cache has been primed.
         if not self.group:
             return {}
-        cache_filled = getattr(
-            self.group,
-            '_authority_perm_cache_filled',
-            False,
-        )
+        cache_filled = getattr(self.group, "_authority_perm_cache_filled", False,)
         if cache_filled:
             # Don't really like the name for this, but this matches how Django
             # does it.
@@ -167,11 +156,7 @@ class BasePermission(object):
         # Check to see if the cache has been primed.
         if not self.user:
             return {}
-        cache_filled = getattr(
-            self.user,
-            '_authority_perm_cache_filled',
-            False,
-        )
+        cache_filled = getattr(self.user, "_authority_perm_cache_filled", False,)
         if cache_filled:
             return self.user._authority_group_perm_cache
 
@@ -194,7 +179,7 @@ class BasePermission(object):
 
     @property
     def use_smart_cache(self):
-        use_smart_cache = getattr(settings, 'AUTHORITY_USE_SMART_CACHE', True)
+        use_smart_cache = getattr(settings, "AUTHORITY_USE_SMART_CACHE", True)
         return (self.user or self.group) and use_smart_cache
 
     def has_user_perms(self, perm, obj, approved, check_groups=True):
@@ -210,12 +195,7 @@ class BasePermission(object):
 
             def _user_has_perms(cached_perms):
                 # Check to see if the permission is in the cache.
-                return cached_perms.get((
-                    obj.pk,
-                    content_type_pk,
-                    perm,
-                    approved,
-                ))
+                return cached_perms.get((obj.pk, content_type_pk, perm, approved,))
 
             # Check to see if the permission is in the cache.
             if _user_has_perms(self._user_perm_cache):
@@ -227,15 +207,13 @@ class BasePermission(object):
             return False
 
         # Actually hit the DB, no smart cache used.
-        return Permission.objects.user_permissions(
-            self.user,
-            perm,
-            obj,
-            approved,
-            check_groups,
-        ).filter(
-            object_id=obj.pk,
-        ).exists()
+        return (
+            Permission.objects.user_permissions(
+                self.user, perm, obj, approved, check_groups,
+            )
+            .filter(object_id=obj.pk,)
+            .exists()
+        )
 
     def has_group_perms(self, perm, obj, approved):
         """
@@ -249,24 +227,17 @@ class BasePermission(object):
 
             def _group_has_perms(cached_perms):
                 # Check to see if the permission is in the cache.
-                return cached_perms.get((
-                    obj.pk,
-                    content_type_pk,
-                    perm,
-                    approved,
-                ))
+                return cached_perms.get((obj.pk, content_type_pk, perm, approved,))
 
             # Check to see if the permission is in the cache.
             return _group_has_perms(self._group_perm_cache)
 
         # Actually hit the DB, no smart cache used.
-        return Permission.objects.group_permissions(
-            self.group,
-            perm, obj,
-            approved,
-        ).filter(
-            object_id=obj.pk,
-        ).exists()
+        return (
+            Permission.objects.group_permissions(self.group, perm, obj, approved,)
+            .filter(object_id=obj.pk,)
+            .exists()
+        )
 
     def has_perm(self, perm, obj, check_groups=True, approved=True):
         """
@@ -305,25 +276,20 @@ class BasePermission(object):
         return perms
 
     def get_django_codename(
-            self, check, model_or_instance, generic=False, without_left=False):
+        self, check, model_or_instance, generic=False, without_left=False
+    ):
         if without_left:
             perm = check
         else:
-            perm = '%s.%s' % (model_or_instance._meta.app_label, check.lower())
+            perm = "%s.%s" % (model_or_instance._meta.app_label, check.lower())
         if generic:
-            perm = '%s_%s' % (
-                perm,
-                model_or_instance._meta.object_name.lower(),
-            )
+            perm = "%s_%s" % (perm, model_or_instance._meta.object_name.lower(),)
         return perm
 
     def get_codename(self, check, model_or_instance, generic=False):
-        perm = '%s.%s' % (self.label, check.lower())
+        perm = "%s.%s" % (self.label, check.lower())
         if generic:
-            perm = '%s_%s' % (
-                perm,
-                model_or_instance._meta.object_name.lower(),
-            )
+            perm = "%s_%s" % (perm, model_or_instance._meta.object_name.lower(),)
         return perm
 
     def assign(self, check=None, content_object=None, generic=False):
@@ -345,7 +311,7 @@ class BasePermission(object):
             content_objects = content_object
 
         if not check:
-            checks = self.generic_checks + getattr(self, 'checks', [])
+            checks = self.generic_checks + getattr(self, "checks", [])
         elif not isinstance(check, (list, tuple)):
             checks = (check,)
         else:
@@ -364,11 +330,7 @@ class BasePermission(object):
             for check in checks:
                 if isinstance(content_object, Model):
                     # make an authority per object permission
-                    codename = self.get_codename(
-                        check,
-                        content_object,
-                        generic,
-                    )
+                    codename = self.get_codename(check, content_object, generic,)
                     try:
                         perm = Permission.objects.get(
                             user=self.user,
@@ -390,21 +352,16 @@ class BasePermission(object):
                 elif isinstance(content_object, ModelBase):
                     # make a Django permission
                     codename = self.get_django_codename(
-                        check,
-                        content_object,
-                        generic,
-                        without_left=True,
+                        check, content_object, generic, without_left=True,
                     )
                     try:
                         perm = DjangoPermission.objects.get(codename=codename)
                     except DjangoPermission.DoesNotExist:
                         name = check
-                        if '_' in name:
-                            name = name[0:name.find('_')]
+                        if "_" in name:
+                            name = name[0 : name.find("_")]
                         perm = DjangoPermission(
-                            name=name,
-                            codename=codename,
-                            content_type=content_type,
+                            name=name, codename=codename, content_type=content_type,
                         )
                         perm.save()
                     self.user.user_permissions.add(perm)

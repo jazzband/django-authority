@@ -15,25 +15,41 @@ class Permission(models.Model):
     This kind of permission is associated with a user/group and an object
     of any content type.
     """
-    codename = models.CharField(_('codename'), max_length=100)
-    content_type = models.ForeignKey(ContentType, related_name="row_permissions", on_delete=models.CASCADE)
+
+    codename = models.CharField(_("codename"), max_length=100)
+    content_type = models.ForeignKey(
+        ContentType, related_name="row_permissions", on_delete=models.CASCADE
+    )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     user = models.ForeignKey(
-        user_model_label, null=True, blank=True, related_name='granted_permissions', on_delete=models.CASCADE)
+        user_model_label,
+        null=True,
+        blank=True,
+        related_name="granted_permissions",
+        on_delete=models.CASCADE,
+    )
     group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     creator = models.ForeignKey(
-        user_model_label, null=True, blank=True, related_name='created_permissions', on_delete=models.CASCADE)
+        user_model_label,
+        null=True,
+        blank=True,
+        related_name="created_permissions",
+        on_delete=models.CASCADE,
+    )
 
     approved = models.BooleanField(
-        _('approved'),
+        _("approved"),
         default=False,
-        help_text=_("Designates whether the permission has been approved and treated as active. "
-                    "Unselect this instead of deleting permissions."))
+        help_text=_(
+            "Designates whether the permission has been approved and treated as active. "
+            "Unselect this instead of deleting permissions."
+        ),
+    )
 
-    date_requested = models.DateTimeField(_('date requested'), default=datetime.now)
-    date_approved = models.DateTimeField(_('date approved'), blank=True, null=True)
+    date_requested = models.DateTimeField(_("date requested"), default=datetime.now)
+    date_approved = models.DateTimeField(_("date approved"), blank=True, null=True)
 
     objects = PermissionManager()
 
@@ -42,12 +58,12 @@ class Permission(models.Model):
 
     class Meta:
         unique_together = ("codename", "object_id", "content_type", "user", "group")
-        verbose_name = _('permission')
-        verbose_name_plural = _('permissions')
+        verbose_name = _("permission")
+        verbose_name_plural = _("permissions")
         permissions = (
-            ('change_foreign_permissions', 'Can change foreign permissions'),
-            ('delete_foreign_permissions', 'Can delete foreign permissions'),
-            ('approve_permission_requests', 'Can approve permission requests'),
+            ("change_foreign_permissions", "Can change foreign permissions"),
+            ("delete_foreign_permissions", "Can delete foreign permissions"),
+            ("approve_permission_requests", "Can approve permission requests"),
         )
 
     def save(self, *args, **kwargs):

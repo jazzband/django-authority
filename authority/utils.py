@@ -1,6 +1,12 @@
 import sys
 
-from authority.sites import site, get_check, get_choices_for, register, unregister  # noqa
+from authority.sites import (
+    site,
+    get_check,
+    get_choices_for,
+    register,
+    unregister,
+)  # noqa
 
 
 def autodiscover_modules():
@@ -18,7 +24,7 @@ def autodiscover_modules():
         except AttributeError:
             continue
         try:
-            imp.find_module('permissions', app_path)
+            imp.find_module("permissions", app_path)
         except ImportError:
             continue
         __import__("%s.permissions" % app)

@@ -5,8 +5,8 @@ from django.utils import timezone
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     username = models.CharField(max_length=100)
     first_name = models.CharField(max_length=50)

@@ -1,2 +1,1 @@
-
 from example.settings import *

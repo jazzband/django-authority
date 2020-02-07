@@ -16,18 +16,23 @@ from authority.forms import UserPermissionForm  # noqa
 
 
 User = get_user_model()
-FIXTURES = ['tests_custom.json']
+FIXTURES = ["tests_custom.json"]
 QUERY = Q(email="jezdez@github.com")
 
+
 class UserPermission(permissions.BasePermission):
-    checks = ('browse',)
-    label = 'user_permission'
+    checks = ("browse",)
+    label = "user_permission"
+
+
 authority.utils.register(User, UserPermission)
 
 
 class GroupPermission(permissions.BasePermission):
-    checks = ('browse',)
-    label = 'group_permission'
+    checks = ("browse",)
+    label = "group_permission"
+
+
 authority.utils.register(Group, GroupPermission)
 
 
@@ -43,6 +48,7 @@ class DjangoPermissionChecksTestCase(TestCase):
     This permissions are given in the test case and not in the fixture, for
     later reference.
     """
+
     fixtures = FIXTURES
 
     def setUp(self):
@@ -56,7 +62,7 @@ class DjangoPermissionChecksTestCase(TestCase):
 
     def test_add(self):
         # setup
-        perm = DjangoPermission.objects.get(codename='add_user')
+        perm = DjangoPermission.objects.get(codename="add_user")
         self.user.user_permissions.add(perm)
 
         # test
@@ -66,8 +72,8 @@ class DjangoPermissionChecksTestCase(TestCase):
         perm = Permission(
             user=self.user,
             content_object=self.user,
-            codename='user_permission.delete_user',
-            approved=True
+            codename="user_permission.delete_user",
+            approved=True,
         )
         perm.save()
 
@@ -83,6 +89,7 @@ class AssignBehaviourTest(TestCase):
     - permission delete_user for him (test_delete),
     - all existing codenames permissions: a/b/c/d (test_all),
     """
+
     fixtures = FIXTURES
 
     def setUp(self):
@@ -90,16 +97,13 @@ class AssignBehaviourTest(TestCase):
         self.check = UserPermission(self.user)
 
     def test_add(self):
-        result = self.check.assign(check='add_user')
+        result = self.check.assign(check="add_user")
 
         self.assertTrue(isinstance(result[0], DjangoPermission))
         self.assertTrue(self.check.add_user())
 
     def test_delete(self):
-        result = self.check.assign(
-            content_object=self.user,
-            check='delete_user',
-        )
+        result = self.check.assign(content_object=self.user, check="delete_user",)
 
         self.assertTrue(isinstance(result[0], Permission))
         self.assertFalse(self.check.delete_user())
@@ -120,6 +124,7 @@ class GenericAssignBehaviourTest(TestCase):
     - permission add (test_add),
     - permission delete for him (test_delete),
     """
+
     fixtures = FIXTURES
 
     def setUp(self):
@@ -127,16 +132,14 @@ class GenericAssignBehaviourTest(TestCase):
         self.check = UserPermission(self.user)
 
     def test_add(self):
-        result = self.check.assign(check='add', generic=True)
+        result = self.check.assign(check="add", generic=True)
 
         self.assertTrue(isinstance(result[0], DjangoPermission))
         self.assertTrue(self.check.add_user())
 
     def test_delete(self):
         result = self.check.assign(
-            content_object=self.user,
-            check='delete',
-            generic=True,
+            content_object=self.user, check="delete", generic=True,
         )
 
         self.assertTrue(isinstance(result[0], Permission))
@@ -149,6 +152,7 @@ class AssignExceptionsTest(TestCase):
     Tests that exceptions are thrown if assign() was called with inconsistent
     arguments.
     """
+
     fixtures = FIXTURES
 
     def setUp(self):
@@ -164,7 +168,7 @@ class AssignExceptionsTest(TestCase):
 
     def test_not_model_content_object(self):
         try:
-            self.check.assign(content_object='fail')
+            self.check.assign(content_object="fail")
         except NotAModel:
             return True
         self.fail()
@@ -174,6 +178,7 @@ class SmartCachingTestCase(TestCase):
     """
     The base test case for all tests that have to do with smart caching.
     """
+
     fixtures = FIXTURES
 
     def setUp(self):
@@ -198,21 +203,14 @@ class SmartCachingTestCase(TestCase):
         # This is what the old, pre-cache system would check to see if a user
         # had a given permission.
         return Permission.objects.user_permissions(
-            self.user,
-            'foo',
-            self.user,
-            approved=True,
-            check_groups=True,
+            self.user, "foo", self.user, approved=True, check_groups=True,
         )
 
     def _old_group_permission_check(self):
         # This is what the old, pre-cache system would check to see if a user
         # had a given permission.
         return Permission.objects.group_permissions(
-            self.group,
-            'foo',
-            self.group,
-            approved=True,
+            self.group, "foo", self.group, approved=True,
         )
 
 
@@ -237,20 +235,13 @@ class PerformanceTest(SmartCachingTestCase):
             for _ in range(5):
                 # Need to assert it so the query actually gets executed.
                 assert not self.user_check.has_user_perms(
-                    'foo',
-                    self.user,
-                    True,
-                    False,
+                    "foo", self.user, True, False,
                 )
 
     def test_group_has_perms(self):
         with self.assertNumQueries(2):
             for _ in range(5):
-                assert not self.group_check.has_group_perms(
-                    'foo',
-                    self.group,
-                    True,
-                )
+                assert not self.group_check.has_group_perms("foo", self.group, True,)
 
     def test_has_user_perms_check_group(self):
         # Regardless of the number groups permissions, it should only take one
@@ -258,10 +249,7 @@ class PerformanceTest(SmartCachingTestCase):
         # Content type and permissions (2 queries)
         with self.assertNumQueries(3):
             self.user_check.has_user_perms(
-                'foo',
-                self.user,
-                approved=True,
-                check_groups=True,
+                "foo", self.user, approved=True, check_groups=True,
             )
 
     def test_invalidate_user_permissions_cache(self):
@@ -273,10 +261,7 @@ class PerformanceTest(SmartCachingTestCase):
         with self.assertNumQueries(6):
             for _ in range(5):
                 assert not self.user_check.has_user_perms(
-                    'foo',
-                    self.user,
-                    True,
-                    False,
+                    "foo", self.user, True, False,
                 )
 
             # Invalidate the cache to show that a query will be generated when
@@ -287,10 +272,7 @@ class PerformanceTest(SmartCachingTestCase):
             # One query to re generate the cache.
             for _ in range(5):
                 assert not self.user_check.has_user_perms(
-                    'foo',
-                    self.user,
-                    True,
-                    False,
+                    "foo", self.user, True, False,
                 )
 
     def test_invalidate_group_permissions_cache(self):
@@ -300,11 +282,7 @@ class PerformanceTest(SmartCachingTestCase):
         # will need to do one query to get content type and one to get
         with self.assertNumQueries(4):
             for _ in range(5):
-                assert not self.group_check.has_group_perms(
-                    'foo',
-                    self.group,
-                    True,
-                )
+                assert not self.group_check.has_group_perms("foo", self.group, True,)
 
             # Invalidate the cache to show that a query will be generated when
             # checking perms again.
@@ -313,18 +291,14 @@ class PerformanceTest(SmartCachingTestCase):
 
             # One query to re generate the cache.
             for _ in range(5):
-                assert not self.group_check.has_group_perms(
-                    'foo',
-                    self.group,
-                    True,
-                )
+                assert not self.group_check.has_group_perms("foo", self.group, True,)
 
     def test_has_user_perms_check_group_multiple(self):
         # Create a permission with just a group.
         Permission.objects.create(
             content_type=Permission.objects.get_content_type(User),
             object_id=self.user.pk,
-            codename='foo',
+            codename="foo",
             group=self.group,
             approved=True,
         )
@@ -333,17 +307,17 @@ class PerformanceTest(SmartCachingTestCase):
 
         # Check the number of queries.
         with self.assertNumQueries(2):
-            assert self.user_check.has_user_perms('foo', self.user, True, True)
+            assert self.user_check.has_user_perms("foo", self.user, True, True)
 
         # Create a second group.
-        new_group = Group.objects.create(name='new_group')
+        new_group = Group.objects.create(name="new_group")
         new_group.user_set.add(self.user)
 
         # Create a permission object for it.
         Permission.objects.create(
             content_type=Permission.objects.get_content_type(User),
             object_id=self.user.pk,
-            codename='foo',
+            codename="foo",
             group=new_group,
             approved=True,
         )
@@ -352,7 +326,7 @@ class PerformanceTest(SmartCachingTestCase):
 
         # Make sure it is the same number of queries.
         with self.assertNumQueries(2):
-            assert self.user_check.has_user_perms('foo', self.user, True, True)
+            assert self.user_check.has_user_perms("foo", self.user, True, True)
 
 
 class GroupPermissionCacheTestCase(SmartCachingTestCase):
@@ -367,10 +341,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         # Use the new cached user perms to show that the user does not have the
         # perms.
         can_foo_with_group = self.user_check.has_user_perms(
-            'foo',
-            self.user,
-            approved=True,
-            check_groups=True,
+            "foo", self.user, approved=True, check_groups=True,
         )
         self.assertFalse(can_foo_with_group)
 
@@ -378,7 +349,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         perm = Permission.objects.create(
             content_type=Permission.objects.get_content_type(User),
             object_id=self.user.pk,
-            codename='foo',
+            codename="foo",
             group=self.group,
             approved=True,
         )
@@ -390,10 +361,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         # Invalidate the cache.
         self.user_check.invalidate_permissions_cache()
         can_foo_with_group = self.user_check.has_user_perms(
-            'foo',
-            self.user,
-            approved=True,
-            check_groups=True,
+            "foo", self.user, approved=True, check_groups=True,
         )
         self.assertTrue(can_foo_with_group)
 
@@ -401,9 +369,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         # Make sure calling has_user_perms on a permission that does not have a
         # user does not throw any errors.
         can_foo_with_group = self.group_check.has_group_perms(
-            'foo',
-            self.user,
-            approved=True,
+            "foo", self.user, approved=True,
         )
         self.assertFalse(can_foo_with_group)
 
@@ -414,7 +380,7 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         perm = Permission.objects.create(
             content_type=Permission.objects.get_content_type(Group),
             object_id=self.group.pk,
-            codename='foo',
+            codename="foo",
             group=self.group,
             approved=True,
         )
@@ -427,8 +393,6 @@ class GroupPermissionCacheTestCase(SmartCachingTestCase):
         self.group_check.invalidate_permissions_cache()
 
         can_foo_with_group = self.group_check.has_group_perms(
-            'foo',
-            self.group,
-            approved=True,
+            "foo", self.group, approved=True,
         )
         self.assertTrue(can_foo_with_group)
