@@ -95,9 +95,3 @@ TEMPLATES = [
         },
     },
 ]
-
-# Use local_settings.py for things to override privately
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
