@@ -3,21 +3,24 @@ dist: xenial
 python:
 - 2.7
 - 3.7
-sudo: false
 cache: pip
-install:
-- pip install tox-travis codecov
+install: pip install tox-travis codecov
 script: tox -v
-after_success:
-- codecov
-deploy:
-  provider: pypi
-  user: jazzband
-  server: https://jazzband.co/projects/django-authority/upload
-  distributions: sdist bdist_wheel
-  password:
-    secure: TZJdf9naBzdkE+HDyhtoCIIc0ddEXLWW/VUD975gJUWQpOA69h4ZjCCQ6z21AZdrWczCUh6/cOLYYSoC9OeaHqF+Jzunn3iEomvdVRsW7SX7MAxTFUENQHF3S3j8fYlqIPWvNDOgxJ/AERisMUSZkRKWIYjEInYo31RoJ1ySN0w=
-  on:
-    tags: true
-    python: 3.5
-    repo: jazzband/django-authority
+after_success: codecov
+jobs:
+  fast_finish: true
+  include:
+    - stage: deploy
+      env:
+      python: 3.7
+      script: skip
+      deploy:
+        provider: pypi
+        user: jazzband
+        server: https://jazzband.co/projects/django-authority/upload
+        distributions: sdist bdist_wheel
+        password:
+          secure: TZJdf9naBzdkE+HDyhtoCIIc0ddEXLWW/VUD975gJUWQpOA69h4ZjCCQ6z21AZdrWczCUh6/cOLYYSoC9OeaHqF+Jzunn3iEomvdVRsW7SX7MAxTFUENQHF3S3j8fYlqIPWvNDOgxJ/AERisMUSZkRKWIYjEInYo31RoJ1ySN0w=
+        on:
+          tags: true
+          repo: jazzband/django-authority
