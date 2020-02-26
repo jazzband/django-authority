@@ -40,6 +40,7 @@ class ActionPermissionInline(PermissionInline):
 
 class ActionErrorList(forms.utils.ErrorList):
     def __init__(self, inline_formsets):
+        super(ActionErrorList, self).__init__()
         for inline_formset in inline_formsets:
             self.extend(inline_formset.non_form_errors())
             for errors_in_inline_form in inline_formset.errors:
