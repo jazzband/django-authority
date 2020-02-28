@@ -158,7 +158,8 @@ class PermissionAdmin(admin.ModelAdmin):
             for gfk in self.model._meta.virtual_fields:
                 if gfk.fk_field == db_field.name:
                     kwargs["widget"] = GenericForeignKeyRawIdWidget(
-                        gfk.ct_field, self.admin_site._registry.keys()
+                        gfk.ct_field, self.admin_site._registry.keys(),
+                        request=kwargs.get("request", None)
                     )
                     break
         return super(PermissionAdmin, self).formfield_for_dbfield(db_field, **kwargs)
