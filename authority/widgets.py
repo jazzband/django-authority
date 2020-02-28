@@ -80,5 +80,8 @@ class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
         )
         return mark_safe(u"".join(output) + content_types)
 
+    def get_context(self, name, value, attrs):
+        return forms.TextInput.get_context(self, name, value, attrs)
+
     def url_parameters(self):
         return {}
