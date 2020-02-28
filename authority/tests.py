@@ -1,16 +1,20 @@
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission as DjangoPermission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
+from mock import patch, MagicMock
 
 import authority
 from authority import permissions
 from authority.models import Permission
+from authority.admin import PermissionAdmin
 from authority.exceptions import NotAModel, UnsavedModelInstance
+from authority.widgets import GenericForeignKeyRawIdWidget
 
 # Load the form
 from authority.forms import UserPermissionForm  # noqa
@@ -451,3 +455,129 @@ class AddPermissionTestCase(TestCase):
         )
         r = self.client.get(url)
         self.assertEqual(r.status_code, 403)
+
+
+class PermissionAdminForDBFieldTests(SimpleTestCase):
+    """
+    Tests for correct behavior of PermissionAdmin.formfield_for_dbfield
+    Borrwed and adapted from `tests/admin_widgets/tests.py`
+    """
+
+    def assertFormfield(self, model, fieldname, widgetclass, **admin_overrides):
+        """
+        Helper to call formfield_for_dbfield for a given model and field name
+        and verify that the returned formfield is appropriate.
+        """
+        # Override any settings on the model admin
+        class MyModelAdmin(PermissionAdmin):
+            pass
+        for k in admin_overrides:
+            setattr(MyModelAdmin, k, admin_overrides[k])
+
+        # Construct the admin, and ask it for a formfield
+        ma = MyModelAdmin(model, admin.site)
+        ff = ma.formfield_for_dbfield(model._meta.get_field(fieldname), request=None)
+        widget = ff.widget
+
+        self.assertIsInstance(widget, widgetclass)
+
+        # Return the formfield so that other tests can continue
+        return ff
+
+    def test_raw_id_GenericForeignKey(self):
+        self.assertFormfield(Permission, 'object_id', 
+                             GenericForeignKeyRawIdWidget,
+                             raw_id_fields=['object_id'])
+
+
+class GenericForeignKeyRawIdWidgetTests(SimpleTestCase):
+    """
+    Sanity checks the code in a simple fashion checking flow and making sure
+    that mocked objects are called.
+    """
+    def get_mock_request(self):
+        """
+        Helper for obtaining a mock request object.
+        """
+        mock_request = MagicMock()
+        mock_request.path_info = "/myapp/one/two/three/four/"
+        mock_request.resolver_match = MagicMock()
+        mock_request.resolver_match.app_name = "myapp"
+        return mock_request
+
+    def test_construction(self):
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            widget = GenericForeignKeyRawIdWidget("ct_field", "cts", "attrs", "request")
+            self.assertEqual(widget.ct_field, "ct_field")
+            self.assertEqual(widget.cts, "cts")
+            self.assertEqual(widget.request, "request")
+            mock_text_input.assert_called_with(widget, "attrs")
+
+    def test_render(self):
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            with patch('authority.widgets.forms.TextInput.render') as mock_text_input_render:
+                mock_text_input_render.return_value = "mock_text_input_rendering"
+                mock_get_for_model = MagicMock()
+                mock_get_for_model.return_value = MagicMock()
+                mock_get_for_model.return_value.id = "id"
+                mock_models = MagicMock()
+                ct = MagicMock()
+                ct._meta = MagicMock()
+                ct._meta.app_label = "app_label"
+                ct._meta.object_name = "Object_Name"
+                cts = (ct,)
+                with patch("authority.tests.ContentType.objects.get_for_model", mock_get_for_model):
+                    mock_get_for_model.return_value = MagicMock()
+                    mock_get_for_model.return_value.id = "id"
+                    mock_request = self.get_mock_request()
+                    widget = GenericForeignKeyRawIdWidget("ct_field", cts, "attrs", mock_request)
+                    attrs = dict()
+                    markup = widget.render("name", "value", attrs)
+                    mock_text_input_render.assert_called()
+                    self.assertEqual(markup, 
+                    """mock_text_input_rendering
+<script type="text/javascript">
+function showGenericRelatedObjectLookupPopup(ct_select, triggering_link, url_base) {
+    var url = content_types[ct_select.options[ct_select.selectedIndex].value];
+    if (url != undefined) {
+        triggering_link.href = url_base + url;
+        return showRelatedObjectLookupPopup(triggering_link);
+    }
+    return false;
+}
+</script>
+
+                <a href="../../../../"
+                    class="related-lookup"
+                    id="lookup_id_name"
+                    onclick="return showGenericRelatedObjectLookupPopup(
+                        document.getElementById('id_ct_field'), this, '../../../../');">
+            <img src="None/admin/img/selector-search.gif" width="16" height="16" alt="Lookup" /></a>
+        <script type="text/javascript">
+        var content_types = new Array();
+        content_types[id] = 'app_label/object_name/';
+        </script>
+        """)
+
+    def test_get_context(self):
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            with patch('authority.widgets.forms.TextInput.get_context') as mock_get_context:
+                widget = GenericForeignKeyRawIdWidget("ct_field", "cts", "attrs", "request")
+                widget.get_context("name", "value", "attrs")
+                mock_get_context.assert_called_with(widget, "name", "value", "attrs")
+
+    def test_url_parameters(self):
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            widget = GenericForeignKeyRawIdWidget("ct_field", "cts", "attrs", "request")
+            self.assertEqual(widget.url_parameters(), {})
+
+    def test_get_related_url(self):
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            widget = GenericForeignKeyRawIdWidget("ct_field", "cts", "attrs", None)
+            self.assertIsNone(widget.request)
+            self.assertEqual(widget.get_related_url(), "../../../")
+        with patch('authority.widgets.forms.TextInput.__init__') as mock_text_input:
+            mock_request = self.get_mock_request()
+            widget = GenericForeignKeyRawIdWidget("ct_field", "cts", "attrs", mock_request)
+            self.assertIsNotNone(widget.request)
+            self.assertEqual(widget.get_related_url(), "../../../../")
