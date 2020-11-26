@@ -6,8 +6,9 @@ django-authority
    :target: https://jazzband.co/
    :alt: Jazzband
 
-.. image:: https://travis-ci.org/jazzband/django-authority.svg?branch=master
-    :target: https://travis-ci.org/jazzband/django-authority
+.. image:: https://github.com/jazzband/django-authority/workflows/Test/badge.svg
+   :target: https://github.com/jazzband/django-authority/actions
+   :alt: GitHub Actions
 
 .. image:: https://codecov.io/gh/jazzband/django-authority/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/jazzband/django-authority
@@ -56,6 +57,13 @@ html version using the setup.py::
 
 Changelog:
 ==========
+
+0.15 (unreleased):
+------------------
+
+* Moved CI to GitHub Actions.
+* Add Django 3.0 and 3.1 support.
+* Add Python 3.6 and 3.8 support.
 
 0.14 (2020-02-07):
 ------------------
