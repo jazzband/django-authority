@@ -6,8 +6,9 @@ django-authority
    :target: https://jazzband.co/
    :alt: Jazzband
 
-.. image:: https://travis-ci.org/jazzband/django-authority.svg?branch=master
-    :target: https://travis-ci.org/jazzband/django-authority
+.. image:: https://github.com/jazzband/django-authority/workflows/Test/badge.svg
+   :target: https://github.com/jazzband/django-authority/actions
+   :alt: GitHub Actions
 
 .. image:: https://codecov.io/gh/jazzband/django-authority/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/jazzband/django-authority
