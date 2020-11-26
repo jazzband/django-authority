@@ -1,7 +1,7 @@
 from django import forms
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
 from django.contrib import admin
@@ -127,7 +127,7 @@ def edit_permissions(modeladmin, request, queryset):
             "admin/permission_change_form.html",
         ],
     )
-    return render_to_response(template_name, context, request)
+    return render(request, template_name, context)
 
 
 edit_permissions.short_description = _(
