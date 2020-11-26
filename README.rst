@@ -58,6 +58,13 @@ html version using the setup.py::
 Changelog:
 ==========
 
+0.15 (unreleased):
+------------------
+
+* Moved CI to GitHub Actions.
+* Add Django 3.0 and 3.1 support.
+* Add Python 3.6 and 3.8 support.
+
 0.14 (2020-02-07):
 ------------------
 
