@@ -34,7 +34,7 @@ setup(
         "Framework :: Django",
     ],
     install_requires=["django"],
-    setup_requires=["setuptools_scm"],
+    setup_requires=["setuptools_scm==5.0.2"],
     include_package_data=True,
     zip_safe=False,
 )
