@@ -20,15 +20,16 @@ function showGenericRelatedObjectLookupPopup(ct_select, triggering_link, url_bas
 
 
 class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
-    def __init__(self, ct_field, cts=[], attrs=None):
+    def __init__(self, ct_field, cts=[], attrs=None, request=None):
         self.ct_field = ct_field
         self.cts = cts
+        self.request = request
         forms.TextInput.__init__(self, attrs)
 
     def render(self, name, value, attrs=None):
         if attrs is None:
             attrs = {}
-        related_url = "../../../"
+        related_url = self.get_related_url()
         params = self.url_parameters()
         if params:
             url = "?" + "&amp;".join(["%s=%s" % (k, v) for k, v in params.iteritems()])
@@ -80,5 +81,16 @@ class GenericForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
         )
         return mark_safe(u"".join(output) + content_types)
 
+    def get_context(self, name, value, attrs):
+        return forms.TextInput.get_context(self, name, value, attrs)
+
     def url_parameters(self):
         return {}
+
+    def get_related_url(self):
+        if self.request is None:
+            return "../../../"
+        path_info = self.request.path_info
+        app_name = self.request.resolver_match.app_name
+        path_components = list(filter(None, path_info.split("/")))
+        return "../" * list(reversed(path_components)).index(app_name)

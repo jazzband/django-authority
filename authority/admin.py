@@ -150,16 +150,21 @@ class PermissionAdmin(admin.ModelAdmin):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         # For generic foreign keys marked as generic_fields we use a special widget
+        try:
+            model_meta_fields = self.model._meta.virtual_fields
+        except AttributeError:
+            model_meta_fields = self.model._meta.private_fields
         names = [
             f.fk_field
-            for f in self.model._meta.virtual_fields
+            for f in model_meta_fields
             if f.name in self.generic_fields
         ]
         if db_field.name in names:
-            for gfk in self.model._meta.virtual_fields:
+            for gfk in model_meta_fields:
                 if gfk.fk_field == db_field.name:
                     kwargs["widget"] = GenericForeignKeyRawIdWidget(
-                        gfk.ct_field, self.admin_site._registry.keys()
+                        gfk.ct_field, self.admin_site._registry.keys(),
+                        request=kwargs.get("request", None)
                     )
                     break
         return super(PermissionAdmin, self).formfield_for_dbfield(db_field, **kwargs)
