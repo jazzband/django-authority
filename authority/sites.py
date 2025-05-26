@@ -2,7 +2,7 @@ from inspect import getmembers, ismethod
 from django.apps import apps
 from django.db import models
 from django.db.models.base import ModelBase
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from authority.permissions import BasePermission

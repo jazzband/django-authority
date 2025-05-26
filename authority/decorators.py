@@ -1,6 +1,6 @@
 import inspect
+from urllib.parse import quote
 from django.http import HttpResponseRedirect
-from django.utils.http import urlquote
 from django.utils.functional import wraps
 from django.db.models import Model
 from django.apps import apps
@@ -65,7 +65,7 @@ def permission_required(perm, *lookup_variables, **kwargs):
                 if granted or request.user.has_perm(perm):
                     return view_func(request, *args, **kwargs)
             if redirect_to_login:
-                path = urlquote(request.get_full_path())
+                path = quote(request.get_full_path())
                 tup = login_url, redirect_field_name, path
                 return HttpResponseRedirect("%s?%s=%s" % tup)
             return permission_denied(request)

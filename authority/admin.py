@@ -1,6 +1,6 @@
 from django import forms
 from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext, ungettext, ugettext_lazy as _
+from django.utils.translation import gettext, ngettext, gettext_lazy as _
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from django.forms.formsets import all_valid
@@ -9,11 +9,7 @@ from django.contrib.admin import actions, helpers
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-
-try:
-    from django.utils.encoding import force_text
-except ImportError:
-    from django.utils.encoding import force_unicode as force_text
+from django.utils.encoding import force_str
 
 from authority.models import Permission
 from authority.widgets import GenericForeignKeyRawIdWidget
@@ -100,7 +96,7 @@ def edit_permissions(modeladmin, request, queryset):
 
     context = {
         "errors": ActionErrorList(formsets),
-        "title": ugettext("Permissions for %s") % force_text(opts.verbose_name_plural),
+        "title": gettext("Permissions for %s") % force_str(opts.verbose_name_plural),
         "inline_admin_formsets": inline_admin_formsets,
         "app_label": app_label,
         "change": True,
@@ -115,7 +111,7 @@ def edit_permissions(modeladmin, request, queryset):
         "show_delete": False,
         "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
         "queryset": queryset,
-        "object_name": force_text(opts.verbose_name),
+        "object_name": force_str(opts.verbose_name),
     }
     template_name = getattr(
         modeladmin,
@@ -173,7 +169,7 @@ class PermissionAdmin(admin.ModelAdmin):
     def approve_permissions(self, request, queryset):
         for permission in queryset:
             permission.approve(request.user)
-        message = ungettext(
+        message = ngettext(
             "%(count)d permission successfully approved.",
             "%(count)d permissions successfully approved.",
             len(queryset),
