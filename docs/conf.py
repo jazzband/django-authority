@@ -11,7 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-from pkg_resources import get_distribution
+from importlib.metadata import version
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,7 +46,7 @@ copyright = u"2009-2020, Jannis Leidel"
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = get_distribution("django-authority").version
+release = version("django-authority")
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 
